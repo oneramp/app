@@ -123,19 +123,22 @@ const networks = [
   "ethereum",
   "polygon",
   "base",
-  "celo"
+  "celo",
+  "starknet"
 ];
 
 // Token options with networks
 const tokenOptions = [
-  { symbol: "USDC", name: "USD Coin", logo: "/logos/USDC.svg", network: "ethereum", networkLogo: "/logos/ethereum.png" },
+    { symbol: "USDC", name: "USD Coin", logo: "/logos/USDC.svg", network: "base", networkLogo: "/logos/base.png" },
+    { symbol: "USDC", name: "USD Coin", logo: "/logos/USDC.svg", network: "starknet", networkLogo: "/logos/starknet.png" },
+    { symbol: "USDC", name: "USD Coin", logo: "/logos/USDC.svg", network: "ethereum", networkLogo: "/logos/ethereum.png" },
   { symbol: "USDC", name: "USD Coin", logo: "/logos/USDC.svg", network: "polygon", networkLogo: "/logos/polygon.png" },
-  { symbol: "USDC", name: "USD Coin", logo: "/logos/USDC.svg", network: "base", networkLogo: "/logos/base.png" },
   { symbol: "USDC", name: "USD Coin", logo: "/logos/USDC.svg", network: "celo", networkLogo: "/logos/celo-logo.png" },
   { symbol: "USDT", name: "USD Tether", logo: "/logos/USDT.svg", network: "ethereum", networkLogo: "/logos/ethereum.png" },
   { symbol: "USDT", name: "USD Tether", logo: "/logos/USDT.svg", network: "polygon", networkLogo: "/logos/polygon.png" },
   // USDT on Base removed as Base only supports USDC
   { symbol: "USDT", name: "USD Tether", logo: "/logos/USDT.svg", network: "celo", networkLogo: "/logos/celo-logo.png" },
+  { symbol: "USDT", name: "USD Tether", logo: "/logos/USDT.svg", network: "starknet", networkLogo: "/logos/starknet.png" },
 ];
 
 export function BuyPanel() {

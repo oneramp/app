@@ -17,6 +17,7 @@ const networks = [
   { name: "Ethereum", logo: "/logos/ethereum.png" },
   { name: "Polygon", logo: "/logos/polygon.png" },
   { name: "Celo", logo: "/logos/celo-logo.png" },
+  { name: "Starknet", logo: "/logos/starknet.png" },
 ];
 
 const countryCurrencies = [
