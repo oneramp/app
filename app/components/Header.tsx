@@ -3,17 +3,49 @@ import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { WalletConnectionModal } from "./WalletConnectionModal";
+import { useAccount as useStarknetAccount } from '@starknet-react/core';
+import { createAppKit } from '@reown/appkit';
 
 export function Header() {
   const [connected, setConnected] = useState(false);
+  const [connectedAddress, setConnectedAddress] = useState<string | undefined>();
   const [showWalletModal, setShowWalletModal] = useState(false);
   const [buttonPosition, setButtonPosition] = useState<{ top: number; right: number } | undefined>();
   const buttonRef = useRef<HTMLButtonElement>(null);
+  
+  // Get Starknet account
+  const { address: starknetAddress } = useStarknetAccount();
+
+  // Listen for AppKit connection changes for EVM
+  useEffect(() => {
+    // Get the appKit instance that was created in WalletConnectionModal
+    const appKit = (window as any).appKit;
+    
+    if (!appKit) return;
+    
+    const unsubscribe = appKit.subscribeAccount((account: { address?: string }) => {
+      if (account?.address) {
+        setConnected(true);
+        setConnectedAddress(account.address);
+      }
+    });
+    
+    return unsubscribe;
+  }, []);
+
+  // Check if connected to Starknet
+  useEffect(() => {
+    if (starknetAddress) {
+      setConnected(true);
+      setConnectedAddress(starknetAddress);
+    }
+  }, [starknetAddress]);
 
   const handleConnectButtonClick = () => {
     if (connected) {
       // If already connected, toggle connected state
       setConnected(false);
+      setConnectedAddress(undefined);
       return;
     }
     
@@ -33,8 +65,13 @@ export function Header() {
   const handleWalletConnect = (walletId: string) => {
     console.log(`Connecting to ${walletId} wallet`);
     setShowWalletModal(false);
-    setConnected(true);
+    // Connection state is handled by the useEffect monitoring address changes
   };
+
+  // Format the displayed address
+  const displayAddress = connectedAddress 
+    ? `${connectedAddress.slice(0, 6)}...${connectedAddress.slice(-4)}`
+    : "Wallet Connected";
 
   return (
     <header className="w-full bg-black py-4">
@@ -59,7 +96,7 @@ export function Header() {
               : "bg-[#2563eb] hover:bg-[#1d4ed8] text-white"
           }`}
         >
-          {connected ? "Wallet Connected" : "Connect Wallet"}
+          {connected ? displayAddress : "Connect Wallet"}
         </Button>
       </div>
 

@@ -2,6 +2,16 @@
 import { useEffect, useRef } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import {
+  Connector,
+  useAccount as useStarknetAccount,
+  useConnect as useStarknetConnect,
+  useDisconnect as useStarknetDisconnect,
+} from '@starknet-react/core';
+import { StarknetkitConnector, useStarknetkitConnectModal } from 'starknetkit';
+import { createAppKit } from '@reown/appkit';
+import { WagmiAdapter } from '@reown/appkit-adapter-wagmi';
+import { mainnet } from '@reown/appkit/networks';
 
 interface WalletOption {
   id: string;
@@ -16,6 +26,39 @@ interface WalletConnectionModalProps {
   onConnect: (walletId: string) => void;
 }
 
+// Initialize AppKit for EVM connections
+const projectId = process.env.NEXT_PUBLIC_PROJECT_ID || 'YOUR_PROJECT_ID';
+
+// Set up WagmiAdapter
+const wagmiAdapter = new WagmiAdapter({
+  projectId,
+  networks: [mainnet]
+});
+
+// Configure AppKit metadata
+const metadata = {
+  name: "OneRamp",
+  description: "OneRamp Application",
+  url: "https://oneramp.io",
+  icons: ["https://oneramp.io/logo.png"]
+};
+
+// Create AppKit instance
+const appKit = createAppKit({
+  adapters: [wagmiAdapter],
+  networks: [mainnet],
+  metadata,
+  projectId,
+  features: {
+    analytics: true
+  }
+});
+
+// Make appKit globally available
+if (typeof window !== 'undefined') {
+  (window as any).appKit = appKit;
+}
+
 const walletOptions: WalletOption[] = [
   { id: "evm", name: "EVM", logo: "/logos/ethereum.png" },
   { id: "starknet", name: "Starknet", logo: "/logos/starknet.png" },
@@ -27,12 +70,58 @@ export function WalletConnectionModal({
   buttonPosition,
   onConnect 
 }: WalletConnectionModalProps) {
-  const modalRef = useRef<HTMLDivElement>(null);
+  const mobileModalRef = useRef<HTMLDivElement>(null);
+  const desktopModalRef = useRef<HTMLDivElement>(null);
+  
+  // Starknet wallet connection
+  const { disconnect: disconnectStarknet } = useStarknetDisconnect();
+  const { connect: connectStarknet, connectors: starknetConnectors } = useStarknetConnect();
+  const { starknetkitConnectModal } = useStarknetkitConnectModal({
+    connectors: starknetConnectors as StarknetkitConnector[],
+  });
+  const { address: starknetAddress } = useStarknetAccount();
+
+  async function connectStarknetWallet() {
+    const { connector } = await starknetkitConnectModal();
+    if (!connector) {
+      return;
+    }
+    await connectStarknet({ connector: connector as Connector });
+    onConnect("starknet");
+    onClose();
+  }
+
+  async function connectEVMWallet() {
+    try {
+      // Open AppKit modal for EVM wallet connection
+      appKit.open();
+      onConnect("evm");
+      onClose();
+    } catch (error) {
+      console.error("Error connecting to EVM wallet:", error);
+    }
+  }
+
+  const handleConnectWallet = (walletId: string) => {
+    if (walletId === "starknet") {
+      connectStarknetWallet();
+    } else if (walletId === "evm") {
+      connectEVMWallet();
+    }
+  };
 
   useEffect(() => {
     // Close modal when clicking outside
     function handleClickOutside(event: MouseEvent) {
-      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      
+      // Check if click is outside both mobile and desktop modals
+      const isOutsideDesktop = desktopModalRef.current && !desktopModalRef.current.contains(target);
+      const isOutsideMobile = mobileModalRef.current && !mobileModalRef.current.contains(target);
+      
+      // Only close if click is outside both modals (depending on which is visible)
+      if ((window.innerWidth >= 768 && isOutsideDesktop) || 
+          (window.innerWidth < 768 && isOutsideMobile)) {
         onClose();
       }
     }
@@ -56,12 +145,15 @@ export function WalletConnectionModal({
       >
         {/* Desktop dropdown */}
         <div 
-          ref={modalRef}
+          ref={desktopModalRef}
           className="hidden md:block absolute pointer-events-auto rounded-xl bg-[#1c1c1c] shadow-xl border border-[#333] w-[320px] overflow-hidden"
           style={buttonPosition ? {
-            top: `${buttonPosition.top + 50}px`,
+            top: `${buttonPosition.top + 10}px`, // Reduced offset for better positioning
             right: `${buttonPosition.right}px`
-          } : {}}
+          } : {
+            top: '70px',  // Default position if buttonPosition is not provided
+            right: '20px'
+          }}
         >
           <div className="p-4 border-b border-[#333]">
             <div className="flex justify-between items-center">
@@ -89,7 +181,7 @@ export function WalletConnectionModal({
                   <span className="text-white text-lg">{wallet.name}</span>
                 </div>
                 <Button
-                  onClick={() => onConnect(wallet.id)}
+                  onClick={() => handleConnectWallet(wallet.id)}
                   className="bg-[#831d1d] hover:bg-[#9e2121] text-white rounded-lg px-4 py-2"
                 >
                   Connect
@@ -108,7 +200,7 @@ export function WalletConnectionModal({
              style={{ opacity: isOpen ? 1 : 0 }}
         />
         <div 
-          ref={modalRef}
+          ref={mobileModalRef}
           className={`absolute bottom-0 left-0 right-0 bg-[#1c1c1c] rounded-t-xl transform transition-transform duration-300 ease-in-out max-h-[80vh] overflow-y-auto ${isOpen ? 'translate-y-0' : 'translate-y-full'}`}
         >
           <div className="p-4 border-b border-[#333] sticky top-0 bg-[#1c1c1c] z-10">
@@ -138,7 +230,7 @@ export function WalletConnectionModal({
                   <span className="text-white text-lg">{wallet.name}</span>
                 </div>
                 <Button
-                  onClick={() => onConnect(wallet.id)}
+                  onClick={() => handleConnectWallet(wallet.id)}
                   className="bg-[#831d1d] hover:bg-[#9e2121] text-white rounded-lg px-4 py-2"
                 >
                   Connect
