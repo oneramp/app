@@ -10,7 +10,7 @@ export function SwapBuyTabs() {
 
   return (
     <div className="flex flex-col items-center w-full">
-      <div className="flex gap-4 mb-8 mt-8">
+      <div className="max-w-[1000px] mx-auto flex gap-4 mb-8 mt-8">
         {tabs.map((tab) => (
           <button
             key={tab}

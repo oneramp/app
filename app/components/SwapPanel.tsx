@@ -1,11 +1,13 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { NetworkSelectModal } from "./modals/NetworkSelectModal";
 import { CountryCurrencyModal } from "./modals/CountryCurrencyModal";
 import { InstitutionModal } from "./modals/InstitutionModal";
 import { TransactionReviewModal } from "./modals/TransactionReviewModal";
+import { useAccount as useStarknetAccount } from '@starknet-react/core';
+import { WalletConnectionModal } from "./WalletConnectionModal";
 
 const currencies = [
   { symbol: "USDC", logo: "/logos/USDC.svg" },
@@ -13,11 +15,11 @@ const currencies = [
 ];
 
 const networks = [
-  { name: "Base", logo: "/logos/base.png" },
-  { name: "Ethereum", logo: "/logos/ethereum.png" },
-  { name: "Polygon", logo: "/logos/polygon.png" },
-  { name: "Celo", logo: "/logos/celo-logo.png" },
-  { name: "Starknet", logo: "/logos/starknet.png" },
+  { name: "Base", logo: "/logos/base.png", type: "evm" },
+  { name: "Ethereum", logo: "/logos/ethereum.png", type: "evm" },
+  { name: "Polygon", logo: "/logos/polygon.png", type: "evm" },
+  { name: "Celo", logo: "/logos/celo-logo.png", type: "evm" },
+  { name: "Starknet", logo: "/logos/starknet.png", type: "starknet" },
 ];
 
 const countryCurrencies = [
@@ -141,7 +143,136 @@ export function SwapPanel() {
   const [institution, setInstitution] = useState<string | null>(null);
   const [showInstitutionModal, setShowInstitutionModal] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
+  const [showWalletModal, setShowWalletModal] = useState(false);
   
+  // Wallet connection states
+  const [evmConnected, setEvmConnected] = useState(false);
+  const { address: starknetAddress } = useStarknetAccount();
+  const starknetConnected = !!starknetAddress;
+
+  // Check EVM wallet connection 
+  useEffect(() => {
+    const appKit = (window as any).appKit;
+    if (!appKit) return;
+    
+    const checkConnection = async () => {
+      const account = await appKit.getAccount();
+      setEvmConnected(!!account?.address);
+    };
+    
+    checkConnection();
+    
+    const unsubscribe = appKit.subscribeAccount((account: { address?: string }) => {
+      setEvmConnected(!!account?.address);
+    });
+    
+    return () => {
+      if (typeof unsubscribe === 'function') {
+        unsubscribe();
+      }
+    };
+  }, []);
+
+  // Check if user has the required wallet for the selected network
+  const hasRequiredWallet = () => {
+    if (selectedNetwork.type === "starknet") {
+      return starknetConnected;
+    } else {
+      return evmConnected;
+    }
+  };
+  
+  // Used to show wallet requirement in the network modal
+  const canSwitchNetwork = (network: typeof networks[0]) => {
+    if (network.type === "starknet") {
+      return starknetConnected;
+    } else {
+      return evmConnected;
+    }
+  };
+
+  // Updated to just set the selected network without switching
+  const handleNetworkSelect = (network: typeof networks[0]) => {
+    setSelectedNetwork(network);
+    setShowNetworkModal(false);
+  };
+
+  // Only attempt to switch networks if the user has the required wallet
+  const switchNetwork = async (network: typeof networks[0]) => {
+    if (network.type !== "evm" || !evmConnected) return;
+    
+    const appKit = (window as any).appKit;
+    try {
+      // Example network IDs (in a real app, these would be actual chain IDs)
+      const networkMapping: {[key: string]: string} = {
+        "Ethereum": "1",
+        "Base": "8453",
+        "Polygon": "137",
+        "Celo": "42220"
+      };
+      
+      const chainId = networkMapping[network.name] || "1";
+      await appKit.switchNetwork({ chainId });
+    } catch (error) {
+      console.error("Failed to switch network:", error);
+    }
+  };
+  
+  // Update the swap button state based on various conditions
+  const isSwapButtonDisabled = () => {
+    // Only disable if country currency and account details are not complete
+    // AND a wallet is already connected (otherwise we need to allow clicking to open wallet modal)
+    if (hasRequiredWallet()) {
+      return !selectedCountryCurrency || !institution || !accountNumber;
+    }
+    // Never disable the button if wallet connection is required
+    return false;
+  };
+
+  // Handler for swap button click
+  const handleSwapButtonClick = () => {
+    // If wallet is not connected or wrong wallet type is connected, open wallet modal
+    if (!hasRequiredWallet()) {
+      setShowWalletModal(true);
+      return;
+    }
+    
+    // If appropriate wallet is connected, attempt to switch networks if needed
+    if (selectedNetwork.type === "evm" && evmConnected) {
+      switchNetwork(selectedNetwork);
+    }
+    
+    // Only proceed to review if recipient info is provided
+    if (selectedCountryCurrency && institution && accountNumber) {
+      setShowReviewModal(true);
+    }
+  };
+
+  // Updated swap button text function
+  const getSwapButtonText = () => {
+    // If no wallet is connected or the wrong wallet is connected
+    if (!hasRequiredWallet()) {
+      if (!evmConnected && !starknetConnected) {
+        return "Connect Wallet";
+      }
+      
+      if (selectedNetwork.type === "evm") {
+        return "Connect EVM Wallet";
+      }
+      
+      if (selectedNetwork.type === "starknet") {
+        return "Connect Starknet Wallet";
+      }
+    }
+    
+    return "Swap";
+  };
+
+  // Handler for wallet connection
+  const handleWalletConnect = (walletId: string) => {
+    setShowWalletModal(false);
+  };
+
   // Get institutions based on selected country
   const getInstitutionsForCountry = () => {
     if (!selectedCountryCurrency) return [];
@@ -231,10 +362,8 @@ export function SwapPanel() {
           onClose={() => setShowNetworkModal(false)}
           networks={networks}
           selectedNetwork={selectedNetwork}
-          onSelect={(n) => {
-            setSelectedNetwork(n);
-            setShowNetworkModal(false);
-          }}
+          onSelect={handleNetworkSelect}
+          canSwitch={canSwitchNetwork}
         />
       </div>
       {/* Arrow in the middle */}
@@ -326,15 +455,31 @@ export function SwapPanel() {
         </div>
       )}
       
-      {/* Swap Button - Only show when a country is selected */}
+      {/* Updated Swap Button */}
       <div className="mx-4 mb-4">
+        {/* If recipient form is fully completed or wallet is not yet connected, show the button */}
         <Button 
-          className="w-full bg-[#232323] hover:bg-[#2a2a2a] text-white text-base py-4 rounded-2xl font-medium"
-          onClick={() => setShowReviewModal(true)}
-          disabled={!selectedCountryCurrency || !institution || !accountNumber}
+          className={`w-full text-white text-base py-6 rounded-2xl font-medium ${
+            hasRequiredWallet() 
+              ? (selectedCountryCurrency && institution && accountNumber)
+                ? "bg-[#2563eb] hover:bg-[#1d4ed8]" 
+                : "bg-[#232323] hover:bg-[#2a2a2a]"
+              : "bg-[#232323] hover:bg-[#2a2a2a]"
+          }`}
+          onClick={handleSwapButtonClick}
+          disabled={isSwapButtonDisabled()}
         >
-          Swap
+          {getSwapButtonText()}
         </Button>
+        
+        {/* Show wallet requirement message if needed */}
+        {!hasRequiredWallet() && (
+          <div className="text-center mt-2 text-xs text-amber-400 font-medium">
+            {selectedNetwork.type === "starknet" 
+              ? "Starknet wallet required for this network" 
+              : "EVM wallet required for this network"}
+          </div>
+        )}
       </div>
 
       {/* Transaction Review Modal */}
@@ -353,7 +498,15 @@ export function SwapPanel() {
         networkLogo={selectedNetwork.logo}
       />
 
-      {/* Add at the end inside Recipient Details, after the Description section */}
+      {/* Wallet Connection Modal */}
+      <WalletConnectionModal
+        isOpen={showWalletModal}
+        onClose={() => setShowWalletModal(false)}
+        buttonPosition={undefined}
+        onConnect={handleWalletConnect}
+      />
+
+      {/* Institution Modal */}
       {selectedCountryCurrency && (
         <InstitutionModal
           open={showInstitutionModal}
