@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import EVMProvider from "./providers/EVMProvider";
-import { StarknetProvider } from "./providers/StarknetProvider";
+import  StarknetProvider  from "./providers/StarknetProvider";
 import {headers} from "next/headers"
 
 const geistSans = Geist({

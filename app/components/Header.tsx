@@ -4,7 +4,6 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { WalletConnectionModal } from "./WalletConnectionModal";
 import { useAccount as useStarknetAccount } from '@starknet-react/core';
-import { createAppKit } from '@reown/appkit';
 
 export function Header() {
   const [connected, setConnected] = useState(false);
@@ -30,7 +29,11 @@ export function Header() {
       }
     });
     
-    return unsubscribe;
+    return () => {
+      if (typeof unsubscribe === 'function') {
+        unsubscribe();
+      }
+    };
   }, []);
 
   // Check if connected to Starknet
@@ -46,6 +49,18 @@ export function Header() {
       // If already connected, toggle connected state
       setConnected(false);
       setConnectedAddress(undefined);
+      
+      // Disconnect from wallets
+      try {
+        // Disconnect from EVM wallet if appKit is available
+        const appKit = (window as any).appKit;
+        if (appKit && typeof appKit.disconnect === 'function') {
+          appKit.disconnect();
+        }
+      } catch (error) {
+        console.error("Error disconnecting EVM wallet:", error);
+      }
+      
       return;
     }
     
