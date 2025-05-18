@@ -3,17 +3,24 @@ import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { WalletConnectionModal } from "./WalletConnectionModal";
-import { useAccount as useStarknetAccount } from '@starknet-react/core';
+import { WalletDetailsModal } from "./WalletDetailsModal";
+import { useAccount as useStarknetAccount, useDisconnect as useStarknetDisconnect } from '@starknet-react/core';
 
 export function Header() {
-  const [connected, setConnected] = useState(false);
-  const [connectedAddress, setConnectedAddress] = useState<string | undefined>();
+  // Track both wallet types separately
+  const [evmConnected, setEvmConnected] = useState(false);
+  const [evmAddress, setEvmAddress] = useState<string | undefined>();
+  const [starknetConnected, setStarknetConnected] = useState(false);
+  const [starknetWalletAddress, setStarknetWalletAddress] = useState<string | undefined>();
+  
   const [showWalletModal, setShowWalletModal] = useState(false);
+  const [showWalletDetails, setShowWalletDetails] = useState(false);
   const [buttonPosition, setButtonPosition] = useState<{ top: number; right: number } | undefined>();
   const buttonRef = useRef<HTMLButtonElement>(null);
   
   // Get Starknet account
   const { address: starknetAddress } = useStarknetAccount();
+  const { disconnect: disconnectStarknet } = useStarknetDisconnect();
 
   // Listen for AppKit connection changes for EVM
   useEffect(() => {
@@ -24,8 +31,11 @@ export function Header() {
     
     const unsubscribe = appKit.subscribeAccount((account: { address?: string }) => {
       if (account?.address) {
-        setConnected(true);
-        setConnectedAddress(account.address);
+        setEvmConnected(true);
+        setEvmAddress(account.address);
+      } else {
+        setEvmConnected(false);
+        setEvmAddress(undefined);
       }
     });
     
@@ -39,28 +49,31 @@ export function Header() {
   // Check if connected to Starknet
   useEffect(() => {
     if (starknetAddress) {
-      setConnected(true);
-      setConnectedAddress(starknetAddress);
+      setStarknetConnected(true);
+      setStarknetWalletAddress(starknetAddress);
+    } else {
+      setStarknetConnected(false);
+      setStarknetWalletAddress(undefined);
     }
   }, [starknetAddress]);
 
+  // Determine what to show on the connect wallet button
+  const anyWalletConnected = evmConnected || starknetConnected;
+  const primaryAddress = evmConnected ? evmAddress : starknetWalletAddress;
+  
   const handleConnectButtonClick = () => {
-    if (connected) {
-      // If already connected, toggle connected state
-      setConnected(false);
-      setConnectedAddress(undefined);
-      
-      // Disconnect from wallets
-      try {
-        // Disconnect from EVM wallet if appKit is available
-        const appKit = (window as any).appKit;
-        if (appKit && typeof appKit.disconnect === 'function') {
-          appKit.disconnect();
-        }
-      } catch (error) {
-        console.error("Error disconnecting EVM wallet:", error);
+    if (anyWalletConnected) {
+      // Update button position for dropdown positioning
+      if (buttonRef.current) {
+        const rect = buttonRef.current.getBoundingClientRect();
+        setButtonPosition({
+          top: rect.bottom,
+          right: window.innerWidth - rect.right
+        });
       }
       
+      // If already connected, show wallet details
+      setShowWalletDetails(true);
       return;
     }
     
@@ -83,10 +96,40 @@ export function Header() {
     // Connection state is handled by the useEffect monitoring address changes
   };
 
+  const handleConnectFromDetails = (walletType: string) => {
+    // Close wallet details modal first
+    setShowWalletDetails(false);
+    
+    // Show the connect wallet modal to connect the new wallet
+    setShowWalletModal(true);
+  };
+
+  const handleDisconnect = (walletType: "evm" | "starknet" | "all") => {
+    if (walletType === "starknet" || walletType === "all") {
+      disconnectStarknet();
+    }
+    
+    if (walletType === "evm" || walletType === "all") {
+      // Disconnect from EVM wallet if appKit is available
+      try {
+        const appKit = (window as any).appKit;
+        if (appKit && typeof appKit.disconnect === 'function') {
+          appKit.disconnect();
+        }
+      } catch (error) {
+        console.error("Error disconnecting EVM wallet:", error);
+      }
+    }
+    
+    if (walletType === "all") {
+      setShowWalletDetails(false);
+    }
+  };
+
   // Format the displayed address
-  const displayAddress = connectedAddress 
-    ? `${connectedAddress.slice(0, 6)}...${connectedAddress.slice(-4)}`
-    : "Wallet Connected";
+  const displayAddress = primaryAddress 
+    ? `${primaryAddress.slice(0, 6)}...${primaryAddress.slice(-4)}`
+    : "Connect Wallet";
 
   return (
     <header className="w-full bg-black py-4">
@@ -106,12 +149,12 @@ export function Header() {
           ref={buttonRef}
           onClick={handleConnectButtonClick}
           className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-            connected 
+            anyWalletConnected 
               ? "bg-[#232323] hover:bg-[#2c2c2c] text-purple-400" 
               : "bg-[#2563eb] hover:bg-[#1d4ed8] text-white"
           }`}
         >
-          {connected ? displayAddress : "Connect Wallet"}
+          {anyWalletConnected ? displayAddress : "Connect Wallet"}
         </Button>
       </div>
 
@@ -122,6 +165,21 @@ export function Header() {
         buttonPosition={buttonPosition}
         onConnect={handleWalletConnect}
       />
+
+      {/* Wallet Details Modal */}
+      {anyWalletConnected && (
+        <WalletDetailsModal
+          isOpen={showWalletDetails}
+          onClose={() => setShowWalletDetails(false)}
+          buttonPosition={buttonPosition}
+          evmAddress={evmAddress}
+          evmConnected={evmConnected}
+          starknetAddress={starknetWalletAddress}
+          starknetConnected={starknetConnected}
+          onDisconnect={handleDisconnect}
+          onConnectWallet={handleConnectFromDetails}
+        />
+      )}
     </header>
   );
 } 

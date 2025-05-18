@@ -182,7 +182,7 @@ export function WalletConnectionModal({
                 </div>
                 <Button
                   onClick={() => handleConnectWallet(wallet.id)}
-                  className="bg-[#831d1d] hover:bg-[#9e2121] text-white rounded-lg px-4 py-2"
+                  className="bg-white hover:bg-gray-100 text-black rounded-lg px-4 py-2"
                 >
                   Connect
                 </Button>
@@ -231,7 +231,7 @@ export function WalletConnectionModal({
                 </div>
                 <Button
                   onClick={() => handleConnectWallet(wallet.id)}
-                  className="bg-[#831d1d] hover:bg-[#9e2121] text-white rounded-lg px-4 py-2"
+                  className="bg-white hover:bg-gray-100 text-black rounded-lg px-4 py-2"
                 >
                   Connect
                 </Button>
