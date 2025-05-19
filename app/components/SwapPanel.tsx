@@ -43,7 +43,6 @@ export function SwapPanel() {
     logo: string;
   }>(null);
   const [accountNumber] = useState<string | null>(null);
-  const [institution] = useState<string | null>(null);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [showWalletModal, setShowWalletModal] = useState(false);
 
@@ -335,7 +334,6 @@ export function SwapPanel() {
             : "Not specified"
         }
         account={accountNumber || "Not specified"}
-        institution={institution || "Not specified"}
         network={currentNetwork?.name || networks[0].name}
         networkLogo={currentNetwork?.logo || networks[0].logo}
       />

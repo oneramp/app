@@ -14,8 +14,8 @@ export default function Home() {
             <div className="flex md:items-center md:justify-center py-4">
               <SwapBuyTabs />
             </div>
-            <div className="hidden md:flex">
-              <div className="w-full flex flex-row justify-between py-6 px-4">
+            <div className="hidden md:flex relative">
+              <div className="w-full flex flex-row justify-between py-6 px-4 ">
                 <div className="flex flex-1" />
                 <div className="flex flex-1">
                   <Header />

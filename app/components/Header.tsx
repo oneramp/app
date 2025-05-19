@@ -249,7 +249,7 @@ export function Header({ logoOnly }: { logoOnly?: boolean }) {
         {/* Logo */}
         {logoOnly ? (
           <div className="flex items-center">
-            <div className="block md:hidden">
+            <div className="block md:hidden ">
               <Image
                 src="/logos/oneramp.png"
                 alt="OneRamp"
@@ -259,11 +259,11 @@ export function Header({ logoOnly }: { logoOnly?: boolean }) {
                 className="rounded-full"
               />
             </div>
-            <div className="hidden md:block">
+            <div className="hidden md:block ">
               <Image
                 src="/logos/oneramp-long.png"
                 alt="OneRamp"
-                width={120}
+                width={100}
                 height={32}
                 priority
               />

@@ -10,11 +10,16 @@ import { useAppKitAccount } from "@reown/appkit/react";
 import { useState } from "react";
 import SubmitButton from "./buttons/submit-button";
 import { InstitutionModal } from "./modals/InstitutionModal";
+import { useQuoteStore } from "@/store/quote-store";
+import { quoteResponse } from "@/dummy";
+import { Quote } from "@/types";
 
 const SelectInstitution = () => {
   const [accountNumber, setAccountNumber] = useState("");
   const [showInstitutionModal, setShowInstitutionModal] = useState(false);
   const { institution, country, updateSelection } = useUserSelectionStore();
+
+  const { setQuote } = useQuoteStore();
 
   const { currentNetwork } = useNetworkStore();
 
@@ -65,6 +70,15 @@ const SelectInstitution = () => {
     );
 
     return isSupportedNetwork;
+  };
+
+  const handleSwap = () => {
+    if (!accountNumber) {
+      return;
+    }
+
+    // Let's say this is the response from the API
+    setQuote(quoteResponse.quote as Quote);
   };
 
   return (
@@ -129,7 +143,7 @@ const SelectInstitution = () => {
                 : "bg-[#232323] hover:bg-[#2a2a2a]"
               : "bg-[#232323] hover:bg-[#2a2a2a]"
           )}
-          onClick={() => {}}
+          onClick={handleSwap}
           // disabled={isSwapButtonDisabled()}
         >
           {getSwapButtonText()}
