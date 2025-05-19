@@ -1,19 +1,70 @@
 "use client";
 
-import { Input } from "@/components/ui/input";
-import { useUserSelectionStore } from "@/store/user-selection";
-import React, { useState } from "react";
-import { InstitutionModal } from "./modals/InstitutionModal";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { SUPPORTED_NETWORKS_WITH_RPC_URLS } from "@/data/networks";
+import { cn } from "@/lib/utils";
+import { useNetworkStore } from "@/store/network";
+import { useUserSelectionStore } from "@/store/user-selection";
+import { useAppKitAccount } from "@reown/appkit/react";
+import { useState } from "react";
+import SubmitButton from "./buttons/submit-button";
+import { InstitutionModal } from "./modals/InstitutionModal";
 
 const SelectInstitution = () => {
   const [accountNumber, setAccountNumber] = useState("");
   const [showInstitutionModal, setShowInstitutionModal] = useState(false);
   const { institution, country, updateSelection } = useUserSelectionStore();
 
+  const { currentNetwork } = useNetworkStore();
+
+  const { isConnected } = useAppKitAccount();
+
   const handleInstitutionSelect = (inst: string) => {
     updateSelection({ institution: inst });
     setShowInstitutionModal(false);
+  };
+
+  // Updated swap button text function
+  const getSwapButtonText = () => {
+    if (!isConnected) {
+      return "Connect Wallet";
+    }
+
+    if (currentNetwork?.type === "evm" && !isConnected) {
+      return "Connect EVM Wallet";
+    }
+
+    if (currentNetwork?.type === "starknet" && !isConnected) {
+      return "Connect Starknet Wallet";
+    }
+
+    if (!accountNumber) {
+      return "Enter account number";
+    }
+
+    if (!institution) {
+      return "Select institution";
+    }
+
+    return "Swap";
+  };
+
+  // Check if user has the required wallet for the selected network
+  const hasRequiredWallet = () => {
+    // if (currentNetwork?.type === "starknet") {
+    //   return starknetConnected;
+    // } else {
+    //   return evmConnected;
+    // }
+
+    // TODO: Check for starknet too...
+
+    const isSupportedNetwork = SUPPORTED_NETWORKS_WITH_RPC_URLS.find(
+      (network) => network.name === currentNetwork?.name
+    );
+
+    return isSupportedNetwork;
   };
 
   return (
@@ -66,6 +117,33 @@ const SelectInstitution = () => {
           country={country.name}
         />
       )}
+
+      <div className="mx-4 mb-4">
+        {/* If recipient form is fully completed or wallet is not yet connected, show the button */}
+        <SubmitButton
+          className={cn(
+            "w-full text-white text-base font-bold h-14 mt-2 rounded-2xl",
+            hasRequiredWallet()
+              ? country && institution && accountNumber
+                ? "bg-[#2563eb] hover:bg-[#1d4ed8]"
+                : "bg-[#232323] hover:bg-[#2a2a2a]"
+              : "bg-[#232323] hover:bg-[#2a2a2a]"
+          )}
+          onClick={() => {}}
+          // disabled={isSwapButtonDisabled()}
+        >
+          {getSwapButtonText()}
+        </SubmitButton>
+
+        {/* Show wallet requirement message if needed */}
+        {!hasRequiredWallet() && (
+          <div className="text-center mt-2 text-xs text-amber-400 font-medium">
+            {currentNetwork?.type === "starknet"
+              ? "Starknet wallet required for this network"
+              : "EVM wallet required for this network"}
+          </div>
+        )}
+      </div>
     </>
   );
 };

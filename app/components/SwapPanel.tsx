@@ -77,15 +77,6 @@ export function SwapPanel() {
     };
   }, []);
 
-  // Check if user has the required wallet for the selected network
-  const hasRequiredWallet = () => {
-    if (currentNetwork?.type === "starknet") {
-      return starknetConnected;
-    } else {
-      return evmConnected;
-    }
-  };
-
   // Used to show wallet requirement in the network modal
   const canSwitchNetwork = (network: Network) => {
     if (network.type === "starknet") {
@@ -106,49 +97,6 @@ export function SwapPanel() {
         console.error("Failed to switch network:", error);
       }
     }
-  };
-
-  // Update the swap button state based on various conditions
-  const isSwapButtonDisabled = () => {
-    if (hasRequiredWallet()) {
-      return !selectedCountryCurrency || !institution || !accountNumber;
-    }
-    return false;
-  };
-
-  // Handler for swap button click
-  const handleSwapButtonClick = () => {
-    if (!hasRequiredWallet()) {
-      setShowWalletModal(true);
-      return;
-    }
-
-    if (currentNetwork?.type === "evm" && evmConnected) {
-      switchNetwork(currentNetwork);
-    }
-
-    if (selectedCountryCurrency && institution && accountNumber) {
-      setShowReviewModal(true);
-    }
-  };
-
-  // Updated swap button text function
-  const getSwapButtonText = () => {
-    if (!hasRequiredWallet()) {
-      if (!evmConnected && !starknetConnected) {
-        return "Connect Wallet";
-      }
-
-      if (currentNetwork?.type === "evm") {
-        return "Connect EVM Wallet";
-      }
-
-      if (currentNetwork?.type === "starknet") {
-        return "Connect Starknet Wallet";
-      }
-    }
-
-    return "Swap";
   };
 
   // Handler for wallet connection
@@ -365,31 +313,6 @@ export function SwapPanel() {
       {country && <SelectInstitution />}
 
       {/* Updated Swap Button */}
-      <div className="mx-4 mb-4">
-        {/* If recipient form is fully completed or wallet is not yet connected, show the button */}
-        <Button
-          className={`w-full text-white text-base font-bold h-14 mt-2 rounded-2xl ${
-            hasRequiredWallet()
-              ? selectedCountryCurrency && institution && accountNumber
-                ? "bg-[#2563eb] hover:bg-[#1d4ed8]"
-                : "bg-[#232323] hover:bg-[#2a2a2a]"
-              : "bg-[#232323] hover:bg-[#2a2a2a]"
-          }`}
-          onClick={handleSwapButtonClick}
-          disabled={isSwapButtonDisabled()}
-        >
-          {getSwapButtonText()}
-        </Button>
-
-        {/* Show wallet requirement message if needed */}
-        {!hasRequiredWallet() && (
-          <div className="text-center mt-2 text-xs text-amber-400 font-medium">
-            {currentNetwork?.type === "starknet"
-              ? "Starknet wallet required for this network"
-              : "EVM wallet required for this network"}
-          </div>
-        )}
-      </div>
 
       {/* Transaction Review Modal */}
       <TransactionReviewModal
