@@ -292,7 +292,6 @@ export function Header({ logoOnly }: { logoOnly?: boolean }) {
               {/* Network Selector */}
               {anyWalletConnected && (
                 <NetworkSelector
-                  networks={supportedNetworks}
                   selectedNetwork={currentNetwork || supportedNetworks[0]}
                   onNetworkChange={async (network) => {
                     try {
