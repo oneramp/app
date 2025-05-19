@@ -4,19 +4,18 @@ import {
   mainnet as starknetMainnet,
   sepolia as starknetTestnet,
 } from "@starknet-react/chains";
-import {
-  StarknetConfig,
-  publicProvider,
-  voyager,
-
-} from "@starknet-react/core";
+import { StarknetConfig, publicProvider, voyager } from "@starknet-react/core";
 
 import { InjectedConnector } from "starknetkit/injected";
 import { WebWalletConnector } from "starknetkit/webwallet";
 import { Connector } from "@starknet-react/core";
 import { ArgentMobileConnector } from "starknetkit/argentMobile";
 
-export default function StarknetProvider({ children }: { children: React.ReactNode }) {
+export default function StarknetProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const connectors = useMemo(() => {
     if (typeof window === "undefined") return []; // SSR-safe
 
@@ -26,14 +25,14 @@ export default function StarknetProvider({ children }: { children: React.ReactNo
       ArgentMobileConnector.init({
         options: {
           dappName: "oneramp",
-          projectId: "5175fef48e45eaa35b29009c6a3b8f77",
+          projectId: "081dd40aa3102bed7ea37f7664dda931",
           // chainId: "mainnet" as "mainnet" | "testnet", // mainnet
           url: window.location.hostname, // ✅ safe now
           icons: ["https://your-icon-url.com"],
-          rpcUrl: "https://starknet-mainnet.infura.io/v3/aa740f142a80486b94876ef7a659e9aa",
+          rpcUrl:
+            "https://starknet-mainnet.infura.io/v3/aa740f142a80486b94876ef7a659e9aa",
         },
-        inAppBrowserOptions: {
-        },
+        inAppBrowserOptions: {},
       }) as Connector,
       new InjectedConnector({ options: { id: "keplr", name: "Keplr" } }),
       new InjectedConnector({ options: { id: "okxwallet", name: "OKX" } }),
