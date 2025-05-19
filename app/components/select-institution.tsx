@@ -77,6 +77,9 @@ const SelectInstitution = () => {
       return;
     }
 
+    // Set the account number in the user selection store
+    updateSelection({ accountNumber });
+
     // Let's say this is the response from the API
     setQuote(quoteResponse.quote as Quote);
   };

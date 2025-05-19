@@ -333,7 +333,6 @@ export function SwapPanel() {
             ? accountNumber.substring(0, 4) + "..."
             : "Not specified"
         }
-        account={accountNumber || "Not specified"}
         network={currentNetwork?.name || networks[0].name}
         networkLogo={currentNetwork?.logo || networks[0].logo}
       />

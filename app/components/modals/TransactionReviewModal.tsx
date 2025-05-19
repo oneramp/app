@@ -15,8 +15,6 @@ interface TransactionReviewModalProps {
   currencyLogo: string;
   totalValue: string;
   recipient: string;
-  account: string;
-  // institution: string;
   network: string;
   networkLogo: string;
 }
@@ -26,11 +24,10 @@ export function TransactionReviewModal({
   onConfirm,
   currency,
   currencyLogo,
-  account,
 }: TransactionReviewModalProps) {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const { quote, resetQuote } = useQuoteStore();
-  const { institution } = useUserSelectionStore();
+  const { institution, accountNumber } = useUserSelectionStore();
   const { currentNetwork } = useNetworkStore();
 
   // if (!open) return null;
@@ -97,7 +94,9 @@ export function TransactionReviewModal({
               <div className="flex justify-between items-center">
                 <span className="text-neutral-400 text-lg">Account</span>
                 <div className="text-white text-lg font-medium flex items-center">
-                  <span>{account}</span>
+                  <span>
+                    {accountNumber?.slice(0, 4)}...{accountNumber?.slice(-4)}
+                  </span>
                   <span className="text-neutral-400 mx-2">•</span>
                   <span>{institution}</span>
                 </div>

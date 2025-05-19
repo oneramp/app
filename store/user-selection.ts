@@ -16,6 +16,7 @@ const initialState: UserSelectionGlobalState = {
   address: undefined,
   paymentMethod: "momo",
   institution: undefined,
+  accountNumber: undefined,
 };
 
 export const useUserSelectionStore = create<UserSelectionStore>()(

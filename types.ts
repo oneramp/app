@@ -59,6 +59,7 @@ export interface UserSelectionGlobalState {
   address?: string;
   paymentMethod: "bank" | "momo";
   institution?: string;
+  accountNumber?: string;
 }
 
 // {
