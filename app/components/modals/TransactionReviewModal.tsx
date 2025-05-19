@@ -5,23 +5,14 @@ import { useUserSelectionStore } from "@/store/user-selection";
 import { useNetworkStore } from "@/store/network";
 import { useState } from "react";
 import { CancelModal } from "./cancel-modal";
+import { toast } from "sonner";
 
 interface TransactionReviewModalProps {
-  open: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
-  amount: string;
   currency: string;
   currencyLogo: string;
-  totalValue: string;
-  recipient: string;
-  network: string;
-  networkLogo: string;
 }
 
 export function TransactionReviewModal({
-  onClose,
-  onConfirm,
   currency,
   currencyLogo,
 }: TransactionReviewModalProps) {
@@ -41,12 +32,19 @@ export function TransactionReviewModal({
   const handleCancelConfirm = () => {
     setShowCancelModal(false);
     resetQuote();
-    onClose();
+  };
+
+  const handleSubmit = () => {
+    // TODO: Submit the transfer-in or transfer-out request
+    // onConfirm();
+    resetQuote();
+
+    toast.success("Now will submit the transfer in request");
   };
 
   return (
     <>
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
         <div className="bg-[#181818] rounded-2xl max-w-md w-[90%] shadow-xl p-6">
           <div className="flex flex-col gap-4">
             <h1 className="text-2xl font-bold text-white">
@@ -160,7 +158,7 @@ export function TransactionReviewModal({
 
               <Button
                 className="flex-1 bg-[#7B68EE] hover:bg-[#6A5ACD] text-white p-6 text-lg rounded-xl"
-                onClick={onConfirm}
+                onClick={handleSubmit}
               >
                 Confirm payment
               </Button>

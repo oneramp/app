@@ -42,8 +42,6 @@ export function SwapPanel() {
     name: string;
     logo: string;
   }>(null);
-  const [accountNumber] = useState<string | null>(null);
-  const [showReviewModal, setShowReviewModal] = useState(false);
   const [showWalletModal, setShowWalletModal] = useState(false);
 
   // Wallet connection states
@@ -102,15 +100,6 @@ export function SwapPanel() {
   const handleWalletConnect = (walletId: string) => {
     console.log(`Connected with wallet: ${walletId}`);
     setShowWalletModal(false);
-  };
-
-  // Handler for swap confirmation
-  const handleConfirmSwap = () => {
-    // In a real app, this would submit the transaction
-    setShowReviewModal(false);
-    alert(
-      "Transaction confirmed! This would normally process the transaction."
-    );
   };
 
   // Update switchNetwork function to use chainId
@@ -315,26 +304,8 @@ export function SwapPanel() {
 
       {/* Transaction Review Modal */}
       <TransactionReviewModal
-        open={showReviewModal}
-        onClose={() => setShowReviewModal(false)}
-        onConfirm={handleConfirmSwap}
-        amount="1"
         currency={selectedCurrency.symbol}
         currencyLogo={selectedCurrency.logo}
-        totalValue={
-          selectedCountryCurrency
-            ? `${
-                selectedCountryCurrency.name.includes("Kenya") ? "Ksh" : "NGN"
-              } 127.42`
-            : "0"
-        }
-        recipient={
-          accountNumber
-            ? accountNumber.substring(0, 4) + "..."
-            : "Not specified"
-        }
-        network={currentNetwork?.name || networks[0].name}
-        networkLogo={currentNetwork?.logo || networks[0].logo}
       />
 
       {/* Wallet Connection Modal */}

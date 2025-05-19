@@ -4,6 +4,7 @@ import "./globals.css";
 import EVMProvider from "./providers/EVMProvider";
 import StarknetProvider from "./providers/StarknetProvider";
 import { headers } from "next/headers";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,6 +41,7 @@ export default async function RootLayout({
         <StarknetProvider>
           <EVMProvider cookies={cookies}>{children}</EVMProvider>
         </StarknetProvider>
+        <Toaster />
       </body>
     </html>
   );

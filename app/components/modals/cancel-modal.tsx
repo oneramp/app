@@ -14,7 +14,7 @@ export function CancelModal({
   onConfirm,
 }: CancelTransactionModalProps) {
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80">
       <div className="bg-[#181818] rounded-2xl max-w-md w-[90%] shadow-xl p-6">
         <div className="flex flex-col gap-4">
           <h2 className="text-xl font-bold text-white">{title}</h2>
