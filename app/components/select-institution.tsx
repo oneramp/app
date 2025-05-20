@@ -19,7 +19,7 @@ const SelectInstitution = () => {
   const [showInstitutionModal, setShowInstitutionModal] = useState(false);
   const { institution, country, updateSelection } = useUserSelectionStore();
   const [buttonDisabled, setButtonDisabled] = useState(true);
-  const [buttonText, setButtonText] = useState("Connect Wallet");
+  const [buttonText, setButtonText] = useState("Select Institution");
 
   const { setQuote } = useQuoteStore();
   const { currentNetwork } = useNetworkStore();
@@ -35,20 +35,19 @@ const SelectInstitution = () => {
       !country;
     setButtonDisabled(isDisabled);
 
-    // Update button text based on conditions
-    if (!isConnected) {
-      setButtonText("Connect Wallet");
-    } else if (!hasRequiredWallet()) {
-      setButtonText(
-        currentNetwork?.type === "starknet"
-          ? "Connect Starknet Wallet"
-          : "Connect EVM Wallet"
-      );
-    } else if (!accountNumber) {
+    if (!accountNumber) {
       setButtonText("Enter account number");
-    } else if (!institution) {
+    }
+
+    if (!institution && accountNumber) {
       setButtonText("Select institution");
-    } else {
+    }
+
+    if (institution && accountNumber && !isConnected) {
+      setButtonText("Connect Wallet");
+    }
+
+    if (accountNumber && institution && isConnected) {
       setButtonText("Swap");
     }
   }, [isConnected, accountNumber, institution, country, currentNetwork]);
@@ -84,6 +83,11 @@ const SelectInstitution = () => {
     // Let's say this is the response from the API
     setQuote(quoteResponse.quote as Quote);
   };
+
+  console.log("====================================");
+  console.log("Button Text", buttonText);
+  console.log("Is Connected", isConnected);
+  console.log("====================================");
 
   return (
     <>
@@ -138,7 +142,7 @@ const SelectInstitution = () => {
       )}
 
       <div className="mx-4 mb-4">
-        {!isConnected && buttonText === "Connect Wallet" ? (
+        {buttonText === "Connect Wallet" ? (
           <ConnectButton large />
         ) : (
           <SubmitButton
