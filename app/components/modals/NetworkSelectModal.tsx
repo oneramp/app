@@ -7,7 +7,6 @@ export function NetworkSelectModal({
   open,
   onClose,
   networks,
-  selectedNetwork,
   onSelect,
   canSwitch,
 }: {

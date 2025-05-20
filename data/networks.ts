@@ -1,23 +1,24 @@
 import { Network } from "@/types";
 import { mainnet, polygon, celo, base } from "@reown/appkit/networks";
+import { mainnet as starknet } from "@starknet-react/chains";
 
 // Add Starknet network configuration
-const starknet = {
-  id: "SN_MAIN",
-  name: "Starknet",
-  network: "starknet",
-  rpcUrls: {
-    default: { http: ["https://starknet-mainnet.public.blastapi.io"] },
-    public: { http: ["https://starknet-mainnet.public.blastapi.io"] },
-  },
-  blockExplorers: {
-    default: {
-      name: "Starkscan",
-      url: "https://starkscan.co",
-    },
-  },
-  testnet: false,
-} as const;
+// const starknet = {
+//   id: "SN_MAIN",
+//   name: "Starknet",
+//   network: "starknet",
+//   rpcUrls: {
+//     default: { http: ["https://starknet-mainnet.public.blastapi.io"] },
+//     public: { http: ["https://starknet-mainnet.public.blastapi.io"] },
+//   },
+//   blockExplorers: {
+//     default: {
+//       name: "Starkscan",
+//       url: "https://voyager.online",
+//     },
+//   },
+//   testnet: false,
+// } as const;
 
 export const SUPPORTED_NETWORKS = [mainnet, polygon, celo, base, starknet];
 export const SUPPORTED_NETWORK_NAMES = SUPPORTED_NETWORKS.map(
@@ -63,10 +64,10 @@ export const SUPPORTED_NETWORKS_WITH_RPC_URLS: Network[] = [
   },
   {
     ...starknet,
-    id: starknet.id,
-    chainId: 0x534e5f4d41494e, // Starknet mainnet chain ID in hex
+    id: starknet.id.toString(),
+    chainId: Number(starknet.id),
     chainNamespace: "eip155" as const,
-    caipNetworkId: `eip155:${0x534e5f4d41494e}` as const,
+    caipNetworkId: `eip155:${starknet.id}` as const,
     logo: "/logos/starknet.png",
     type: "starknet",
     nativeCurrency: {
