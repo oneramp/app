@@ -9,8 +9,9 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { StarknetkitConnector, useStarknetkitConnectModal } from "starknetkit";
 import { WalletTypeModal } from "./modals/WalletTypeModal";
+import { cn } from "@/lib/utils";
 
-export const ConnectButton = () => {
+export const ConnectButton = ({ large }: { large?: boolean }) => {
   const { address, isConnected } = useWalletGetInfo();
   const { open } = useAppKit();
   const [showWalletTypeModal, setShowWalletTypeModal] = useState(false);
@@ -71,7 +72,10 @@ export const ConnectButton = () => {
     <div>
       {isConnected ? (
         <Button
-          className="rounded-full px-6 py-1.5 text-sm font-semibold transition-colors bg-neutral-800 hover:bg-neutral-700 text-white"
+          className={cn(
+            "rounded-full px-6 py-1.5 text-sm font-semibold transition-colors bg-neutral-800 hover:bg-neutral-700 text-white",
+            large && "w-full h-14 rounded-lg text-lg mt-2"
+          )}
           onClick={() => handleDisconnectCurrentWallet()}
         >
           {address?.slice(0, 6)}...{address?.slice(-4)}
@@ -80,7 +84,10 @@ export const ConnectButton = () => {
         <Button
           // onClick={() => setShowWalletTypeModal(true)}
           onClick={() => handleWalletTypeSelect()}
-          className="rounded-full px-6 py-1.5 text-sm font-semibold transition-colors bg-[#2563eb] hover:bg-[#1d4ed8] text-white"
+          className={cn(
+            "rounded-full px-6 py-1.5 text-sm font-semibold transition-colors bg-[#2563eb] hover:bg-[#1d4ed8] text-white",
+            large && "w-full h-14 rounded-lg text-lg mt-2"
+          )}
         >
           Connect Wallet
         </Button>

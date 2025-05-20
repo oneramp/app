@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import SubmitButton from "./buttons/submit-button";
 import { InstitutionModal } from "./modals/InstitutionModal";
 import useWalletGetInfo from "@/hooks/useWalletGetInfo";
+import { ConnectButton } from "@/components/connect-button";
 
 const SelectInstitution = () => {
   const [accountNumber, setAccountNumber] = useState("");
@@ -137,17 +138,21 @@ const SelectInstitution = () => {
       )}
 
       <div className="mx-4 mb-4">
-        <SubmitButton
-          onClick={handleSwap}
-          disabled={buttonDisabled}
-          className={`w-full text-white text-base font-bold h-14 mt-2 rounded-2xl ${
-            buttonDisabled
-              ? "bg-[#232323] hover:bg-[#2a2a2a] cursor-not-allowed"
-              : "bg-[#2563eb] hover:bg-[#1d4ed8]"
-          }`}
-        >
-          {buttonText}
-        </SubmitButton>
+        {!isConnected && buttonText === "Connect Wallet" ? (
+          <ConnectButton large />
+        ) : (
+          <SubmitButton
+            onClick={handleSwap}
+            disabled={buttonDisabled}
+            className={`w-full text-white text-base font-bold h-14 mt-2 rounded-2xl ${
+              buttonDisabled
+                ? "bg-[#232323] hover:bg-[#2a2a2a] cursor-not-allowed"
+                : "bg-[#2563eb] hover:bg-[#1d4ed8]"
+            }`}
+          >
+            {buttonText}
+          </SubmitButton>
+        )}
 
         {/* Show wallet requirement message if needed */}
         {!hasRequiredWallet() && isConnected && (
