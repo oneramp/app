@@ -5,6 +5,7 @@ import { NetworkSelectModal } from "./modals/NetworkSelectModal";
 import { Network } from "@/types";
 import { SUPPORTED_NETWORKS_WITH_RPC_URLS } from "@/data/networks";
 import { cn } from "@/lib/utils";
+// import { useNetworkStore } from "@/store/network";
 
 interface NetworkSelectorProps {
   selectedNetwork: Network;

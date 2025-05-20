@@ -12,8 +12,7 @@ const queryClient = new QueryClient();
 // Set up metadata
 const metadata = {
   name: "OneRamp",
-  description:
-    "Swap and sell stablecoins using mobile money and bank transfers",
+  description: "OneRamp Application",
   url: "https://pay.oneramp.io", // origin must match your domain & subdomain
   icons: ["https://avatars.githubusercontent.com/u/179229932"],
 };
@@ -24,6 +23,7 @@ export const modal = createAppKit({
   projectId,
   networks,
   metadata,
+  themeMode: "light",
   features: {
     analytics: true, // Optional - defaults to your Cloud configuration
   },
@@ -32,7 +32,7 @@ export const modal = createAppKit({
   },
 });
 
-function EVMProvider({
+function ContextProvider({
   children,
   cookies,
 }: {
@@ -54,4 +54,4 @@ function EVMProvider({
   );
 }
 
-export default EVMProvider;
+export default ContextProvider;

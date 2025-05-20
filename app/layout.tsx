@@ -38,9 +38,9 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black`}
       >
-        <StarknetProvider>
-          <EVMProvider cookies={cookies}>{children}</EVMProvider>
-        </StarknetProvider>
+        <EVMProvider cookies={cookies}>
+          <StarknetProvider>{children}</StarknetProvider>
+        </EVMProvider>
         <Toaster />
       </body>
     </html>

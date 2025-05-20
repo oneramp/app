@@ -1,11 +1,11 @@
 import { BackgroundBeamsWithCollision } from "@/components/ui/background-beams-with-collision";
-import { SwapBuyTabs } from "./components/SwapBuyTabs";
 import { Header } from "./components/Header";
+import { SwapBuyTabs } from "./components/SwapBuyTabs";
 
 export default function Home() {
   return (
     <BackgroundBeamsWithCollision>
-      <div className="min-h-screen w-full">
+      <div className="min-h-screen w-full ">
         <div className="h-full min-h-screen">
           <div className="grid grid-cols-1 md:grid-cols-3 h-full min-h-screen">
             <div className="hidden md:flex p-4">
@@ -20,6 +20,8 @@ export default function Home() {
                 <div className="flex flex-1">
                   <Header />
                 </div>
+
+                {/* <ActionButtonList /> */}
               </div>
             </div>
           </div>

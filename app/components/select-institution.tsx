@@ -3,77 +3,77 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SUPPORTED_NETWORKS_WITH_RPC_URLS } from "@/data/networks";
-import { cn } from "@/lib/utils";
+import { quoteResponse } from "@/dummy";
 import { useNetworkStore } from "@/store/network";
+import { useQuoteStore } from "@/store/quote-store";
 import { useUserSelectionStore } from "@/store/user-selection";
-import { useAppKitAccount } from "@reown/appkit/react";
-import { useState } from "react";
+import { Quote } from "@/types";
+import { useEffect, useState } from "react";
 import SubmitButton from "./buttons/submit-button";
 import { InstitutionModal } from "./modals/InstitutionModal";
-import { useQuoteStore } from "@/store/quote-store";
-import { quoteResponse } from "@/dummy";
-import { Quote } from "@/types";
+import useWalletGetInfo from "@/hooks/useWalletGetInfo";
 
 const SelectInstitution = () => {
   const [accountNumber, setAccountNumber] = useState("");
   const [showInstitutionModal, setShowInstitutionModal] = useState(false);
   const { institution, country, updateSelection } = useUserSelectionStore();
+  const [buttonDisabled, setButtonDisabled] = useState(true);
+  const [buttonText, setButtonText] = useState("Connect Wallet");
 
   const { setQuote } = useQuoteStore();
-
   const { currentNetwork } = useNetworkStore();
+  const { isConnected } = useWalletGetInfo();
 
-  const { isConnected } = useAppKitAccount();
+  // Update button disabled state and text whenever dependencies change
+  useEffect(() => {
+    const isDisabled =
+      !isConnected ||
+      !hasRequiredWallet() ||
+      !accountNumber ||
+      !institution ||
+      !country;
+    setButtonDisabled(isDisabled);
+
+    // Update button text based on conditions
+    if (!isConnected) {
+      setButtonText("Connect Wallet");
+    } else if (!hasRequiredWallet()) {
+      setButtonText(
+        currentNetwork?.type === "starknet"
+          ? "Connect Starknet Wallet"
+          : "Connect EVM Wallet"
+      );
+    } else if (!accountNumber) {
+      setButtonText("Enter account number");
+    } else if (!institution) {
+      setButtonText("Select institution");
+    } else {
+      setButtonText("Swap");
+    }
+  }, [isConnected, accountNumber, institution, country, currentNetwork]);
 
   const handleInstitutionSelect = (inst: string) => {
     updateSelection({ institution: inst });
     setShowInstitutionModal(false);
   };
 
-  // Updated swap button text function
-  const getSwapButtonText = () => {
-    if (!isConnected) {
-      return "Connect Wallet";
-    }
-
-    if (currentNetwork?.type === "evm" && !isConnected) {
-      return "Connect EVM Wallet";
-    }
-
-    if (currentNetwork?.type === "starknet" && !isConnected) {
-      return "Connect Starknet Wallet";
-    }
-
-    if (!accountNumber) {
-      return "Enter account number";
-    }
-
-    if (!institution) {
-      return "Select institution";
-    }
-
-    return "Swap";
-  };
-
   // Check if user has the required wallet for the selected network
   const hasRequiredWallet = () => {
-    // if (currentNetwork?.type === "starknet") {
-    //   return starknetConnected;
-    // } else {
-    //   return evmConnected;
-    // }
-
-    // TODO: Check for starknet too...
+    if (!currentNetwork) return false;
 
     const isSupportedNetwork = SUPPORTED_NETWORKS_WITH_RPC_URLS.find(
-      (network) => network.name === currentNetwork?.name
+      (network) => network.name === currentNetwork.name
     );
 
-    return isSupportedNetwork;
+    return !!isSupportedNetwork && isConnected;
   };
 
   const handleSwap = () => {
-    if (!accountNumber) {
+    if (buttonDisabled) return;
+
+    // Check if the wallet is connected
+    if (!isConnected) {
+      setButtonText("Connect Wallet");
       return;
     }
 
@@ -91,14 +91,14 @@ const SelectInstitution = () => {
           <span className="text-white text-lg font-medium">Recipient</span>
         </div>
 
-        <div className="flex gap-3 items-center h-14   ">
+        <div className="flex gap-3 items-center h-14">
           {/* Institution Selector */}
           <Button
             variant="default"
             onClick={() => setShowInstitutionModal(true)}
-            className="bg-transparent  border w-1/3 h-full border-[#444] text-neutral-400 rounded-full p-3 cursor-pointer flex items-center justify-center"
+            className="bg-transparent border w-1/3 h-full border-[#444] text-neutral-400 rounded-full p-3 cursor-pointer flex items-center justify-center"
           >
-            <span className=" line-clamp-1">
+            <span className="line-clamp-1">
               {institution || "Select institution"}
             </span>
             <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
@@ -124,6 +124,7 @@ const SelectInstitution = () => {
           </div>
         </div>
       </div>
+
       {country && (
         <InstitutionModal
           open={showInstitutionModal}
@@ -136,24 +137,20 @@ const SelectInstitution = () => {
       )}
 
       <div className="mx-4 mb-4">
-        {/* If recipient form is fully completed or wallet is not yet connected, show the button */}
         <SubmitButton
-          className={cn(
-            "w-full text-white text-base font-bold h-14 mt-2 rounded-2xl",
-            hasRequiredWallet()
-              ? country && institution && accountNumber
-                ? "bg-[#2563eb] hover:bg-[#1d4ed8]"
-                : "bg-[#232323] hover:bg-[#2a2a2a]"
-              : "bg-[#232323] hover:bg-[#2a2a2a]"
-          )}
           onClick={handleSwap}
-          // disabled={isSwapButtonDisabled()}
+          disabled={buttonDisabled}
+          className={`w-full text-white text-base font-bold h-14 mt-2 rounded-2xl ${
+            buttonDisabled
+              ? "bg-[#232323] hover:bg-[#2a2a2a] cursor-not-allowed"
+              : "bg-[#2563eb] hover:bg-[#1d4ed8]"
+          }`}
         >
-          {getSwapButtonText()}
+          {buttonText}
         </SubmitButton>
 
         {/* Show wallet requirement message if needed */}
-        {!hasRequiredWallet() && (
+        {!hasRequiredWallet() && isConnected && (
           <div className="text-center mt-2 text-xs text-amber-400 font-medium">
             {currentNetwork?.type === "starknet"
               ? "Starknet wallet required for this network"

@@ -2,28 +2,30 @@
 import { Button } from "@/components/ui/button";
 import { assets } from "@/data/currencies";
 import { SUPPORTED_NETWORKS_WITH_RPC_URLS } from "@/data/networks";
+import useWalletGetInfo from "@/hooks/useWalletGetInfo";
 import { useNetworkStore } from "@/store/network";
 import { useUserSelectionStore } from "@/store/user-selection";
 import { Asset, Network } from "@/types";
 import { useAccount as useStarknetAccount } from "@starknet-react/core";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import SubmitButton from "./buttons/submit-button";
 import { TransactionReviewModal } from "./modals/TransactionReviewModal";
 import { NetworkSelector } from "./NetworkSelector";
 import SelectCountry from "./select-country";
 import SelectInstitution from "./select-institution";
-import { WalletConnectionModal } from "./WalletConnectionModal";
+// import { WalletConnectionModal } from "./WalletConnectionModal";
 
-interface AppKitAccount {
-  address?: string;
-}
+// interface AppKitAccount {
+//   address?: string;
+// }
 
-interface AppKit {
-  subscribeAccount: (callback: (account: AppKitAccount) => void) => () => void;
-  disconnect?: () => void;
-  getAccount: () => Promise<AppKitAccount>;
-  switchChain: (params: { chainId: string }) => Promise<void>;
-}
+// interface AppKit {
+//   subscribeAccount: (callback: (account: AppKitAccount) => void) => () => void;
+//   disconnect?: () => void;
+//   getAccount: () => Promise<AppKitAccount>;
+//   switchChain: (params: { chainId: string }) => Promise<void>;
+// }
 
 declare global {
   interface Window {
@@ -42,37 +44,17 @@ export function SwapPanel() {
     name: string;
     logo: string;
   }>(null);
-  const [showWalletModal, setShowWalletModal] = useState(false);
 
   // Wallet connection states
-  const [evmConnected, setEvmConnected] = useState(false);
+  // const [evmConnected] = useState(false);
+  const { isConnected: evmConnected } = useWalletGetInfo();
+
   const { address: starknetAddress } = useStarknetAccount();
   const starknetConnected = !!starknetAddress;
 
   const { country } = useUserSelectionStore();
 
   // Check EVM wallet connection
-  useEffect(() => {
-    const appKit = window.appKit;
-    if (!appKit) return;
-
-    const checkConnection = async () => {
-      const account = await (appKit as AppKit).getAccount();
-      setEvmConnected(!!account?.address);
-    };
-
-    checkConnection();
-
-    const unsubscribe = appKit.subscribeAccount((account: AppKitAccount) => {
-      setEvmConnected(!!account?.address);
-    });
-
-    return () => {
-      if (typeof unsubscribe === "function") {
-        unsubscribe();
-      }
-    };
-  }, []);
 
   // Used to show wallet requirement in the network modal
   const canSwitchNetwork = (network: Network) => {
@@ -86,37 +68,24 @@ export function SwapPanel() {
   // Update handleNetworkSelect to use global state
   const handleNetworkSelect = async (network: Network) => {
     // If appropriate wallet is connected, attempt to switch networks
-    if (network.type === "evm" && evmConnected) {
-      try {
-        await switchNetwork(network);
-        setCurrentNetwork(network);
-      } catch (error) {
-        console.error("Failed to switch network:", error);
-      }
-    }
-  };
-
-  // Handler for wallet connection
-  const handleWalletConnect = (walletId: string) => {
-    console.log(`Connected with wallet: ${walletId}`);
-    setShowWalletModal(false);
+    setCurrentNetwork(network);
   };
 
   // Update switchNetwork function to use chainId
-  const switchNetwork = async (network: Network) => {
-    if (network.type !== "evm" || !evmConnected) return;
+  // const switchNetwork = async (network: Network) => {
+  //   if (network.type !== "evm" || !evmConnected) return;
 
-    const appKit = window.appKit;
-    if (!appKit) return;
+  //   const appKit = window.appKit;
+  //   if (!appKit) return;
 
-    try {
-      await (appKit as AppKit).switchChain({
-        chainId: network.chainId.toString(),
-      });
-    } catch (error) {
-      console.error("Failed to switch network:", error);
-    }
-  };
+  //   try {
+  //     await (appKit as AppKit).switchChain({
+  //       chainId: network.chainId.toString(),
+  //     });
+  //   } catch (error) {
+  //     console.error("Failed to switch network:", error);
+  //   }
+  // };
 
   return (
     <div className="w-full max-w-md mx-auto min-h-[450px] bg-[#181818]  rounded-3xl p-0 flex flex-col gap-0 md:shadow-lg md:border border-[#232323] relative">
@@ -298,7 +267,13 @@ export function SwapPanel() {
         </div>
       )}
 
-      {country && <SelectInstitution />}
+      {country ? (
+        <SelectInstitution />
+      ) : (
+        <div className="px-4 mt-4">
+          <SubmitButton disabled>SWAP</SubmitButton>
+        </div>
+      )}
 
       {/* Updated Swap Button */}
 
@@ -309,12 +284,12 @@ export function SwapPanel() {
       />
 
       {/* Wallet Connection Modal */}
-      <WalletConnectionModal
+      {/* <WalletConnectionModal
         isOpen={showWalletModal}
         onClose={() => setShowWalletModal(false)}
         buttonPosition={undefined}
         onConnect={handleWalletConnect}
-      />
+      /> */}
 
       {/* Institution Modal */}
     </div>

@@ -17,7 +17,10 @@ const SubmitButton = ({
     <Button
       className={cn(
         "w-full text-white text-base font-bold h-14 mt-2 rounded-2xl",
-        className
+        className,
+        !disabled
+          ? "bg-[#2563eb] hover:bg-[#1d4ed8]"
+          : "bg-[#232323] hover:bg-[#2a2a2a]"
       )}
       onClick={onClick}
       disabled={disabled}
