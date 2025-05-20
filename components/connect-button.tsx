@@ -2,14 +2,13 @@
 
 import { Button } from "@/app/components/ui/button";
 import useWalletGetInfo from "@/hooks/useWalletGetInfo";
-import { useAppKit } from "@reown/appkit/react";
-import { useState } from "react";
-import { WalletTypeModal } from "./modals/WalletTypeModal";
-import { StarknetkitConnector } from "starknetkit";
-import { useStarknetkitConnectModal } from "starknetkit";
-import { Connector, useConnect, useDisconnect } from "@starknet-react/core";
 import { useNetworkStore } from "@/store/network";
+import { useAppKit } from "@reown/appkit/react";
+import { Connector, useConnect, useDisconnect } from "@starknet-react/core";
+import { useState } from "react";
 import { toast } from "sonner";
+import { StarknetkitConnector, useStarknetkitConnectModal } from "starknetkit";
+import { WalletTypeModal } from "./modals/WalletTypeModal";
 
 export const ConnectButton = () => {
   const { address, isConnected } = useWalletGetInfo();
