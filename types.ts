@@ -5,6 +5,20 @@ export enum ChainTypes {
   EVM = "evm",
   Starknet = "starknet",
 }
+
+export enum OrderStep {
+  Initial = "Initial",
+  GotQuote = "GotQuote",
+  GotTransfer = "GotTransfer",
+  ProcessingPayment = "ProcessingPayment",
+  WaitingForPayment = "WaitingForPayment",
+  PaymentReceived = "PaymentReceived",
+  PaymentFailed = "PaymentFailed",
+  PaymentRefunded = "PaymentRefunded",
+  PaymentCompleted = "PaymentCompleted",
+  PaymentExpired = "PaymentExpired",
+}
+
 export interface Network extends Omit<Chain, "id"> {
   name: string;
   logo: string;
@@ -64,6 +78,7 @@ export interface UserSelectionGlobalState {
   paymentMethod: "bank" | "momo";
   institution?: string;
   accountNumber?: string;
+  orderStep: OrderStep;
 }
 
 // {

@@ -6,6 +6,9 @@ import { useNetworkStore } from "@/store/network";
 import { useState } from "react";
 import { CancelModal } from "./cancel-modal";
 import { toast } from "sonner";
+import { OrderStep } from "@/types";
+import OrderProcessingModal from "./OrderProcessingModal";
+import OrderSuccessful from "../cards/order-successful";
 
 interface TransactionReviewModalProps {
   currency: string;
@@ -18,7 +21,8 @@ export function TransactionReviewModal({
 }: TransactionReviewModalProps) {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const { quote, resetQuote } = useQuoteStore();
-  const { institution, accountNumber } = useUserSelectionStore();
+  const { institution, accountNumber, updateSelection, orderStep } =
+    useUserSelectionStore();
   const { currentNetwork } = useNetworkStore();
 
   // if (!open) return null;
@@ -37,14 +41,22 @@ export function TransactionReviewModal({
   const handleSubmit = () => {
     // TODO: Submit the transfer-in or transfer-out request
     // onConfirm();
-    resetQuote();
-
+    // resetQuote();
+    updateSelection({ orderStep: OrderStep.GotTransfer });
     toast.success("Now will submit the transfer in request");
   };
 
+  if (orderStep === OrderStep.GotTransfer) {
+    return <OrderProcessingModal />;
+  }
+
+  if (orderStep === OrderStep.PaymentCompleted) {
+    return <OrderSuccessful />;
+  }
+
   return (
     <>
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black">
         <div className="bg-[#181818] rounded-2xl max-w-md w-[90%] shadow-xl p-6">
           <div className="flex flex-col gap-4">
             <h1 className="text-2xl font-bold text-white">
