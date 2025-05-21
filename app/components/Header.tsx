@@ -46,27 +46,6 @@ export function Header({ logoOnly }: { logoOnly?: boolean }) {
 
   const { disconnect } = useDisconnect();
 
-  // Network switching state using AppKit hooks
-  // const chainId = useChainId();
-
-  // Update current network when chainId changes
-  // useEffect(() => {
-  // const network = supportedNetworks.find(
-  //   (n) => Number(n.chainId) === chainId
-  // );
-  // if (
-  //   network &&
-  //   Number(network.chainId) !== Number(currentNetwork?.chainId)
-  // ) {
-  //   console.log("Chain ID changed, updating network:", {
-  //     newChainId: chainId,
-  //     newNetwork: network,
-  //     currentNetworkChainId: currentNetwork?.chainId,
-  //   });
-  //   setCurrentNetwork(network);
-  // }
-  // }, [chainId, currentNetwork?.chainId, setCurrentNetwork, supportedNetworks]);
-
   // Get current token address
   const currentTokenAddress = currentNetwork?.tokenAddress;
 
@@ -89,7 +68,6 @@ export function Header({ logoOnly }: { logoOnly?: boolean }) {
 
   // Get Starknet account
   const { address: starknetAddress } = useStarknetAccount();
-  // const { disconnect: disconnectStarknet } = useStarknetDisconnect();
 
   // Listen for AppKit connection changes for EVM
   useEffect(() => {
@@ -155,38 +133,6 @@ export function Header({ logoOnly }: { logoOnly?: boolean }) {
   // Determine what to show on the connect wallet button
   const anyWalletConnected = evmConnected || starknetConnected;
   // const primaryAddress = evmConnected ? evmAddress : starknetWalletAddress;
-
-  // const handleConnectButtonClick = () => {
-  //   if (anyWalletConnected) {
-  //     // Update button position for dropdown positioning
-  //     if (buttonRef.current) {
-  //       const rect = buttonRef.current.getBoundingClientRect();
-  //       setButtonPosition({
-  //         top: rect.bottom,
-  //         right: window.innerWidth - rect.right,
-  //       });
-  //     }
-  //     // If already connected, show wallet details
-  //     setShowWalletDetails(true);
-  //     return;
-  //   }
-  //   // Update button position for dropdown positioning
-  //   if (buttonRef.current) {
-  //     const rect = buttonRef.current.getBoundingClientRect();
-  //     setButtonPosition({
-  //       top: rect.bottom,
-  //       right: window.innerWidth - rect.right,
-  //     });
-  //   }
-  //   // Show wallet modal
-  //   setShowWalletModal(true);
-  // };
-
-  // const handleWalletConnect = (walletId: string) => {
-  //   console.log(`Connecting to ${walletId} wallet`);
-  //   setShowWalletModal(false);
-  //   // Connection state is handled by the useEffect monitoring address changes
-  // };
 
   const handleConnectFromDetails = () => {
     // Close wallet details modal first
