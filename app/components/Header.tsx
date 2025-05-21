@@ -106,11 +106,9 @@ export function Header({ logoOnly }: { logoOnly?: boolean }) {
     const appKit = window.appKit;
     if (!appKit) return;
     const handleChainChanged = async (chainIdHex: string) => {
-      console.log("Chain changed event received:", chainIdHex);
       const chainId = parseInt(chainIdHex, 16);
       const network = supportedNetworks.find((n) => n.chainId === chainId);
       if (network) {
-        console.log("Updating network state to match wallet:", network.name);
         setCurrentNetwork(network);
       }
     };
@@ -139,7 +137,6 @@ export function Header({ logoOnly }: { logoOnly?: boolean }) {
     setShowWalletDetails(false);
 
     // Show the connect wallet modal to connect the new wallet
-    // setShowWalletModal(true);
   };
 
   const handleDisconnect = async () => {
