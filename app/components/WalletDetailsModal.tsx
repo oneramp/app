@@ -78,9 +78,9 @@ export function WalletDetailsModal({
   async function connectEVMWallet() {
     try {
       // Open AppKit modal for EVM wallet connection
-      const appKit = (window as any).appKit;
+      const appKit = window.appKit;
       if (appKit) {
-        appKit.open();
+        // appKit.
       }
       onClose();
     } catch (error) {

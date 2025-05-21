@@ -1,3 +1,4 @@
+import { assets } from "@/data/currencies";
 import { OrderStep, UserSelectionGlobalState } from "@/types";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
@@ -25,6 +26,7 @@ export const useUserSelectionStore = create<UserSelectionStore>()(
   persist(
     (set) => ({
       ...initialState,
+      asset: assets[0],
       updateSelection: (updates) =>
         set((state) => ({
           ...state,

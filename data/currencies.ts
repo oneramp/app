@@ -1,5 +1,6 @@
-import { Asset } from "@/types";
+import { Asset, ChainTypes } from "@/types";
 import { base, celo, mainnet, polygon } from "@reown/appkit/networks";
+import { mainnet as starknet } from "@starknet-react/chains";
 
 export const currencies = [
   { symbol: "USDC", logo: "/logos/USDC.svg" },
@@ -15,7 +16,7 @@ export const assets: Asset[] = [
       Ethereum: {
         ...mainnet,
         logo: "/logos/ethereum.png",
-        type: "evm",
+        type: ChainTypes.EVM,
         chainId: 1,
         chainNamespace: "eip155",
         caipNetworkId: "eip155:1",
@@ -24,7 +25,7 @@ export const assets: Asset[] = [
       Polygon: {
         ...polygon,
         logo: "/logos/polygon.png",
-        type: "evm",
+        type: ChainTypes.EVM,
         chainId: 137,
         chainNamespace: "eip155",
         caipNetworkId: "eip155:137",
@@ -33,7 +34,7 @@ export const assets: Asset[] = [
       Celo: {
         ...celo,
         logo: "/logos/celo-logo.png",
-        type: "evm",
+        type: ChainTypes.EVM,
         chainId: 42220,
         chainNamespace: "eip155",
         caipNetworkId: "eip155:42220",
@@ -42,11 +43,22 @@ export const assets: Asset[] = [
       Base: {
         ...base,
         logo: "/logos/base.png",
-        type: "evm",
+        type: ChainTypes.EVM,
         chainId: 8453,
         chainNamespace: "eip155",
         caipNetworkId: "eip155:8453",
         tokenAddress: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      },
+      Starknet: {
+        ...starknet,
+        id: starknet.id.toString(),
+        chainId: Number(starknet.id),
+        chainNamespace: "eip155" as const,
+        caipNetworkId: `eip155:${starknet.id}` as const,
+        logo: "/logos/starknet.png",
+        type: ChainTypes.Starknet,
+        tokenAddress:
+          "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8",
       },
       //   .... more networks
     },
@@ -60,7 +72,7 @@ export const assets: Asset[] = [
       Ethereum: {
         ...mainnet,
         logo: "/logos/ethereum.png",
-        type: "evm",
+        type: ChainTypes.EVM,
         chainId: 1,
         chainNamespace: "eip155",
         caipNetworkId: "eip155:1",
@@ -69,7 +81,7 @@ export const assets: Asset[] = [
       Polygon: {
         ...polygon,
         logo: "/logos/polygon.png",
-        type: "evm",
+        type: ChainTypes.EVM,
         chainId: 137,
         chainNamespace: "eip155",
         caipNetworkId: "eip155:137",
@@ -78,7 +90,7 @@ export const assets: Asset[] = [
       Celo: {
         ...celo,
         logo: "/logos/celo-logo.png",
-        type: "evm",
+        type: ChainTypes.EVM,
         chainId: 42220,
         chainNamespace: "eip155",
         caipNetworkId: "eip155:42220",
@@ -87,11 +99,22 @@ export const assets: Asset[] = [
       Base: {
         ...base,
         logo: "/logos/base.png",
-        type: "evm",
+        type: ChainTypes.EVM,
         chainId: 8453,
         chainNamespace: "eip155",
         caipNetworkId: "eip155:8453",
         tokenAddress: "0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2",
+      },
+      Starknet: {
+        ...starknet,
+        id: starknet.id.toString(),
+        chainId: Number(starknet.id),
+        chainNamespace: "eip155" as const,
+        caipNetworkId: `eip155:${starknet.id}` as const,
+        logo: "/logos/starknet.png",
+        type: ChainTypes.Starknet,
+        tokenAddress:
+          "0x068f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8",
       },
       //   .... more networks
     },

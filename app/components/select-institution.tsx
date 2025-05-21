@@ -1,17 +1,21 @@
 "use client";
 
+import { createQuote } from "@/actions/quote";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SUPPORTED_NETWORKS_WITH_RPC_URLS } from "@/data/networks";
-import { quoteResponse } from "@/dummy";
+import useWalletGetInfo from "@/hooks/useWalletGetInfo";
+import { useAmountStore } from "@/store/amount-store";
 import { useNetworkStore } from "@/store/network";
 import { useQuoteStore } from "@/store/quote-store";
 import { useUserSelectionStore } from "@/store/user-selection";
-import { Quote } from "@/types";
+import { OrderStep, Quote, QuoteRequest } from "@/types";
+import { useMutation } from "@tanstack/react-query";
+import { Loader } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import SubmitButton from "./buttons/submit-button";
 import { InstitutionModal } from "./modals/InstitutionModal";
-import useWalletGetInfo from "@/hooks/useWalletGetInfo";
 
 const SelectInstitution = () => {
   const [accountNumber, setAccountNumber] = useState("");
@@ -19,10 +23,46 @@ const SelectInstitution = () => {
   const { institution, country, updateSelection } = useUserSelectionStore();
   const [buttonDisabled, setButtonDisabled] = useState(true);
   const [buttonText, setButtonText] = useState("Connect Wallet");
+  const {
+    isValid: isAmountValid,
+    amount: userAmountEntered,
+    fiatAmount,
+  } = useAmountStore();
+  const userPayLoad = useUserSelectionStore();
 
   const { setQuote } = useQuoteStore();
   const { currentNetwork } = useNetworkStore();
-  const { isConnected } = useWalletGetInfo();
+  const { isConnected, address } = useWalletGetInfo();
+
+  const createMutation = useMutation({
+    mutationFn: async (payload: QuoteRequest) => await createQuote(payload),
+    onSuccess: (data) => {
+      updateSelection({ accountNumber, orderStep: OrderStep.GotQuote });
+
+      // TEMPORARILY UPDATE QUOTE STATE
+      if (!userPayLoad) return;
+
+      const { country, asset } = userPayLoad;
+
+      if (!country || !asset || !currentNetwork) return;
+
+      const quoteTempData = {
+        ...data.quote,
+        address: address as string,
+        country: country?.countryCode,
+        cryptoAmount: userAmountEntered,
+        fiatAmount: fiatAmount,
+        cryptoType: asset?.symbol,
+        fiatType: country?.currency,
+        network: currentNetwork?.name.toLowerCase(),
+      };
+
+      setQuote(quoteTempData as Quote);
+    },
+    onError: () => {
+      toast.error("Failed to create quote");
+    },
+  });
 
   // Update button disabled state and text whenever dependencies change
   useEffect(() => {
@@ -31,7 +71,8 @@ const SelectInstitution = () => {
       !hasRequiredWallet() ||
       !accountNumber ||
       !institution ||
-      !country;
+      !country ||
+      !isAmountValid;
     setButtonDisabled(isDisabled);
 
     // Update button text based on conditions
@@ -47,14 +88,42 @@ const SelectInstitution = () => {
       setButtonText("Enter account number");
     } else if (!institution) {
       setButtonText("Select institution");
+    } else if (!isAmountValid) {
+      setButtonText("Invalid amount");
     } else {
       setButtonText("Swap");
     }
-  }, [isConnected, accountNumber, institution, country, currentNetwork]);
+  }, [
+    isConnected,
+    accountNumber,
+    institution,
+    country,
+    currentNetwork,
+    isAmountValid,
+  ]);
 
   const handleInstitutionSelect = (inst: string) => {
     updateSelection({ institution: inst });
     setShowInstitutionModal(false);
+  };
+
+  const handleSubmit = () => {
+    if (!userPayLoad) return;
+
+    const { country, asset } = userPayLoad;
+
+    if (!country || !asset || !currentNetwork) return;
+
+    const payload: QuoteRequest = {
+      address: address as string,
+      country: country?.countryCode,
+      cryptoAmount: userAmountEntered,
+      cryptoType: asset?.symbol,
+      fiatType: country?.currency,
+      network: currentNetwork?.name.toLowerCase(),
+    };
+
+    createMutation.mutate(payload);
   };
 
   // Check if user has the required wallet for the selected network
@@ -66,22 +135,6 @@ const SelectInstitution = () => {
     );
 
     return !!isSupportedNetwork && isConnected;
-  };
-
-  const handleSwap = () => {
-    if (buttonDisabled) return;
-
-    // Check if the wallet is connected
-    if (!isConnected) {
-      setButtonText("Connect Wallet");
-      return;
-    }
-
-    // Set the account number in the user selection store
-    updateSelection({ accountNumber });
-
-    // Let's say this is the response from the API
-    setQuote(quoteResponse.quote as Quote);
   };
 
   return (
@@ -138,15 +191,19 @@ const SelectInstitution = () => {
 
       <div className="mx-4 mb-4">
         <SubmitButton
-          onClick={handleSwap}
-          disabled={buttonDisabled}
+          onClick={handleSubmit}
+          disabled={buttonDisabled || createMutation.isPending}
           className={`w-full text-white text-base font-bold h-14 mt-2 rounded-2xl ${
             buttonDisabled
               ? "bg-[#232323] hover:bg-[#2a2a2a] cursor-not-allowed"
               : "bg-[#2563eb] hover:bg-[#1d4ed8]"
           }`}
         >
-          {buttonText}
+          {createMutation.isPending ? (
+            <Loader className="size-4 animate-spin" />
+          ) : (
+            buttonText
+          )}
         </SubmitButton>
 
         {/* Show wallet requirement message if needed */}

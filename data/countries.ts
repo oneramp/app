@@ -107,8 +107,10 @@ export const countries: Country[] = [
     currency: "NGN",
     countryCode: "NG",
     phoneCode: "+234",
-    exchangeRate: 1_615.0,
+    exchangeRate: 1_588.69,
     institutions: countryInstitutions.Nigeria,
+    fiatMinMax: { min: 1_588.69, max: 480_000 },
+    cryptoMinMax: { min: 1, max: 2_500 },
   },
   {
     name: "Kenya",
@@ -116,8 +118,10 @@ export const countries: Country[] = [
     currency: "KES",
     countryCode: "KE",
     phoneCode: "+254",
-    exchangeRate: 133.15,
+    exchangeRate: 127.82,
     institutions: countryInstitutions.Kenya,
+    fiatMinMax: { min: 127.82, max: 25_000 },
+    cryptoMinMax: { min: 1, max: 2_500 },
   },
   {
     name: "Ghana",
@@ -127,6 +131,8 @@ export const countries: Country[] = [
     phoneCode: "+233",
     exchangeRate: 16.35,
     institutions: countryInstitutions.Ghana,
+    fiatMinMax: { min: 16.35, max: 35_000 },
+    cryptoMinMax: { min: 5, max: 2_500 },
   },
   {
     name: "Zambia",
@@ -136,6 +142,8 @@ export const countries: Country[] = [
     phoneCode: "+260",
     exchangeRate: 127.38,
     institutions: countryInstitutions.Zambia,
+    fiatMinMax: { min: 127.38, max: 100_000 },
+    cryptoMinMax: { min: 5, max: 2_500 },
   },
   {
     name: "Uganda",
@@ -145,6 +153,8 @@ export const countries: Country[] = [
     phoneCode: "+256",
     exchangeRate: 3_804.44,
     institutions: countryInstitutions.Uganda,
+    fiatMinMax: { min: 3_804.44, max: 4_556_194 },
+    cryptoMinMax: { min: 5, max: 2_500 },
   },
   {
     name: "Tanzania",
@@ -154,5 +164,12 @@ export const countries: Country[] = [
     phoneCode: "+255",
     exchangeRate: 2_941.0,
     institutions: countryInstitutions.Tanzania,
+    fiatMinMax: { min: 2_941.0, max: 13_475_000 },
+    cryptoMinMax: { min: 5, max: 2_500 },
   },
 ];
+
+export const GLOBAL_MIN_MAX = {
+  min: 1,
+  max: 2_500,
+};

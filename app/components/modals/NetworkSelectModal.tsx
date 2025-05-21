@@ -63,20 +63,10 @@ export function NetworkSelectModal({
                     height={32}
                     className="rounded-full"
                   />
-                  {/* <div className="size-8 bg-neutral-500 rounded-full"></div> */}
                   <span className="text-white font-medium text-base">
                     {n.name}
                   </span>
                 </div>
-                {/* {!hasRequiredWallet && (
-                  <span
-                    className={`text-[9px] ${
-                      isSelected ? "text-amber-400" : "text-gray-400"
-                    }`}
-                  >
-                    Requires {n.type === "starknet" ? "Starknet" : "EVM"} wallet
-                  </span>
-                )} */}
                 {hasRequiredWallet && isSelected && (
                   <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
                     <path

@@ -21,7 +21,7 @@ function NetworkSwitcher() {
       {SUPPORTED_NETWORKS.map((network) => (
         <Button
           key={network.id}
-          onClick={() => handleNetworkSwitch(network)}
+          onClick={() => handleNetworkSwitch(network as Chain)}
           variant="outline"
         >
           Switch to {network.name}

@@ -1,33 +1,39 @@
-import Image from "next/image";
+import { createTransferIn } from "@/actions/transfer";
 import { Button } from "@/components/ui/button";
-import { useQuoteStore } from "@/store/quote-store";
-import { useUserSelectionStore } from "@/store/user-selection";
 import { useNetworkStore } from "@/store/network";
-import { useState } from "react";
-import { CancelModal } from "./cancel-modal";
-import { toast } from "sonner";
+import { useQuoteStore } from "@/store/quote-store";
+import { useTransferStore } from "@/store/transfer-store";
+import { useUserSelectionStore } from "@/store/user-selection";
 import { OrderStep } from "@/types";
-import OrderProcessingModal from "./OrderProcessingModal";
-import OrderSuccessful from "../cards/order-successful";
+import { useMutation } from "@tanstack/react-query";
+import { Loader } from "lucide-react";
+import Image from "next/image";
+import { useState } from "react";
+import { toast } from "sonner";
+import AssetAvator from "../cards/asset-avator";
+import { CancelModal } from "./cancel-modal";
 
-interface TransactionReviewModalProps {
-  currency: string;
-  currencyLogo: string;
-}
-
-export function TransactionReviewModal({
-  currency,
-  currencyLogo,
-}: TransactionReviewModalProps) {
+export function TransactionReviewModal() {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const { quote, resetQuote } = useQuoteStore();
   const { institution, accountNumber, updateSelection, orderStep } =
     useUserSelectionStore();
   const { currentNetwork } = useNetworkStore();
+  const { setTransfer, resetTransfer } = useTransferStore();
 
   // if (!open) return null;
 
-  if (!quote) return null;
+  const transferInMutation = useMutation({
+    mutationFn: createTransferIn,
+    onSuccess: (data) => {
+      updateSelection({ orderStep: OrderStep.GotTransfer });
+      setTransfer(data);
+      // toast.success("Transfer in request created");
+    },
+    onError: () => {
+      toast.error("Failed to create transfer in request");
+    },
+  });
 
   const handleBackClick = () => {
     setShowCancelModal(true);
@@ -36,23 +42,13 @@ export function TransactionReviewModal({
   const handleCancelConfirm = () => {
     setShowCancelModal(false);
     resetQuote();
+    resetTransfer();
+    updateSelection({ orderStep: OrderStep.Initial });
   };
 
-  const handleSubmit = () => {
-    // TODO: Submit the transfer-in or transfer-out request
-    // onConfirm();
-    // resetQuote();
-    updateSelection({ orderStep: OrderStep.GotTransfer });
-    toast.success("Now will submit the transfer in request");
-  };
+  if (orderStep !== OrderStep.GotQuote) return null;
 
-  if (orderStep === OrderStep.GotTransfer) {
-    return <OrderProcessingModal />;
-  }
-
-  if (orderStep === OrderStep.PaymentCompleted) {
-    return <OrderSuccessful />;
-  }
+  if (!quote) return null;
 
   return (
     <>
@@ -70,18 +66,10 @@ export function TransactionReviewModal({
               {/* Amount */}
               <div className="flex justify-between items-center">
                 <span className="text-neutral-400 text-lg">Amount</span>
-                <div className="flex items-center gap-2">
-                  <Image
-                    src={currencyLogo}
-                    alt={currency}
-                    width={24}
-                    height={24}
-                    className="rounded-full"
-                  />
-                  <span className="text-white text-lg font-medium">
-                    {quote?.cryptoAmount} {quote?.cryptoType}
-                  </span>
-                </div>
+                <AssetAvator
+                  cryptoType={quote.cryptoType}
+                  cryptoAmount={quote.cryptoAmount}
+                />
               </div>
 
               {/* Total value */}
@@ -164,15 +152,21 @@ export function TransactionReviewModal({
                 variant="outline"
                 className="flex-1 bg-[#333] hover:bg-[#444] border-none text-white p-6 text-lg rounded-xl"
                 onClick={handleBackClick}
+                disabled={transferInMutation.isPending}
               >
                 Back
               </Button>
 
               <Button
                 className="flex-1 bg-[#7B68EE] hover:bg-[#6A5ACD] text-white p-6 text-lg rounded-xl"
-                onClick={handleSubmit}
+                onClick={() => transferInMutation.mutate()}
+                disabled={transferInMutation.isPending}
               >
-                Confirm payment
+                {transferInMutation.isPending ? (
+                  <Loader className="animate-spin" />
+                ) : (
+                  "Confirm payment"
+                )}
               </Button>
             </div>
           </div>

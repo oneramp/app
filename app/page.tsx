@@ -1,5 +1,6 @@
 import { Header } from "./components/Header";
 import { SwapBuyTabs } from "./components/SwapBuyTabs";
+import StateContextProvider from "./providers/StateContextProvider";
 
 export default function Home() {
   return (
@@ -10,6 +11,7 @@ export default function Home() {
             <Header logoOnly />
           </div>
           <div className="flex md:items-center md:justify-center py-4">
+            <StateContextProvider />
             <SwapBuyTabs />
           </div>
           <div className="hidden md:flex relative">

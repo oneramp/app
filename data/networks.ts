@@ -1,4 +1,4 @@
-import { Network } from "@/types";
+import { ChainTypes, Network } from "@/types";
 import { mainnet, polygon, celo, base } from "@reown/appkit/networks";
 import { mainnet as starknet } from "@starknet-react/chains";
 
@@ -33,7 +33,7 @@ export const SUPPORTED_NETWORKS_WITH_RPC_URLS: Network[] = [
     chainNamespace: "eip155" as const,
     caipNetworkId: `eip155:${base.id}` as const,
     logo: "/logos/base.png",
-    type: "evm",
+    type: ChainTypes.EVM,
   },
   {
     ...mainnet,
@@ -42,7 +42,7 @@ export const SUPPORTED_NETWORKS_WITH_RPC_URLS: Network[] = [
     chainNamespace: "eip155" as const,
     caipNetworkId: `eip155:${mainnet.id}` as const,
     logo: "/logos/ethereum.png",
-    type: "evm",
+    type: ChainTypes.EVM,
   },
   {
     ...polygon,
@@ -51,7 +51,7 @@ export const SUPPORTED_NETWORKS_WITH_RPC_URLS: Network[] = [
     chainNamespace: "eip155" as const,
     caipNetworkId: `eip155:${polygon.id}` as const,
     logo: "/logos/polygon.png",
-    type: "evm",
+    type: ChainTypes.EVM,
   },
   {
     ...celo,
@@ -60,7 +60,7 @@ export const SUPPORTED_NETWORKS_WITH_RPC_URLS: Network[] = [
     chainNamespace: "eip155" as const,
     caipNetworkId: `eip155:${celo.id}` as const,
     logo: "/logos/celo-logo.png",
-    type: "evm",
+    type: ChainTypes.EVM,
   },
   {
     ...starknet,
@@ -69,7 +69,7 @@ export const SUPPORTED_NETWORKS_WITH_RPC_URLS: Network[] = [
     chainNamespace: "eip155" as const,
     caipNetworkId: `eip155:${starknet.id}` as const,
     logo: "/logos/starknet.png",
-    type: "starknet",
+    type: ChainTypes.Starknet,
     nativeCurrency: {
       name: "Starknet",
       symbol: "STRK",

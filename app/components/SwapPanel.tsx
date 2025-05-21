@@ -10,6 +10,8 @@ import { useAccount as useStarknetAccount } from "@starknet-react/core";
 import Image from "next/image";
 import { useState } from "react";
 import SubmitButton from "./buttons/submit-button";
+import ExchangeRateComponent from "./exchange-rate-component";
+import ValueInput from "./inputs/ValueInput";
 import { TransactionReviewModal } from "./modals/TransactionReviewModal";
 import { NetworkSelector } from "./NetworkSelector";
 import SelectCountry from "./select-country";
@@ -52,7 +54,7 @@ export function SwapPanel() {
   const { address: starknetAddress } = useStarknetAccount();
   const starknetConnected = !!starknetAddress;
 
-  const { country } = useUserSelectionStore();
+  const { country, updateSelection } = useUserSelectionStore();
 
   // Check EVM wallet connection
 
@@ -70,22 +72,6 @@ export function SwapPanel() {
     // If appropriate wallet is connected, attempt to switch networks
     setCurrentNetwork(network);
   };
-
-  // Update switchNetwork function to use chainId
-  // const switchNetwork = async (network: Network) => {
-  //   if (network.type !== "evm" || !evmConnected) return;
-
-  //   const appKit = window.appKit;
-  //   if (!appKit) return;
-
-  //   try {
-  //     await (appKit as AppKit).switchChain({
-  //       chainId: network.chainId.toString(),
-  //     });
-  //   } catch (error) {
-  //     console.error("Failed to switch network:", error);
-  //   }
-  // };
 
   return (
     <div className="w-full max-w-md mx-auto min-h-[450px] bg-[#181818]  rounded-3xl p-0 flex flex-col gap-0 md:shadow-lg md:border border-[#232323] relative">
@@ -136,8 +122,12 @@ export function SwapPanel() {
                       ? "bg-[#353545]"
                       : "hover:bg-[#23232f]"
                   }`}
-                  onClick={() => {
-                    setSelectedCurrency(c);
+                  onClick={async () => {
+                    await Promise.all([
+                      setSelectedCurrency(c),
+                      updateSelection({ asset: c }),
+                    ]);
+
                     setShowDropdown(false);
                   }}
                 >
@@ -202,15 +192,15 @@ export function SwapPanel() {
             <span className="text-red-400 ml-1 cursor-pointer">Max</span>
           </span>
         </div>
-        <div className="flex items-center gap-3">
-          <NetworkSelector
-            selectedNetwork={currentNetwork || networks[0]}
-            onNetworkChange={handleNetworkSelect}
-            canSwitch={canSwitchNetwork}
-            buttonClassName="bg-black border-none px-4 py-2 rounded-full min-w-[120px]"
-          />
-          <div className="flex-1 text-right">
-            <span className="text-3xl text-neutral-300 font-light">10</span>
+        <div className="flex items-center gap-3 ">
+          <ValueInput />
+          <div className="flex-1 w-full">
+            <NetworkSelector
+              selectedNetwork={currentNetwork || networks[0]}
+              onNetworkChange={handleNetworkSelect}
+              canSwitch={canSwitchNetwork}
+              buttonClassName="bg-black border-none px-4  rounded-full min-w-[120px]"
+            />
           </div>
         </div>
       </div>
@@ -255,17 +245,7 @@ export function SwapPanel() {
       {/* Recipient Details - Only show when a country is selected */}
 
       {/* Swap Info */}
-      {country && (
-        <div className="mx-10 mb-4 flex justify-between text-sm">
-          <span className="text-neutral-400">
-            1 {selectedCurrency.symbol} ~ {country.exchangeRate}{" "}
-            {country.currency}
-          </span>
-          <span className="text-neutral-400">
-            Swap usually completes in 30s
-          </span>
-        </div>
-      )}
+      <ExchangeRateComponent />
 
       {country ? (
         <SelectInstitution />
@@ -275,23 +255,8 @@ export function SwapPanel() {
         </div>
       )}
 
-      {/* Updated Swap Button */}
-
       {/* Transaction Review Modal */}
-      <TransactionReviewModal
-        currency={selectedCurrency.symbol}
-        currencyLogo={selectedCurrency.logo}
-      />
-
-      {/* Wallet Connection Modal */}
-      {/* <WalletConnectionModal
-        isOpen={showWalletModal}
-        onClose={() => setShowWalletModal(false)}
-        buttonPosition={undefined}
-        onConnect={handleWalletConnect}
-      /> */}
-
-      {/* Institution Modal */}
+      <TransactionReviewModal />
     </div>
   );
 }

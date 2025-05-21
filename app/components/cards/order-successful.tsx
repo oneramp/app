@@ -1,39 +1,71 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
+import Confetti from "react-confetti";
 import { useQuoteStore } from "@/store/quote-store";
+import { useWindowSize } from "react-use";
 import { useUserSelectionStore } from "@/store/user-selection";
 import { OrderStep } from "@/types";
+import { useEffect, useState } from "react";
+import AssetAvator from "./asset-avator";
+import { assets } from "@/data/currencies";
+import { useTransferStore } from "@/store/transfer-store";
 
 const OrderSuccessful = () => {
-  const { reset, updateSelection } = useUserSelectionStore();
+  const { reset, updateSelection, orderStep } = useUserSelectionStore();
+  const { quote } = useQuoteStore();
+  const { width, height } = useWindowSize();
   const { resetQuote } = useQuoteStore();
+  const { resetTransfer } = useTransferStore();
+  const [showConfetti, setShowConfetti] = useState(true);
+
+  useEffect(() => {
+    // Stop confetti after 5 seconds
+    const confettiTimer = setTimeout(() => {
+      setShowConfetti(false);
+    }, 5000);
+
+    return () => clearTimeout(confettiTimer);
+  }, []);
+
+  useEffect(() => {
+    if (orderStep !== OrderStep.PaymentCompleted) {
+      setTimeout(() => {
+        updateSelection({ orderStep: OrderStep.PaymentCompleted });
+      }, 5000);
+    }
+  }, [orderStep]);
 
   const handleBackClick = () => {
     reset();
     resetQuote();
+    resetTransfer();
+    updateSelection({ asset: assets[0] });
     updateSelection({ orderStep: OrderStep.Initial });
   };
 
+  if (!quote) return null;
+
   return (
     <div className="fixed inset-0 z-50 flex py-20 justify-center bg-[#181818] gap-x-16">
+      {orderStep === OrderStep.PaymentCompleted && showConfetti && (
+        <Confetti
+          width={width}
+          height={height}
+          recycle={false}
+          numberOfPieces={200}
+        />
+      )}
+
       {/* Left side - Timeline */}
-      <div className="flex flex-1 justify-end">
+      <div className="flex w-full justify-end">
         <div className="flex flex-col gap-y-2">
           {/* Top step - USDC */}
-          <div className="flex items-center gap-1.5 mb-2 bg-neutral-800 rounded-full px-4 py-2">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
-                fill="#3B82F6"
-              />
-              <path
-                d="M12 6v12M15 12H9"
-                stroke="white"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-            </svg>
-            <span className="text-lg text-white font-medium">1 USDC</span>
-          </div>
+
+          <AssetAvator
+            cryptoType={quote?.cryptoType}
+            cryptoAmount={quote?.cryptoAmount}
+          />
 
           {/* Vertical line with dot */}
           <div className="flex flex-1 flex-row justify-between">
@@ -50,7 +82,7 @@ const OrderSuccessful = () => {
       </div>
 
       {/* Right side - Content */}
-      <div className="flex flex-1">
+      <div className="flex w-full">
         <div className="flex flex-col gap-4 max-w-md">
           <svg
             className="text-[#2ecc71] w-10 h-10"
@@ -78,8 +110,11 @@ const OrderSuccessful = () => {
           <div className="text-[#666666] text-sm space-y-1">
             <p>
               Your transfer of{" "}
-              <span className="text-white">1 USDC (Ksh 127.82)</span> to Ok has
-              been completed successfully.
+              <span className="text-white">
+                {quote?.cryptoAmount} {quote?.cryptoType} ({quote.fiatType}{" "}
+                {quote.fiatAmount})
+              </span>{" "}
+              to Ok has been completed successfully.
             </p>
           </div>
 
@@ -130,8 +165,9 @@ const OrderSuccessful = () => {
             <p className="text-sm text-[#666666] mb-3">Help spread the word</p>
             <div className="bg-[#232323] p-4 rounded-lg mb-4">
               <p className="text-sm text-[#666666]">
-                <span className="text-[#FFD700]">♥</span> Yay! I just swapped
-                USDC for KES in 167 seconds on noblocks.xyz
+                <span className="text-[#FFD700]">♥</span> Yay! I just swapped{" "}
+                {quote?.cryptoType} for {quote.fiatType} in 167 seconds on
+                pay.oneramp.io
               </p>
             </div>
             <div className="flex gap-2">

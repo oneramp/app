@@ -1,34 +1,56 @@
+"use client";
 import { Badge } from "@/components/ui/badge";
 import { Loader } from "lucide-react";
 import TakingLongCard from "./taking-long-card";
 import { useUserSelectionStore } from "@/store/user-selection";
-import { OrderStep } from "@/types";
+import { OrderStep, TransferStatusEnum } from "@/types";
 import { Button } from "@/components/ui/button";
-
+import { useTransferStore } from "@/store/transfer-store";
+import { useQuery } from "@tanstack/react-query";
+import { getTransferStatus } from "@/actions/transfer";
+import { useEffect } from "react";
+import AssetAvator from "./asset-avator";
+import { useQuoteStore } from "@/store/quote-store";
 const OrderProcessing = () => {
-  const { updateSelection, orderStep } = useUserSelectionStore();
+  const { updateSelection } = useUserSelectionStore();
+  const { transfer } = useTransferStore();
+  const { quote } = useQuoteStore();
 
-  // if (orderStep !== OrderStep.ProcessingPayment) return null;
+  const { data: transferStatus } = useQuery({
+    queryKey: ["transferStatus", transfer?.transferId],
+    queryFn: () => {
+      if (!transfer?.transferId) {
+        throw new Error("Transfer ID is required");
+      }
+      return getTransferStatus(transfer.transferId);
+    },
+    enabled: !!transfer?.transferId,
+    refetchInterval: 2000, // Poll every 2 seconds
+  });
 
-  console.log("====================================");
-  console.log("Order step", orderStep);
-  console.log("====================================");
+  useEffect(() => {
+    if (transferStatus?.status === TransferStatusEnum.TransferCompleted) {
+      updateSelection({ orderStep: OrderStep.PaymentCompleted });
+    }
+  }, [transferStatus?.status]);
 
-  // TODO: Test functions
-  const handlePaymentCompleted = () => {
-    updateSelection({ orderStep: OrderStep.PaymentCompleted });
-  };
+  // const handlePaymentCompleted = () => {
+  //   updateSelection({ orderStep: OrderStep.PaymentCompleted });
+  // };
 
   return (
     <div className="fixed inset-0 z-50 flex py-20  justify-center bg-[#181818] gap-x-16">
       {/* Left side - Timeline */}
-      <div className="flex flex-1 justify-end">
+      <div className="flex justify-end w-1/2">
         <div className="flex flex-col gap-y-2  ">
           {/* Top step - USDC */}
-          <div className="flex items-center gap-1.5 mb-2 bg-neutral-800 rounded-full px-4 py-2">
-            <div className="size-8 rounded-full bg-blue-600"></div>
-            <h1 className="text-lg text-white font-medium">1 USDC</h1>
-          </div>
+
+          {quote && (
+            <AssetAvator
+              cryptoAmount={quote?.cryptoAmount}
+              cryptoType={quote?.cryptoType}
+            />
+          )}
 
           {/* Vertical line with dot */}
           <div className="flex flex-1 flex-row justify-between ">
@@ -37,7 +59,7 @@ const OrderProcessing = () => {
               <div className="border-[1px] h-32 border-neutral-700 border-dashed w-[1px]"></div>
               <div className=" size-2.5 rounded-full bg-[#2ecc71] z-10"></div>
               <Button
-                onClick={handlePaymentCompleted}
+                disabled
                 className=" p-3 bg-[#232323] rounded-xl hover:bg-[#2a2a2a] text-white font-medium text-sm transition-colors w-fit"
               >
                 Ok
@@ -48,7 +70,7 @@ const OrderProcessing = () => {
       </div>
 
       {/* Right side - Content */}
-      <div className=" flex gap-x-10 flex-1">
+      <div className=" flex gap-x-10 flex-1 w-full">
         <div className="flex flex-col gap-4">
           <Badge
             variant="outline"

@@ -8,7 +8,7 @@ import { InstitutionModal } from "./modals/InstitutionModal";
 import { BuyTransactionReviewModal } from "./modals/BuyTransactionReviewModal";
 
 // Reuse the same country list from SwapPanel
-const countryCurrencies = [
+export const countryCurrencies = [
   { name: "Nigeria", logo: "/logos/nigeria.png" },
   { name: "Kenya", logo: "/logos/kenya.png" },
   { name: "Ghana", logo: "/logos/ghana.png" },
@@ -231,7 +231,7 @@ export function BuyPanel() {
   return (
     <div className="w-full max-w-md mx-auto bg-[#181818] rounded-2xl min-h-[450px] p-6 flex flex-col gap-4 border border-[#232323]">
       <div className="flex justify-between items-center mb-4">
-        <span className="text-neutral-400 text-lg">You're buying</span>
+        <span className="text-neutral-400 text-lg">You&apos;re buying</span>
         <Button
           variant="outline"
           className="flex items-center gap-2 bg-[#232323] border-none px-4 py-2 rounded-full"
@@ -433,8 +433,6 @@ export function BuyPanel() {
       <CountryCurrencyModal
         open={showCountryModal}
         onClose={() => setShowCountryModal(false)}
-        currencies={countryCurrencies}
-        selectedCurrency={selectedCountry}
         onSelect={(country) => {
           setSelectedCountry(country);
           setShowCountryModal(false);
