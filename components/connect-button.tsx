@@ -27,11 +27,11 @@ export const ConnectButton = ({ large }: { large?: boolean }) => {
   const [popoverOpen, setPopoverOpen] = useState(false);
 
   const {
-    currentNetwork,
     setCurrentNetwork,
     addConnectedNetwork,
     connectedNetworks,
     removeConnectedNetwork,
+    clearConnectedNetworks,
   } = useNetworkStore();
   const disconnectEvm = useDisconnectEVM();
 
@@ -42,18 +42,39 @@ export const ConnectButton = ({ large }: { large?: boolean }) => {
 
   const { disconnect: disconnectStarknet } = useDisconnect();
 
-  async function connectStarknet() {
-    const { connector } = await starknetkitConnectModal();
-    if (!connector) {
-      return;
+  const handleSuccessfulEvmConnection = async () => {
+    // Set the current network to the EVM network
+    setCurrentNetwork(SUPPORTED_NETWORKS_WITH_RPC_URLS[0]);
+    // First check if the network is already connected
+    if (
+      !connectedNetworks.some(
+        (network) => network.id === SUPPORTED_NETWORKS_WITH_RPC_URLS[0].id
+      )
+    ) {
+      addConnectedNetwork(SUPPORTED_NETWORKS_WITH_RPC_URLS[0]);
     }
-    await connect({ connector: connector as Connector });
-  }
+  };
+
+  const handleSuccessfulStarknetConnection = async () => {
+    // Set the current network to the Starknet network (The last one in the array)
+    const starknetPositionInArray =
+      SUPPORTED_NETWORKS_WITH_RPC_URLS[
+        SUPPORTED_NETWORKS_WITH_RPC_URLS.length - 1
+      ];
+    setCurrentNetwork(starknetPositionInArray);
+    // First check if the network is already connected
+    if (
+      !connectedNetworks.some(
+        (network) => network.id === starknetPositionInArray.id
+      )
+    ) {
+      addConnectedNetwork(starknetPositionInArray);
+    }
+  };
 
   const handleWalletTypeSelect = async (
     type?: "evm" | "starknet" | undefined
   ) => {
-    // const chainType = currentNetwork?.type || type;
     const chainType = type;
 
     if (!chainType) {
@@ -61,79 +82,91 @@ export const ConnectButton = ({ large }: { large?: boolean }) => {
       return;
     }
 
-    // TODO: Handle Starknet wallet connection
     if (chainType === "evm") {
-      // Set the current network to the EVM network
-      await open();
-      setCurrentNetwork(SUPPORTED_NETWORKS_WITH_RPC_URLS[0]);
-      // First check if the network is already connected
-      if (
-        !connectedNetworks.some(
-          (network) => network.id === SUPPORTED_NETWORKS_WITH_RPC_URLS[0].id
-        )
-      ) {
-        addConnectedNetwork(SUPPORTED_NETWORKS_WITH_RPC_URLS[0]);
+      try {
+        await open();
+        // Only update networks if the wallet was successfully connected
+        await handleSuccessfulEvmConnection();
+      } catch (error) {
+        console.error("Failed to connect EVM wallet:", error);
       }
     }
 
     if (chainType === "starknet") {
-      // Set the current network to the Starknet network (The last one in the array)
-      const starknetPositionInArray =
-        SUPPORTED_NETWORKS_WITH_RPC_URLS[
-          SUPPORTED_NETWORKS_WITH_RPC_URLS.length - 1
-        ];
-      await connectStarknet();
-      setCurrentNetwork(starknetPositionInArray);
-      // First check if the network is already connected
-      if (
-        !connectedNetworks.some(
-          (network) => network.id === starknetPositionInArray.id
-        )
-      ) {
-        addConnectedNetwork(starknetPositionInArray);
+      try {
+        const { connector } = await starknetkitConnectModal();
+        if (!connector) return;
+
+        await connect({ connector: connector as Connector });
+        // Only update networks if the wallet was successfully connected
+        await handleSuccessfulStarknetConnection();
+      } catch (error) {
+        console.error("Failed to connect Starknet wallet:", error);
       }
     }
   };
 
-  const handleDisconnectCurrentWallet = async (type?: "evm" | "starknet") => {
-    const chainType = currentNetwork?.type || type;
+  const handleDisconnectCurrentWallet = async (type?: ChainTypes) => {
+    // const chainType = currentNetwork?.type || type;
+    const chainType = type;
 
     if (!chainType) {
-      // toast.error("No wallet connected");
-      // Disconnect all wallets
-      await disconnectEvm.disconnect();
-      await disconnectStarknet();
-      setCurrentNetwork(null);
-      // Remove all connected networks
-      connectedNetworks.forEach((network) => {
-        removeConnectedNetwork(network);
-      });
+      try {
+        // Disconnect all wallets concurrently and wait for both to complete
+        await Promise.all([
+          Promise.resolve(disconnectEvm.disconnect()).catch((error: Error) => {
+            console.error("Failed to disconnect EVM wallet:", error);
+          }),
+          Promise.resolve(disconnectStarknet()).catch((error: Error) => {
+            console.error("Failed to disconnect Starknet wallet:", error);
+          }),
+        ]);
+
+        // Only clear network state after both disconnections complete
+        setCurrentNetwork(null);
+        clearConnectedNetworks();
+      } catch (error) {
+        console.error("Error during wallet disconnection:", error);
+      }
       return;
     }
 
     if (chainType === "evm") {
-      // open();
-      await disconnectEvm.disconnect();
-      setCurrentNetwork(null);
-      // Remove the connected network
-      if (currentNetwork) {
-        removeConnectedNetwork(currentNetwork);
+      try {
+        await disconnectEvm.disconnect();
+        // Remove all EVM chains from connectedNetworks
+        connectedNetworks.forEach((network) => {
+          if (network.type === ChainTypes.EVM) {
+            removeConnectedNetwork(network);
+          }
+        });
+      } catch (error) {
+        console.error("Failed to disconnect EVM wallet:", error);
       }
     }
 
     if (chainType === "starknet") {
-      await disconnectStarknet();
-      setCurrentNetwork(null);
-      // Remove the connected network
-      if (currentNetwork) {
-        removeConnectedNetwork(currentNetwork);
+      try {
+        await disconnectStarknet();
+        // Remove all Starknet chains from connectedNetworks
+        connectedNetworks.forEach((network) => {
+          if (network.type === ChainTypes.Starknet) {
+            removeConnectedNetwork(network);
+          }
+        });
+      } catch (error) {
+        console.error("Failed to disconnect Starknet wallet:", error);
       }
     }
   };
 
-  console.log("====================================");
-  console.log("connectedNetworks", connectedNetworks);
-  console.log("====================================");
+  const hasAnyEvmNetwork = connectedNetworks.some(
+    (network) => network.type === ChainTypes.EVM
+  );
+
+  const hasAnyStarknetNetwork = connectedNetworks.some(
+    (network) => network.type === ChainTypes.Starknet
+  );
 
   return (
     <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
@@ -181,13 +214,9 @@ export const ConnectButton = ({ large }: { large?: boolean }) => {
         </div>
 
         <div className="flex flex-col gap-4">
-          {isConnected &&
-          (currentNetwork?.type === ChainTypes.EVM ||
-            connectedNetworks.some(
-              (network) => network.type === ChainTypes.EVM
-            )) ? (
+          {isConnected && hasAnyEvmNetwork ? (
             <ConnectedWalletCard
-              disconnect={() => handleDisconnectCurrentWallet("evm")}
+              disconnect={() => handleDisconnectCurrentWallet(ChainTypes.EVM)}
               network={ChainTypes.EVM}
             />
           ) : (
@@ -216,13 +245,11 @@ export const ConnectButton = ({ large }: { large?: boolean }) => {
             </Button>
           )}
 
-          {isConnected &&
-          (currentNetwork?.type === ChainTypes.Starknet ||
-            connectedNetworks.some(
-              (network) => network.type === ChainTypes.Starknet
-            )) ? (
+          {isConnected && hasAnyStarknetNetwork ? (
             <ConnectedWalletCard
-              disconnect={() => handleDisconnectCurrentWallet("starknet")}
+              disconnect={() =>
+                handleDisconnectCurrentWallet(ChainTypes.Starknet)
+              }
               network={ChainTypes.Starknet}
             />
           ) : (

@@ -11,6 +11,7 @@ interface NetworkState {
   updateNetworks: (networks: Network[]) => void;
   addConnectedNetwork: (network: Network) => void;
   removeConnectedNetwork: (network: Network) => void;
+  clearConnectedNetworks: () => void;
 }
 
 export const useNetworkStore = create<NetworkState>()(
@@ -33,6 +34,7 @@ export const useNetworkStore = create<NetworkState>()(
             (n) => n.id !== network.id
           ),
         })),
+      clearConnectedNetworks: () => set({ connectedNetworks: [] }),
     }),
     {
       name: "network-storage",
