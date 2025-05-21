@@ -1,10 +1,14 @@
 import { Chain } from "viem";
 import { SUPPORTED_NETWORK_NAMES } from "./data/networks";
 
+export enum ChainTypes {
+  EVM = "evm",
+  Starknet = "starknet",
+}
 export interface Network extends Omit<Chain, "id"> {
   name: string;
   logo: string;
-  type: string;
+  type: ChainTypes;
   chainId: number;
   tokenAddress?: string;
   id: string | number;

@@ -42,23 +42,31 @@ const useWalletInfo = () => {
 
   useEffect(() => {
     // Set the address and isConnected state based on the current network
-    if (currentNetwork?.type === "evm") {
-      setAddress(evmAddress ?? null);
+    if (currentNetwork?.type === "evm" && evmAddress) {
+      setAddress(evmAddress);
       setIsConnected(evmIsConnected);
       setChainId(
         typeof evmChainId === "string"
           ? parseInt(evmChainId)
           : evmChainId ?? null
       );
-    } else if (currentNetwork?.type === "starknet") {
-      setAddress(starknetAddress ?? null);
+      return;
+    }
+
+    if (currentNetwork?.type === "starknet" && starknetAddress) {
+      setAddress(starknetAddress);
       setIsConnected(status === "connected");
       setChainId(
         typeof starknetChainId === "string"
           ? parseInt(starknetChainId)
           : starknetChainId ?? null
       );
+      return;
     }
+
+    setAddress(null);
+    setIsConnected(false);
+    setChainId(null);
   }, [
     currentNetwork,
     evmAddress,

@@ -12,14 +12,13 @@ import { useEffect, useState } from "react";
 import SubmitButton from "./buttons/submit-button";
 import { InstitutionModal } from "./modals/InstitutionModal";
 import useWalletGetInfo from "@/hooks/useWalletGetInfo";
-import { ConnectButton } from "@/components/connect-button";
 
 const SelectInstitution = () => {
   const [accountNumber, setAccountNumber] = useState("");
   const [showInstitutionModal, setShowInstitutionModal] = useState(false);
   const { institution, country, updateSelection } = useUserSelectionStore();
   const [buttonDisabled, setButtonDisabled] = useState(true);
-  const [buttonText, setButtonText] = useState("Select Institution");
+  const [buttonText, setButtonText] = useState("Connect Wallet");
 
   const { setQuote } = useQuoteStore();
   const { currentNetwork } = useNetworkStore();
@@ -35,19 +34,20 @@ const SelectInstitution = () => {
       !country;
     setButtonDisabled(isDisabled);
 
-    if (!accountNumber) {
-      setButtonText("Enter account number");
-    }
-
-    if (!institution && accountNumber) {
-      setButtonText("Select institution");
-    }
-
-    if (institution && accountNumber && !isConnected) {
+    // Update button text based on conditions
+    if (!isConnected) {
       setButtonText("Connect Wallet");
-    }
-
-    if (accountNumber && institution && isConnected) {
+    } else if (!hasRequiredWallet()) {
+      setButtonText(
+        currentNetwork?.type === "starknet"
+          ? "Connect Starknet Wallet"
+          : "Connect EVM Wallet"
+      );
+    } else if (!accountNumber) {
+      setButtonText("Enter account number");
+    } else if (!institution) {
+      setButtonText("Select institution");
+    } else {
       setButtonText("Swap");
     }
   }, [isConnected, accountNumber, institution, country, currentNetwork]);
@@ -83,11 +83,6 @@ const SelectInstitution = () => {
     // Let's say this is the response from the API
     setQuote(quoteResponse.quote as Quote);
   };
-
-  console.log("====================================");
-  console.log("Button Text", buttonText);
-  console.log("Is Connected", isConnected);
-  console.log("====================================");
 
   return (
     <>
@@ -142,21 +137,17 @@ const SelectInstitution = () => {
       )}
 
       <div className="mx-4 mb-4">
-        {buttonText === "Connect Wallet" ? (
-          <ConnectButton large />
-        ) : (
-          <SubmitButton
-            onClick={handleSwap}
-            disabled={buttonDisabled}
-            className={`w-full text-white text-base font-bold h-14 mt-2 rounded-2xl ${
-              buttonDisabled
-                ? "bg-[#232323] hover:bg-[#2a2a2a] cursor-not-allowed"
-                : "bg-[#2563eb] hover:bg-[#1d4ed8]"
-            }`}
-          >
-            {buttonText}
-          </SubmitButton>
-        )}
+        <SubmitButton
+          onClick={handleSwap}
+          disabled={buttonDisabled}
+          className={`w-full text-white text-base font-bold h-14 mt-2 rounded-2xl ${
+            buttonDisabled
+              ? "bg-[#232323] hover:bg-[#2a2a2a] cursor-not-allowed"
+              : "bg-[#2563eb] hover:bg-[#1d4ed8]"
+          }`}
+        >
+          {buttonText}
+        </SubmitButton>
 
         {/* Show wallet requirement message if needed */}
         {!hasRequiredWallet() && isConnected && (
