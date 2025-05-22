@@ -86,7 +86,7 @@ export interface UserSelectionGlobalState {
   fiatAmount?: number;
   address?: string;
   paymentMethod: "bank" | "momo";
-  institution?: string;
+  institution?: Institution;
   accountNumber?: string;
   orderStep: OrderStep;
 }
@@ -184,3 +184,29 @@ export interface QuoteRequest {
 //   "country": "NG",
 //   "address": "0x240ef8C7Ae6eB6C1A80Da77F5586EeE76d50C589"
 // }
+
+export interface ExchangeRateRequest {
+  country: string;
+  orderType: string;
+  providerType: string;
+}
+
+export interface ExchangeRateResponse {
+  country: string;
+  exchange: number;
+  conversionResponse: {
+    success: boolean;
+    chargeFeeInFiat: number;
+    chargeFeeInUsd: number;
+    exchangeRate: number;
+    cryptoAmount: number;
+    fiatAmount: number;
+    providerPayoutAmount: number;
+    gasFeeInFiat: number;
+  };
+}
+
+// Institution interface of type key value pair
+export interface Institution {
+  [key: string]: string;
+}

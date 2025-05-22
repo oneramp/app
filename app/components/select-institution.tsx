@@ -9,13 +9,14 @@ import { useAmountStore } from "@/store/amount-store";
 import { useNetworkStore } from "@/store/network";
 import { useQuoteStore } from "@/store/quote-store";
 import { useUserSelectionStore } from "@/store/user-selection";
-import { OrderStep, Quote, QuoteRequest } from "@/types";
+import { Institution, OrderStep, Quote, QuoteRequest } from "@/types";
 import { useMutation } from "@tanstack/react-query";
 import { Loader } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import SubmitButton from "./buttons/submit-button";
 import { InstitutionModal } from "./modals/InstitutionModal";
+import AccountDetails from "./account-details";
 
 const SelectInstitution = () => {
   const [accountNumber, setAccountNumber] = useState("");
@@ -102,8 +103,23 @@ const SelectInstitution = () => {
     isAmountValid,
   ]);
 
-  const handleInstitutionSelect = (inst: string) => {
-    updateSelection({ institution: inst });
+  const handleInstitutionSelect = (inst: Institution) => {
+    let instType = inst.type;
+    // First check if the inst data has a key of type if not revert it to check if it has a key of accountNumberType
+    if (!inst.type) {
+      instType = inst.accountNumberType;
+    }
+
+    // Now check the inst.type value contains a string of mobile, if yes set the paymentMethod to momo
+    if (instType.includes("mobile")) {
+      // updateSelection({ paymentMethod: "momo" });
+      instType = "momo";
+    }
+
+    updateSelection({
+      institution: inst,
+      paymentMethod: instType as "bank" | "momo",
+    });
     setShowInstitutionModal(false);
   };
 
@@ -148,11 +164,14 @@ const SelectInstitution = () => {
           {/* Institution Selector */}
           <Button
             variant="default"
-            onClick={() => setShowInstitutionModal(true)}
+            onClick={() => {
+              setShowInstitutionModal(true);
+              updateSelection({ paymentMethod: undefined });
+            }}
             className="bg-transparent border w-1/3 h-full border-[#444] text-neutral-400 rounded-full p-3 cursor-pointer flex items-center justify-center"
           >
             <span className="line-clamp-1">
-              {institution || "Select institution"}
+              {institution?.name || "Select institution"}
             </span>
             <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
               <path
@@ -176,6 +195,9 @@ const SelectInstitution = () => {
             />
           </div>
         </div>
+
+        {/* Show account details only when account number is entered */}
+        {accountNumber && accountNumber.length > 6 && <AccountDetails />}
       </div>
 
       {country && (
@@ -185,7 +207,7 @@ const SelectInstitution = () => {
           institutions={country.institutions}
           selectedInstitution={institution || null}
           onSelect={handleInstitutionSelect}
-          country={country.name}
+          country={country.countryCode}
         />
       )}
 

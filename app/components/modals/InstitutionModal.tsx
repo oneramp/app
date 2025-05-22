@@ -1,19 +1,18 @@
 "use client";
+import { getInstitutions } from "@/actions/institutions";
 import { Input } from "@/components/ui/input";
+import { Institution } from "@/types";
+import { useQuery } from "@tanstack/react-query";
+import { Loader } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
-
-interface Institution {
-  name: string;
-  logo?: string; // Optional logo path
-}
 
 interface InstitutionModalProps {
   open: boolean;
   onClose: () => void;
   institutions: Institution[];
-  selectedInstitution: string | null;
-  onSelect: (institution: string) => void;
+  selectedInstitution: Institution | null;
+  onSelect: (institution: Institution) => void;
   country: string;
 }
 
@@ -22,12 +21,20 @@ export function InstitutionModal({
   onClose,
   institutions,
   onSelect,
+  country,
 }: InstitutionModalProps) {
   const [searchQuery, setSearchQuery] = useState("");
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["institutions", country],
+    queryFn: () => getInstitutions(country),
+  });
 
   if (!open) return null;
 
   // Filter institutions based on search query
+
+  if (!data) return null;
 
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/10 backdrop-blur-sm">
@@ -72,13 +79,23 @@ export function InstitutionModal({
           />
         </div>
 
+        {isLoading && (
+          <div className="text-white flex items-center justify-center">
+            <Loader className="animate-spin size-4" />
+          </div>
+        )}
+
+        {error && (
+          <div className="text-white text-xs">Error: {error.message}</div>
+        )}
+
         <div className="overflow-y-auto max-h-[55vh]">
           <div className="flex flex-col">
-            {institutions.map((institution) => (
+            {data.map((institution) => (
               <button
                 key={institution.name}
                 className={`flex items-center gap-3 w-full px-4 py-5 hover:bg-[#2a2a2a] transition-colors text-left border-b border-[#333] last:border-0`}
-                onClick={() => onSelect(institution.name)}
+                onClick={() => onSelect(institution)}
               >
                 {institution.logo ? (
                   <Image

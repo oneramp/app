@@ -1,26 +1,80 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { CountryCurrencyModal } from "./modals/CountryCurrencyModal";
 import Image from "next/image";
 import { useUserSelectionStore } from "@/store/user-selection";
 import { useAmountStore } from "@/store/amount-store";
+import { useExchangeRateStore } from "@/store/exchange-rate-store";
 import { Country } from "@/types";
 import { cn } from "@/lib/utils";
+import { getCountryExchangeRate } from "@/actions/rates";
 
 const SelectCountry = () => {
   const [showCountryCurrencyModal, setShowCountryCurrencyModal] =
     useState(false);
-  const { country, updateSelection } = useUserSelectionStore();
+  const { country, updateSelection, paymentMethod } = useUserSelectionStore();
   const { amount, setIsValid, setFiatAmount } = useAmountStore();
+  const { exchangeRate, isLoading, setExchangeRate, setIsLoading, setError } =
+    useExchangeRateStore();
+
+  // Fetch exchange rate when country or payment method changes
+  useEffect(() => {
+    const fetchExchangeRate = async () => {
+      if (!country?.countryCode) return;
+
+      try {
+        setIsLoading(true);
+        const response = await getCountryExchangeRate({
+          country: country.countryCode,
+          orderType: "selling",
+          providerType: paymentMethod,
+        });
+        setExchangeRate(response);
+        setError(null);
+      } catch (error) {
+        setError(
+          error instanceof Error
+            ? error.message
+            : "Failed to fetch exchange rate"
+        );
+        setExchangeRate(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchExchangeRate();
+  }, [
+    country?.countryCode,
+    paymentMethod,
+    setExchangeRate,
+    setIsLoading,
+    setError,
+  ]);
 
   const calculatedAmount = useMemo(() => {
-    if (!country || !amount) return null;
+    if (!country || !amount || !exchangeRate) return null;
     const numericAmount = parseFloat(amount);
     if (isNaN(numericAmount)) return null;
-    return (numericAmount * country.exchangeRate).toFixed(2);
-  }, [amount, country]);
+
+    // Use the exchange rate from the API response
+    const rate = exchangeRate.exchange;
+
+    const convertedAmount = numericAmount * rate;
+
+    // Include fees from conversionResponse if available
+    // THIS IS THE FEE CALCULATION FUNCTIONALITY
+
+    // if (exchangeRate.conversionResponse) {
+    //   const { chargeFeeInFiat, gasFeeInFiat } = exchangeRate.conversionResponse;
+    //   const totalFees = (chargeFeeInFiat || 0) + (gasFeeInFiat || 0);
+    //   return (convertedAmount + totalFees).toFixed(2);
+    // }
+
+    return convertedAmount.toFixed(2);
+  }, [amount, country, exchangeRate]);
 
   const isAmountValid = useMemo(() => {
     if (!calculatedAmount || !country) return true;
@@ -31,15 +85,17 @@ const SelectCountry = () => {
       numericAmount === country.fiatMinMax.min ||
       numericAmount === country.fiatMinMax.max;
     setIsValid(valid);
-    setFiatAmount(calculatedAmount);
+    // setFiatAmount(calculatedAmount);
     return valid;
-  }, [calculatedAmount, country, setIsValid]);
+  }, [calculatedAmount, country, setIsValid, setFiatAmount]);
 
   const handleCountrySelect = (selectedCountry: Country) => {
+    const rate = exchangeRate?.exchange ?? selectedCountry.exchangeRate;
+
     updateSelection({
       country: {
         ...selectedCountry,
-        exchangeRate: selectedCountry.exchangeRate,
+        exchangeRate: rate,
       },
       // Reset related fields when country changes
       institution: undefined,
@@ -55,10 +111,13 @@ const SelectCountry = () => {
           <span
             className={cn(
               "text-3xl font-semibold",
-              isAmountValid ? "text-neutral-300" : "text-red-500"
+              "text-neutral-300",
+              isAmountValid ? "" : ""
             )}
           >
-            {calculatedAmount
+            {isLoading
+              ? ""
+              : calculatedAmount
               ? parseFloat(calculatedAmount).toLocaleString("en-US", {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,

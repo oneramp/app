@@ -43,8 +43,10 @@ export const getTransferStatus = async (transferId: string) => {
     if (globalCallTime === 1) {
       transferStatus = TransferStatusEnum.TransferStarted;
     } else if (globalCallTime === 5) {
+      globalCallTime = 0;
       transferStatus = TransferStatusEnum.TransferCompleted;
     } else if (globalCallTime === 10) {
+      globalCallTime = 0;
       transferStatus = TransferStatusEnum.TransferFailed;
     }
 
