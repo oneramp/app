@@ -16,10 +16,13 @@ import {
 } from "@reown/appkit/react";
 import { Connector, useConnect, useDisconnect } from "@starknet-react/core";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { StarknetkitConnector, useStarknetkitConnectModal } from "starknetkit";
 import ConnectedWalletCard from "./connected-wallet-card";
 import { ChainTypes } from "@/types";
+import { useMutation } from "@tanstack/react-query";
+import { getKYC } from "@/actions/kyc";
+import { useKYCStore } from "@/store/kyc-store";
 
 export const ConnectButton = ({ large }: { large?: boolean }) => {
   const { address, isConnected } = useWalletGetInfo();
@@ -41,6 +44,21 @@ export const ConnectButton = ({ large }: { large?: boolean }) => {
   });
 
   const { disconnect: disconnectStarknet } = useDisconnect();
+
+  const { setKycData } = useKYCStore();
+
+  const { mutate: getSaveKYCData } = useMutation({
+    mutationFn: async () => await getKYC(address as string),
+    onSuccess: (data) => {
+      setKycData(data);
+    },
+  });
+
+  useEffect(() => {
+    if (address) {
+      getSaveKYCData();
+    }
+  }, [address]);
 
   const handleSuccessfulEvmConnection = async () => {
     // Set the current network to the EVM network

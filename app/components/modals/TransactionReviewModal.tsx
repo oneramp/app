@@ -68,7 +68,7 @@ export function TransactionReviewModal() {
                 <span className="text-neutral-400 text-lg">Amount</span>
                 <AssetAvator
                   cryptoType={quote.cryptoType}
-                  cryptoAmount={quote.cryptoAmount}
+                  cryptoAmount={quote.amountPaid}
                 />
               </div>
 
@@ -96,7 +96,7 @@ export function TransactionReviewModal() {
                     {accountNumber?.slice(0, 4)}...{accountNumber?.slice(-4)}
                   </span>
                   <span className="text-neutral-400 mx-2">•</span>
-                  <span>{institution}</span>
+                  <span>{institution?.name.slice(0, 4)}</span>
                 </div>
               </div>
 

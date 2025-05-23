@@ -66,6 +66,11 @@ export interface Institution {
   name: string;
 }
 
+export interface AccountNumberInputDetails {
+  bankLength: number;
+  mobileLength: number;
+}
+
 export interface Country {
   name: string;
   logo: string;
@@ -76,6 +81,7 @@ export interface Country {
   institutions: Institution[];
   fiatMinMax: MINMAX;
   cryptoMinMax: MINMAX;
+  accountNumberLength: AccountNumberInputDetails;
 }
 
 export interface UserSelectionGlobalState {
@@ -95,26 +101,6 @@ export interface MINMAX {
   min: number;
   max: number;
 }
-
-// {
-//   "quote": {
-//     "fiatType": "ZAR",
-//     "cryptoType": "USDC",
-//     "fiatAmount": "112.68",
-//     "cryptoAmount": "5.64",
-//     "country": "ZA",
-//     "amountPaid": "6",
-//     "address": "0x240ef8C7Ae6eB6C1A80Da77F5586EeE76d50C589",
-//     "fee": "0.36",
-//     "guaranteedUntil": "2025-05-14T17:41:01.381Z",
-//     "transferType": "TransferIn",
-//     "quoteId": "f6204b44-6089-4f82-8ded-dedb19e278d2",
-//     "network": "celo",
-//     "used": false,
-//     "requestType": "fiat",
-//     "id": "6824d5ada642d48ade8eb3d2"
-//   },
-// }
 
 export interface Quote {
   fiatType: string;
@@ -209,4 +195,17 @@ export interface ExchangeRateResponse {
 // Institution interface of type key value pair
 export interface Institution {
   [key: string]: string;
+}
+
+export interface KYCVerificationResponse {
+  kycStatus: string;
+  message: {
+    link: string;
+  };
+  addressKYC: {
+    userKYC: string;
+    address: string;
+    createdAt: string;
+    updatedAt: string;
+  };
 }

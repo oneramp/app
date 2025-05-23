@@ -10,7 +10,6 @@ import { useState } from "react";
 interface InstitutionModalProps {
   open: boolean;
   onClose: () => void;
-  institutions: Institution[];
   selectedInstitution: Institution | null;
   onSelect: (institution: Institution) => void;
   country: string;
@@ -19,7 +18,6 @@ interface InstitutionModalProps {
 export function InstitutionModal({
   open,
   onClose,
-  institutions,
   onSelect,
   country,
 }: InstitutionModalProps) {
@@ -33,6 +31,9 @@ export function InstitutionModal({
   if (!open) return null;
 
   // Filter institutions based on search query
+  const filteredInstitutions = data?.filter((institution) =>
+    institution.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   if (!data) return null;
 
@@ -91,7 +92,7 @@ export function InstitutionModal({
 
         <div className="overflow-y-auto max-h-[55vh]">
           <div className="flex flex-col">
-            {data.map((institution) => (
+            {filteredInstitutions?.map((institution) => (
               <button
                 key={institution.name}
                 className={`flex items-center gap-3 w-full px-4 py-5 hover:bg-[#2a2a2a] transition-colors text-left border-b border-[#333] last:border-0`}
@@ -116,9 +117,9 @@ export function InstitutionModal({
               </button>
             ))}
 
-            {institutions.length === 0 && (
+            {filteredInstitutions?.length === 0 && (
               <div className="py-4 text-center text-neutral-400">
-                No institutions found matching &ldquo;{searchQuery}&ldquo;
+                No institutions found matching &quot;{searchQuery}&quot;
               </div>
             )}
           </div>

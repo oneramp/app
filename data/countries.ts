@@ -111,6 +111,10 @@ export const countries: Country[] = [
     institutions: countryInstitutions.Nigeria,
     fiatMinMax: { min: 1_588.69, max: 480_000 },
     cryptoMinMax: { min: 1, max: 2_500 },
+    accountNumberLength: {
+      bankLength: 10,
+      mobileLength: 9,
+    },
   },
   {
     name: "Kenya",
@@ -122,6 +126,10 @@ export const countries: Country[] = [
     institutions: countryInstitutions.Kenya,
     fiatMinMax: { min: 133.15, max: 25_000 },
     cryptoMinMax: { min: 1, max: 2_500 },
+    accountNumberLength: {
+      bankLength: 13,
+      mobileLength: 10,
+    },
   },
   {
     name: "Ghana",
@@ -133,6 +141,10 @@ export const countries: Country[] = [
     institutions: countryInstitutions.Ghana,
     fiatMinMax: { min: 16.35, max: 35_000 },
     cryptoMinMax: { min: 5, max: 2_500 },
+    accountNumberLength: {
+      bankLength: 13,
+      mobileLength: 10,
+    },
   },
   {
     name: "Zambia",
@@ -144,6 +156,10 @@ export const countries: Country[] = [
     institutions: countryInstitutions.Zambia,
     fiatMinMax: { min: 127.38, max: 100_000 },
     cryptoMinMax: { min: 5, max: 2_500 },
+    accountNumberLength: {
+      bankLength: 11,
+      mobileLength: 10,
+    },
   },
   {
     name: "Uganda",
@@ -155,6 +171,10 @@ export const countries: Country[] = [
     institutions: countryInstitutions.Uganda,
     fiatMinMax: { min: 3_804.44, max: 4_556_194 },
     cryptoMinMax: { min: 5, max: 2_500 },
+    accountNumberLength: {
+      bankLength: 10,
+      mobileLength: 10,
+    },
   },
   {
     name: "Tanzania",
@@ -166,6 +186,10 @@ export const countries: Country[] = [
     institutions: countryInstitutions.Tanzania,
     fiatMinMax: { min: 2_941.0, max: 13_475_000 },
     cryptoMinMax: { min: 5, max: 2_500 },
+    accountNumberLength: {
+      bankLength: 12,
+      mobileLength: 10,
+    },
   },
 ];
 

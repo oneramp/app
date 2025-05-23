@@ -1,19 +1,15 @@
 "use server";
-import delay from "delay";
-import { quoteResponse } from "@/dummy";
+import { oneRampApi } from "@/constants";
 import { QuoteRequest } from "@/types";
-const DELAY_TIME = Number(process.env.DELAY_TIME!) || 4000;
+// const DELAY_TIME = Number(process.env.DELAY_TIME!) || 4000;
 
 export const createQuote = async (payload: QuoteRequest) => {
   try {
-    console.log("====================================");
-    console.log("payload", payload);
-    console.log("====================================");
-
     // Add an artificial delay
-    await delay(DELAY_TIME);
+    // await delay(DELAY_TIME);
+    const response = await oneRampApi.post("/quote-in", payload);
 
-    return quoteResponse;
+    return response.data;
   } catch (error) {
     throw new Error("Failed to create quote", { cause: error });
   }

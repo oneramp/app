@@ -100,6 +100,7 @@ const SelectCountry = () => {
       // Reset related fields when country changes
       institution: undefined,
       address: undefined,
+      accountNumber: undefined,
     });
     setShowCountryCurrencyModal(false);
   };
