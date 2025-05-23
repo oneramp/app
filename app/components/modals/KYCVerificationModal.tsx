@@ -4,6 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { X } from "lucide-react";
 import { useState } from "react";
+import Image from "next/image";
+import { useKYCStore } from "@/store/kyc-store";
+import useWalletGetInfo from "@/hooks/useWalletGetInfo";
+import { KYC_REDIRECT_URL } from "@/constants";
 
 interface KYCVerificationModalProps {
   open: boolean;
@@ -16,6 +20,8 @@ export function KYCVerificationModal({
   onClose,
   kycLink,
 }: KYCVerificationModalProps) {
+  const { setIsCheckingKyc, isCheckingKyc } = useKYCStore();
+  const { address } = useWalletGetInfo();
   const [accepted, setAccepted] = useState(false);
   const [showQR, setShowQR] = useState(false);
 
@@ -23,7 +29,10 @@ export function KYCVerificationModal({
 
   const handleAcceptAndSign = () => {
     setShowQR(true);
+    setIsCheckingKyc(true);
   };
+
+  const fullKycUrl = `${kycLink}/metadata={"address":"${address}","email":"dummy@email.com"}&redirect=${KYC_REDIRECT_URL}`;
 
   if (showQR) {
     return (
@@ -47,12 +56,15 @@ export function KYCVerificationModal({
 
             <div className="bg-white p-4 rounded-xl mb-4 mx-auto max-w-[280px]">
               {kycLink ? (
-                <img
+                <Image
                   src={`https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=${encodeURIComponent(
-                    kycLink
+                    fullKycUrl
                   )}`}
                   alt="KYC verification QR code"
+                  width={256}
+                  height={256}
                   className="w-full h-full"
+                  unoptimized
                 />
               ) : (
                 <div className="w-full aspect-square bg-neutral-100 rounded-lg flex items-center justify-center">
@@ -66,7 +78,7 @@ export function KYCVerificationModal({
             <Button
               className="w-full py-6 bg-neutral-800 text-white hover:bg-neutral-700"
               onClick={() => {
-                if (kycLink) window.open(kycLink, "_blank");
+                if (kycLink) window.open(fullKycUrl, "_blank");
               }}
             >
               Open URL
@@ -99,6 +111,13 @@ export function KYCVerificationModal({
               </svg>
             </Button>
           </div>
+          {isCheckingKyc && (
+            <div className="w-full flex justify-end p-1">
+              <span className="text-neutral-400 text-[10px] text-end">
+                Listening...
+              </span>
+            </div>
+          )}
         </div>
       </div>
     );
