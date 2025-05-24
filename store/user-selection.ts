@@ -1,5 +1,5 @@
 import { assets } from "@/data/currencies";
-import { OrderStep, UserSelectionGlobalState } from "@/types";
+import { AppState, OrderStep, UserSelectionGlobalState } from "@/types";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -7,6 +7,7 @@ interface UserSelectionStore extends UserSelectionGlobalState {
   updateSelection: (updates: Partial<UserSelectionGlobalState>) => void;
   resetSelection: () => void;
   reset: () => void;
+  setAppState: (state: AppState) => void;
 }
 
 const initialState: UserSelectionGlobalState = {
@@ -20,6 +21,7 @@ const initialState: UserSelectionGlobalState = {
   institution: undefined,
   accountNumber: undefined,
   orderStep: OrderStep.Initial,
+  appState: AppState.Idle,
 };
 
 export const useUserSelectionStore = create<UserSelectionStore>()(
@@ -36,6 +38,8 @@ export const useUserSelectionStore = create<UserSelectionStore>()(
       reset: () => set(initialState),
       setOrderStep: (step: OrderStep) =>
         set((state) => ({ ...state, orderStep: step })),
+      setAppState: (newState: AppState) =>
+        set((state) => ({ ...state, appState: newState })),
     }),
     {
       name: "user-selection",

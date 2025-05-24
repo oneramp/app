@@ -9,7 +9,7 @@ import { useAmountStore } from "@/store/amount-store";
 import { useNetworkStore } from "@/store/network";
 import { useQuoteStore } from "@/store/quote-store";
 import { useUserSelectionStore } from "@/store/user-selection";
-import { Institution, OrderStep, QuoteRequest } from "@/types";
+import { AppState, Institution, OrderStep, QuoteRequest } from "@/types";
 import { useMutation } from "@tanstack/react-query";
 import { Loader } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -206,7 +206,9 @@ const SelectInstitution = () => {
         </div>
 
         {/* Show account details only when account number is entered */}
-        {accountNumber && isAccountNumberValid() && <AccountDetails />}
+        {accountNumber && isAccountNumberValid() && (
+          <AccountDetails accountNumber={accountNumber} />
+        )}
       </div>
 
       {country && (
@@ -222,7 +224,11 @@ const SelectInstitution = () => {
       <div className="mx-4 mb-4">
         <SubmitButton
           onClick={handleSubmit}
-          disabled={buttonDisabled || createMutation.isPending}
+          disabled={
+            buttonDisabled ||
+            createMutation.isPending ||
+            userPayLoad.appState === AppState.Processing
+          }
           className={`w-full text-white text-base font-bold h-14 mt-2 rounded-2xl ${
             buttonDisabled
               ? "bg-[#232323] hover:bg-[#2a2a2a] cursor-not-allowed"

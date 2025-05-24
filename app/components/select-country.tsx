@@ -7,14 +7,15 @@ import Image from "next/image";
 import { useUserSelectionStore } from "@/store/user-selection";
 import { useAmountStore } from "@/store/amount-store";
 import { useExchangeRateStore } from "@/store/exchange-rate-store";
-import { Country } from "@/types";
+import { AppState, Country } from "@/types";
 import { cn } from "@/lib/utils";
 import { getCountryExchangeRate } from "@/actions/rates";
 
 const SelectCountry = () => {
   const [showCountryCurrencyModal, setShowCountryCurrencyModal] =
     useState(false);
-  const { country, updateSelection, paymentMethod } = useUserSelectionStore();
+  const { country, updateSelection, paymentMethod, setAppState } =
+    useUserSelectionStore();
   const { amount, setIsValid, setFiatAmount } = useAmountStore();
   const { exchangeRate, isLoading, setExchangeRate, setIsLoading, setError } =
     useExchangeRateStore();
@@ -25,6 +26,7 @@ const SelectCountry = () => {
       if (!country?.countryCode) return;
 
       try {
+        setAppState(AppState.Processing);
         setIsLoading(true);
         const response = await getCountryExchangeRate({
           country: country.countryCode,
@@ -41,6 +43,7 @@ const SelectCountry = () => {
         );
         setExchangeRate(null);
       } finally {
+        setAppState(AppState.Idle);
         setIsLoading(false);
       }
     };

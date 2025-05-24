@@ -3,8 +3,11 @@
 import { useKYCStore } from "@/store/kyc-store";
 import { useUserSelectionStore } from "@/store/user-selection";
 import { Check, Loader } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { KYCVerificationModal } from "./modals/KYCVerificationModal";
+import { useQuery } from "@tanstack/react-query";
+import { verifyAccountDetails } from "@/actions/institutions";
+import { AppState } from "@/types";
 
 export const FetchingAccountDetails = () => {
   return (
@@ -15,8 +18,9 @@ export const FetchingAccountDetails = () => {
   );
 };
 
-const AccountDetails = () => {
-  const { paymentMethod } = useUserSelectionStore();
+const AccountDetails = ({ accountNumber }: { accountNumber: string }) => {
+  const { paymentMethod, country, institution, setAppState } =
+    useUserSelectionStore();
   // const { address } = useWalletGetInfo();
   //   const [isLoading, setIsLoading] = useState(false);
   const [showKYCModal, setShowKYCModal] = useState(false);
@@ -25,15 +29,40 @@ const AccountDetails = () => {
 
   // Automatically show KYC modal when status is not verified
 
-  //   if (isLoading) {
-  //     return <FetchingAccountDetails />;
-  //   }
+  const {
+    data: accountDetails,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["account-details", accountNumber, country],
+    queryFn: async () =>
+      await verifyAccountDetails({
+        bankId: institution?.code || "",
+        accountNumber: accountNumber,
+        currency: country?.currency || "",
+      }),
+    enabled: !!accountNumber && !!country,
+  });
 
-  //   if (kycError) {
-  //     return (
-  //       <div className="text-red-500 text-xs">Error fetching account details</div>
-  //     );
-  //   }
+  useEffect(() => {
+    if (isLoading) {
+      setAppState(AppState.Processing);
+    }
+
+    if (!isLoading && !error && accountDetails) {
+      setAppState(AppState.Idle);
+    }
+  }, [isLoading, error, accountDetails]);
+
+  if (isLoading) {
+    return <FetchingAccountDetails />;
+  }
+
+  if (error) {
+    return (
+      <div className="text-red-500 text-xs">Error fetching account details</div>
+    );
+  }
 
   return (
     <div className="mb-2 flex flex-col gap-4">
@@ -52,7 +81,9 @@ const AccountDetails = () => {
               {paymentMethod === "momo" ? (
                 <h3>OK</h3>
               ) : (
-                <h3>Catherine Jones</h3>
+                <h3 className="line-clamp-1">
+                  {accountDetails?.accountName || "Account Name"}
+                </h3>
               )}
             </div>
             <Check className="size-6 text-green-500" />

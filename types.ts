@@ -95,6 +95,7 @@ export interface UserSelectionGlobalState {
   institution?: Institution;
   accountNumber?: string;
   orderStep: OrderStep;
+  appState: AppState;
 }
 
 export interface MINMAX {
@@ -208,4 +209,15 @@ export interface KYCVerificationResponse {
     createdAt: string;
     updatedAt: string;
   };
+}
+
+export interface VerifyAccountDetailsRequest {
+  bankId: string;
+  accountNumber: string;
+  currency: string;
+}
+
+export enum AppState {
+  Idle = "Idle",
+  Processing = "Processing",
 }
