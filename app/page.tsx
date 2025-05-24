@@ -1,13 +1,29 @@
-import { SwapBuyTabs } from "./components/SwapBuyTabs";
 import { Header } from "./components/Header";
+import { SwapBuyTabs } from "./components/SwapBuyTabs";
+import StateContextProvider from "./providers/StateContextProvider";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-black flex flex-col">
-      <Header />
-      <div className="flex-1 flex flex-col items-center">
-        <div className="max-w-[1000px] w-full px-6">
-          <SwapBuyTabs />
+    <div className="min-h-screen w-full ">
+      <div className="h-full min-h-screen">
+        <div className="grid grid-cols-1 md:grid-cols-3 h-full min-h-screen">
+          <div className="hidden md:flex p-4">
+            <Header logoOnly />
+          </div>
+          <div className="flex md:items-center md:justify-center py-4">
+            <StateContextProvider />
+            <SwapBuyTabs />
+          </div>
+          <div className="hidden md:flex relative">
+            <div className="w-full flex flex-row justify-between py-6 px-4 ">
+              <div className="flex flex-1" />
+              <div className="flex flex-1">
+                <Header />
+              </div>
+
+              {/* <ActionButtonList /> */}
+            </div>
+          </div>
         </div>
       </div>
     </div>

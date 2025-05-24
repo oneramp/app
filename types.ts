@@ -1,0 +1,211 @@
+import { Chain } from "viem";
+import { SUPPORTED_NETWORK_NAMES } from "./data/networks";
+
+export enum ChainTypes {
+  EVM = "evm",
+  Starknet = "starknet",
+}
+
+export enum OrderStep {
+  Initial = "Initial",
+  GotQuote = "GotQuote",
+  GotTransfer = "GotTransfer",
+  ProcessingPayment = "ProcessingPayment",
+  WaitingForPayment = "WaitingForPayment",
+  PaymentReceived = "PaymentReceived",
+  PaymentFailed = "PaymentFailed",
+  PaymentRefunded = "PaymentRefunded",
+  PaymentCompleted = "PaymentCompleted",
+  PaymentExpired = "PaymentExpired",
+}
+
+export enum TransferStatusEnum {
+  TransferStarted = "TransferStarted",
+  TransferCompleted = "TransferCompleted",
+  TransferFailed = "TransferFailed",
+  TransferRefunded = "TransferRefunded",
+  TransferExpired = "TransferExpired",
+}
+
+export interface Network extends Omit<Chain, "id"> {
+  name: string;
+  logo: string;
+  type: ChainTypes;
+  chainId: number;
+  tokenAddress?: string;
+  id: string | number;
+  chainNamespace: "eip155" | "solana" | "bip122" | "polkadot" | "cosmos";
+  caipNetworkId:
+    | `eip155:${string}`
+    | `eip155:${number}`
+    | `solana:${string}`
+    | `solana:${number}`
+    | `bip122:${string}`
+    | `bip122:${number}`
+    | `polkadot:${string}`
+    | `polkadot:${number}`
+    | `cosmos:${string}`
+    | `cosmos:${number}`;
+}
+
+export enum TransferType {
+  TransferIn = "TransferIn",
+  TransferOut = "TransferOut",
+}
+
+export interface Asset {
+  name: string;
+  logo: string;
+  symbol: string;
+  networks: {
+    [key in (typeof SUPPORTED_NETWORK_NAMES)[number]]: Network;
+  };
+}
+
+export interface Institution {
+  name: string;
+}
+
+export interface AccountNumberInputDetails {
+  bankLength: number;
+  mobileLength: number;
+}
+
+export interface Country {
+  name: string;
+  logo: string;
+  currency: string;
+  countryCode: string;
+  phoneCode: string;
+  exchangeRate: number;
+  institutions: Institution[];
+  fiatMinMax: MINMAX;
+  cryptoMinMax: MINMAX;
+  accountNumberLength: AccountNumberInputDetails;
+}
+
+export interface UserSelectionGlobalState {
+  network?: Network;
+  country?: Country;
+  asset?: Asset;
+  cryptoAmount?: number;
+  fiatAmount?: number;
+  address?: string;
+  paymentMethod: "bank" | "momo";
+  institution?: Institution;
+  accountNumber?: string;
+  orderStep: OrderStep;
+}
+
+export interface MINMAX {
+  min: number;
+  max: number;
+}
+
+export interface Quote {
+  fiatType: string;
+  cryptoType: string;
+  fiatAmount: string;
+  cryptoAmount: string;
+  country: string;
+  amountPaid: string;
+  address: string;
+  fee: string;
+  guaranteedUntil: string;
+  transferType: TransferType;
+  quoteId: string;
+  network: string;
+  used: boolean;
+  requestType: string;
+  id: string;
+}
+
+export interface Transfer {
+  transferId: string;
+  transferStatus: string;
+  transferAddress: string;
+  userActionDetails: {
+    accountNumber: string;
+    accountName: string;
+    transactionReference: string;
+    userActionType: string;
+    institutionName: string;
+  };
+}
+
+export interface TransferStatus {
+  status: TransferStatusEnum;
+  transferType: TransferType;
+  fiatType: string;
+  cryptoType: string;
+  amountProvided: string;
+  amountReceived: string;
+  fiatAccountId: string;
+  transferId: string;
+  transferAddress: string;
+  userActionDetails: {
+    userActionType: string;
+    institutionName: string;
+    accountNumber: string;
+    accountName: string;
+    transactionReference: string;
+  };
+}
+
+export interface QuoteRequest {
+  fiatType: string;
+  cryptoType: string;
+  network: string;
+  cryptoAmount: string;
+  country: string;
+  address: string;
+}
+
+// {
+//   "fiatType": "NGN",
+//   "cryptoType": "USDC",
+//   "network": "celo",
+//   //   "fiatAmount": "3500",
+//   "cryptoAmount": "6",
+//   "country": "NG",
+//   "address": "0x240ef8C7Ae6eB6C1A80Da77F5586EeE76d50C589"
+// }
+
+export interface ExchangeRateRequest {
+  country: string;
+  orderType: string;
+  providerType: string;
+}
+
+export interface ExchangeRateResponse {
+  country: string;
+  exchange: number;
+  conversionResponse: {
+    success: boolean;
+    chargeFeeInFiat: number;
+    chargeFeeInUsd: number;
+    exchangeRate: number;
+    cryptoAmount: number;
+    fiatAmount: number;
+    providerPayoutAmount: number;
+    gasFeeInFiat: number;
+  };
+}
+
+// Institution interface of type key value pair
+export interface Institution {
+  [key: string]: string;
+}
+
+export interface KYCVerificationResponse {
+  kycStatus: string;
+  message: {
+    link: string;
+  };
+  addressKYC: {
+    userKYC: string;
+    address: string;
+    createdAt: string;
+    updatedAt: string;
+  };
+}
