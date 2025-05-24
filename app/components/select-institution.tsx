@@ -1,15 +1,24 @@
 "use client";
 
-import { createQuote } from "@/actions/quote";
+import { createQuoteOut } from "@/actions/quote";
+import { createTransferOut } from "@/actions/transfer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SUPPORTED_NETWORKS_WITH_RPC_URLS } from "@/data/networks";
 import useWalletGetInfo from "@/hooks/useWalletGetInfo";
 import { useAmountStore } from "@/store/amount-store";
+import { useKYCStore } from "@/store/kyc-store";
 import { useNetworkStore } from "@/store/network";
 import { useQuoteStore } from "@/store/quote-store";
 import { useUserSelectionStore } from "@/store/user-selection";
-import { AppState, Institution, OrderStep, QuoteRequest } from "@/types";
+import {
+  AppState,
+  Institution,
+  OrderStep,
+  QuoteRequest,
+  TransferBankRequest,
+  TransferMomoRequest,
+} from "@/types";
 import { useMutation } from "@tanstack/react-query";
 import { Loader } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -17,8 +26,8 @@ import { toast } from "sonner";
 import AccountDetails from "./account-details";
 import SubmitButton from "./buttons/submit-button";
 import { InstitutionModal } from "./modals/InstitutionModal";
-import { useKYCStore } from "@/store/kyc-store";
 import { KYCVerificationModal } from "./modals/KYCVerificationModal";
+import { useTransferStore } from "@/store/transfer-store";
 
 const SelectInstitution = () => {
   const [accountNumber, setAccountNumber] = useState("");
@@ -35,13 +44,144 @@ const SelectInstitution = () => {
   const { setQuote } = useQuoteStore();
   const { currentNetwork } = useNetworkStore();
   const { isConnected, address } = useWalletGetInfo();
+  const { setTransfer } = useTransferStore();
 
   const createMutation = useMutation({
-    mutationFn: async (payload: QuoteRequest) => await createQuote(payload),
-    onSuccess: (data) => {
+    mutationFn: async (payload: QuoteRequest) => await createQuoteOut(payload),
+    onSuccess: async (data) => {
       updateSelection({ accountNumber, orderStep: OrderStep.GotQuote });
 
-      setQuote(data.quote);
+      // Create the transfer here too...
+      if (userPayLoad.paymentMethod === "momo") {
+        const { institution } = userPayLoad;
+        const { fullKYC } = kycData || {};
+
+        if (!institution || !accountNumber || !country || !fullKYC) return;
+
+        const {
+          fullName,
+          nationality,
+          dateOfBirth,
+          documentNumber,
+          documentType,
+          documentSubType,
+        } = fullKYC;
+
+        // accountNumber withouth the leading 0
+        const accountNumberWithoutLeadingZero = accountNumber.replace(
+          /^0+/,
+          ""
+        );
+
+        const fullPhoneNumber = `${country.phoneCode}${accountNumberWithoutLeadingZero}`;
+        let updatedDocumentType = documentType;
+        let updatedDocumentTypeSubType = documentSubType;
+
+        if (country.countryCode === "NG") {
+          updatedDocumentTypeSubType = "BVN";
+          updatedDocumentType = "NIN";
+        }
+
+        if (documentType === "ID") {
+          updatedDocumentType = "NIN";
+        } else if (documentType === "P") {
+          updatedDocumentType = "Passport";
+        } else {
+          updatedDocumentType = "License";
+        }
+
+        const payload: TransferMomoRequest = {
+          phone: fullPhoneNumber,
+          operator: institution.name.toLocaleLowerCase(),
+          quoteId: data.quote.quoteId,
+          userDetails: {
+            name: fullName,
+            country: nationality,
+            address: country?.countryCode || "",
+            phone: accountNumber,
+            dob: dateOfBirth,
+            idNumber: documentNumber,
+            idType: updatedDocumentType,
+            additionalIdType: updatedDocumentType,
+            additionalIdNumber: updatedDocumentTypeSubType,
+          },
+        };
+
+        console.log("====================================");
+        console.log("payload", payload);
+        console.log("====================================");
+
+        const transferOutResponse = await createTransferOut(payload);
+
+        setTransfer(transferOutResponse);
+
+        setQuote(data.quote);
+        return;
+      }
+
+      if (userPayLoad.paymentMethod === "bank") {
+        const { institution } = userPayLoad;
+        const { fullKYC } = kycData || {};
+
+        if (!institution || !accountNumber || !country || !fullKYC) return;
+
+        const {
+          fullName,
+          nationality,
+          dateOfBirth,
+          documentNumber,
+          documentType,
+          documentSubType,
+        } = fullKYC;
+
+        let updatedDocumentType = documentType;
+        let updatedDocumentTypeSubType = documentSubType;
+
+        if (country.countryCode === "NG") {
+          updatedDocumentTypeSubType = "BVN";
+          updatedDocumentType = "NIN";
+        }
+
+        if (documentType === "ID") {
+          updatedDocumentType = "NIN";
+        } else if (documentType === "P") {
+          updatedDocumentType = "Passport";
+        } else {
+          updatedDocumentType = "License";
+        }
+
+        const accountName =
+          userPayLoad.accountName === "OK"
+            ? fullName
+            : userPayLoad.accountName || fullName;
+
+        const payload: TransferBankRequest = {
+          bank: {
+            code: institution.code,
+            accountNumber: accountNumber,
+            accountName: accountName,
+          },
+          operator: "bank",
+          quoteId: data.quote.quoteId,
+          userDetails: {
+            name: fullName,
+            country: nationality,
+            address: country?.countryCode || "",
+            phone: accountNumber,
+            dob: dateOfBirth,
+            idNumber: documentNumber,
+            idType: updatedDocumentType,
+            additionalIdType: updatedDocumentType,
+            additionalIdNumber: updatedDocumentTypeSubType,
+          },
+        };
+
+        const transferOutResponse = await createTransferOut(payload);
+
+        setTransfer(transferOutResponse);
+        setQuote(data.quote);
+        return;
+      }
     },
     onError: () => {
       toast.error("Failed to create quote");

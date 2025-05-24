@@ -41,6 +41,10 @@ const useWalletInfo = () => {
   const starknetChainId = currentNetwork?.id;
 
   useEffect(() => {
+    console.log("====================================");
+    console.log("evmChainId", evmChainId);
+    console.log("====================================");
+
     // Set the address and isConnected state based on the current network
     if (currentNetwork?.type === "evm" && evmAddress) {
       setAddress(evmAddress);
@@ -74,6 +78,7 @@ const useWalletInfo = () => {
     starknetAddress,
     status,
     starknetChainId,
+    evmChainId,
   ]);
 
   return {

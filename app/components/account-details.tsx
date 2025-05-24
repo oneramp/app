@@ -19,7 +19,7 @@ export const FetchingAccountDetails = () => {
 };
 
 const AccountDetails = ({ accountNumber }: { accountNumber: string }) => {
-  const { paymentMethod, country, institution, setAppState } =
+  const { paymentMethod, country, institution, setAppState, updateSelection } =
     useUserSelectionStore();
   // const { address } = useWalletGetInfo();
   //   const [isLoading, setIsLoading] = useState(false);
@@ -51,6 +51,7 @@ const AccountDetails = ({ accountNumber }: { accountNumber: string }) => {
 
     if (!isLoading && !error && accountDetails) {
       setAppState(AppState.Idle);
+      updateSelection({ accountName: accountDetails.accountName });
     }
   }, [isLoading, error, accountDetails]);
 

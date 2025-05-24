@@ -1,39 +1,66 @@
-import { createTransferIn } from "@/actions/transfer";
 import { Button } from "@/components/ui/button";
+import useWalletInfo from "@/hooks/useWalletGetInfo";
+import useEVMPay from "@/onchain/useEVMPay";
 import { useNetworkStore } from "@/store/network";
 import { useQuoteStore } from "@/store/quote-store";
 import { useTransferStore } from "@/store/transfer-store";
 import { useUserSelectionStore } from "@/store/user-selection";
-import { OrderStep } from "@/types";
-import { useMutation } from "@tanstack/react-query";
+import { AppState, OrderStep } from "@/types";
 import { Loader } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { parseUnits } from "viem";
 import AssetAvator from "../cards/asset-avator";
 import { CancelModal } from "./cancel-modal";
+import { useMutation } from "@tanstack/react-query";
+import { submitTransactionHash } from "@/actions/transfer";
 
 export function TransactionReviewModal() {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const { quote, resetQuote } = useQuoteStore();
-  const { institution, accountNumber, updateSelection, orderStep } =
+  const { institution, accountNumber, updateSelection, orderStep, asset } =
     useUserSelectionStore();
   const { currentNetwork } = useNetworkStore();
-  const { setTransfer, resetTransfer } = useTransferStore();
+  const { resetTransfer, transfer, setTransactionHash } = useTransferStore();
 
+  const [wrongChainState, setWrongChainState] = useState({
+    isWrongChain: false,
+    chainId: 0,
+    buttonText: "Confirm payment",
+  });
+
+  const { payWithEVM, isLoading, isSuccess, transactionReceipt } = useEVMPay();
+
+  const { chainId } = useWalletInfo();
   // if (!open) return null;
 
-  const transferInMutation = useMutation({
-    mutationFn: createTransferIn,
-    onSuccess: (data) => {
-      updateSelection({ orderStep: OrderStep.GotTransfer });
-      setTransfer(data);
-      // toast.success("Transfer in request created");
-    },
-    onError: () => {
-      toast.error("Failed to create transfer in request");
-    },
-  });
+  useEffect(() => {
+    if (chainId !== currentNetwork?.chainId) {
+      setWrongChainState({
+        isWrongChain: true,
+        chainId: currentNetwork?.chainId ?? 0,
+        buttonText: "Switch to " + currentNetwork?.name,
+      });
+    } else {
+      setWrongChainState({
+        isWrongChain: false,
+        chainId: chainId ?? 0,
+        buttonText: "Confirm payment",
+      });
+    }
+  }, [chainId, currentNetwork]);
+
+  useEffect(() => {
+    if (isSuccess && !isLoading && transactionReceipt && transfer?.transferId) {
+      setTransactionHash(transactionReceipt.transactionHash);
+      // updateSelection({ orderStep: OrderStep.GotTransfer });
+      submitTxHashMutation.mutate({
+        transferId: transfer?.transferId,
+        txHash: transactionReceipt.transactionHash,
+      });
+    }
+  }, [isSuccess, isLoading, transactionReceipt]);
 
   const handleBackClick = () => {
     setShowCancelModal(true);
@@ -45,6 +72,50 @@ export function TransactionReviewModal() {
     resetTransfer();
     updateSelection({ orderStep: OrderStep.Initial });
   };
+
+  const makeBlockchainTransaction = async () => {
+    if (!asset || !currentNetwork || !quote || !transfer) return;
+
+    const networkName = currentNetwork?.name;
+
+    const contractAddress = asset?.networks[networkName]?.tokenAddress;
+
+    if (!contractAddress) {
+      toast.error("Contract address not found");
+      return;
+    }
+
+    const amountInWei = parseUnits(quote.amountPaid.toString(), 6);
+
+    const recipient = transfer.transferAddress;
+
+    const transactionPayload = {
+      recipient: recipient,
+      amount: amountInWei,
+      tokenAddress: contractAddress,
+    };
+
+    updateSelection({ appState: AppState.Processing });
+
+    await payWithEVM(transactionPayload);
+
+    // setShowCancelModal(false);
+    // resetQuote();
+    // resetTransfer();
+    // updateSelection({ orderStep: OrderStep.Initial });
+  };
+
+  const submitTxHashMutation = useMutation({
+    mutationFn: submitTransactionHash,
+    onSuccess: () => {
+      updateSelection({ orderStep: OrderStep.GotTransfer });
+    },
+    onError: (error) => {
+      toast.error("Failed to submit transaction hash", {
+        description: error.message,
+      });
+    },
+  });
 
   if (orderStep !== OrderStep.GotQuote) return null;
 
@@ -84,7 +155,8 @@ export function TransactionReviewModal() {
               <div className="flex justify-between items-center">
                 <span className="text-neutral-400 text-lg">Recipient</span>
                 <span className="text-white text-lg font-medium">
-                  {quote?.address.slice(0, 4)}...{quote?.address.slice(-4)}
+                  {transfer?.transferAddress?.slice(0, 4)}...
+                  {transfer?.transferAddress?.slice(-4)}
                 </span>
               </div>
 
@@ -152,20 +224,21 @@ export function TransactionReviewModal() {
                 variant="outline"
                 className="flex-1 bg-[#333] hover:bg-[#444] border-none text-white p-6 text-lg rounded-xl"
                 onClick={handleBackClick}
-                disabled={transferInMutation.isPending}
+                disabled={isLoading}
               >
                 Back
               </Button>
 
               <Button
                 className="flex-1 bg-[#7B68EE] hover:bg-[#6A5ACD] text-white p-6 text-lg rounded-xl"
-                onClick={() => transferInMutation.mutate()}
-                disabled={transferInMutation.isPending}
+                // onClick={() => transferInMutation.mutate()}
+                onClick={makeBlockchainTransaction}
+                disabled={isLoading || submitTxHashMutation.isPending}
               >
-                {transferInMutation.isPending ? (
+                {isLoading || submitTxHashMutation.isPending ? (
                   <Loader className="animate-spin" />
                 ) : (
-                  "Confirm payment"
+                  wrongChainState.buttonText
                 )}
               </Button>
             </div>

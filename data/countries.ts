@@ -122,9 +122,9 @@ export const countries: Country[] = [
     currency: "KES",
     countryCode: "KE",
     phoneCode: "+254",
-    exchangeRate: 133.15,
+    exchangeRate: 130,
     institutions: countryInstitutions.Kenya,
-    fiatMinMax: { min: 133.15, max: 25_000 },
+    fiatMinMax: { min: 120, max: 25_000 },
     cryptoMinMax: { min: 1, max: 2_500 },
     accountNumberLength: {
       bankLength: 13,

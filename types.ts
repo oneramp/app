@@ -21,7 +21,7 @@ export enum OrderStep {
 
 export enum TransferStatusEnum {
   TransferStarted = "TransferStarted",
-  TransferCompleted = "TransferCompleted",
+  TransferComplete = "TransferComplete",
   TransferFailed = "TransferFailed",
   TransferRefunded = "TransferRefunded",
   TransferExpired = "TransferExpired",
@@ -94,6 +94,7 @@ export interface UserSelectionGlobalState {
   paymentMethod: "bank" | "momo";
   institution?: Institution;
   accountNumber?: string;
+  accountName?: string;
   orderStep: OrderStep;
   appState: AppState;
 }
@@ -132,6 +133,7 @@ export interface Transfer {
     userActionType: string;
     institutionName: string;
   };
+  transactionHash?: string;
 }
 
 export interface TransferStatus {
@@ -209,6 +211,21 @@ export interface KYCVerificationResponse {
     createdAt: string;
     updatedAt: string;
   };
+  fullKYC: {
+    createdAt: string;
+    dateOfBirth: string;
+    documentNumber: string;
+    documentSubType: string;
+    documentType: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    nationality: string;
+    fullName: string;
+    additionalIdType: string;
+    additionalIdNumber: string;
+    additionalIdTypeSubType: string;
+  };
 }
 
 export interface VerifyAccountDetailsRequest {
@@ -220,4 +237,49 @@ export interface VerifyAccountDetailsRequest {
 export enum AppState {
   Idle = "Idle",
   Processing = "Processing",
+}
+
+export interface TransferMomoRequest {
+  phone: string;
+  operator: string;
+  quoteId: string;
+  userDetails: {
+    name: string;
+    country: string;
+    address: string;
+    phone: string;
+    dob: string;
+    idNumber: string;
+    idType: string;
+    additionalIdType?: string;
+    additionalIdNumber?: string;
+    additionalIdTypeSubType?: string;
+  };
+}
+
+export interface TransferBankRequest {
+  quoteId: string;
+  operator: string;
+  bank: {
+    code: string;
+    accountNumber: string;
+    accountName: string;
+  };
+  userDetails: {
+    name: string;
+    country: string;
+    address: string;
+    phone: string;
+    dob: string;
+    idNumber: string;
+    idType: string;
+    additionalIdType?: string;
+    additionalIdNumber?: string;
+    additionalIdTypeSubType?: string;
+  };
+}
+
+export interface SubmitTransactionHashRequest {
+  transferId: string;
+  txHash: string;
 }

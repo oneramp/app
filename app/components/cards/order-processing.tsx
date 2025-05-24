@@ -6,17 +6,18 @@ import { useUserSelectionStore } from "@/store/user-selection";
 import { OrderStep, TransferStatusEnum } from "@/types";
 import { Button } from "@/components/ui/button";
 import { useTransferStore } from "@/store/transfer-store";
-import { useQuery } from "@tanstack/react-query";
-import { getTransferStatus } from "@/actions/transfer";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { getTransferStatus, submitTransactionHash } from "@/actions/transfer";
 import { useEffect } from "react";
 import AssetAvator from "./asset-avator";
 import { useQuoteStore } from "@/store/quote-store";
+import { toast } from "sonner";
 const OrderProcessing = () => {
   const { updateSelection } = useUserSelectionStore();
-  const { transfer } = useTransferStore();
+  const { transfer, transactionHash } = useTransferStore();
   const { quote } = useQuoteStore();
 
-  const { data: transferStatus } = useQuery({
+  const { data: transferStatus, isLoading } = useQuery({
     queryKey: ["transferStatus", transfer?.transferId],
     queryFn: () => {
       if (!transfer?.transferId) {
@@ -25,14 +26,41 @@ const OrderProcessing = () => {
       return getTransferStatus(transfer.transferId);
     },
     enabled: !!transfer?.transferId,
-    refetchInterval: 2000, // Poll every 2 seconds
+    refetchInterval: 5000, // Poll every 5 seconds
   });
 
   useEffect(() => {
-    if (transferStatus?.status === TransferStatusEnum.TransferCompleted) {
+    if (
+      transferStatus?.status === TransferStatusEnum.TransferComplete &&
+      !isLoading
+    ) {
       updateSelection({ orderStep: OrderStep.PaymentCompleted });
     }
-  }, [transferStatus?.status]);
+  }, [transferStatus?.status, isLoading]);
+
+  const submitTxHashMutation = useMutation({
+    mutationFn: submitTransactionHash,
+    onSuccess: () => {
+      updateSelection({ orderStep: OrderStep.GotTransfer });
+    },
+    onError: (error) => {
+      toast.error("Failed to submit transaction hash", {
+        description: error.message,
+      });
+    },
+  });
+
+  const handleTryAgain = () => {
+    if (!transfer?.transferId || !transactionHash) {
+      toast.error("Transfer ID or transaction hash is required");
+      return;
+    }
+
+    submitTxHashMutation.mutate({
+      transferId: transfer?.transferId,
+      txHash: transactionHash,
+    });
+  };
 
   // const handlePaymentCompleted = () => {
   //   updateSelection({ orderStep: OrderStep.PaymentCompleted });
@@ -60,9 +88,18 @@ const OrderProcessing = () => {
               <div className=" size-2.5 rounded-full bg-[#2ecc71] z-10"></div>
               <Button
                 disabled
+                // onClick={() => {
+                //   updateSelection({ orderStep: OrderStep.PaymentCompleted });
+                // }}
+                onClick={handleTryAgain}
+                // disabled={submitTxHashMutation.isPending}
                 className=" p-3 bg-[#232323] rounded-xl hover:bg-[#2a2a2a] text-white font-medium text-sm transition-colors w-fit"
               >
-                Ok
+                {submitTxHashMutation.isPending ? (
+                  <Loader className="animate-spin" />
+                ) : (
+                  "Ok"
+                )}
               </Button>
             </div>
           </div>
