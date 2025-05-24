@@ -5,10 +5,6 @@ export const getKYC = async (address: string) => {
   try {
     const response = await oneRampApi.get(`/kyc/${address}`);
 
-    console.log("====================================");
-    console.log("response", response.data);
-    console.log("====================================");
-
     return response.data;
   } catch (error) {
     throw new Error("Failed to get KYC", { cause: error });

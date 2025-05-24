@@ -74,9 +74,6 @@ const SelectInstitution = () => {
       setButtonText("Select institution");
     } else if (!isAmountValid) {
       setButtonText("Invalid amount");
-    } else if (kycData && kycData.kycStatus !== "VERIFIED") {
-      // setButtonDisabled(true);
-      setButtonText("Verify KYC");
     } else {
       setButtonText("Swap");
     }

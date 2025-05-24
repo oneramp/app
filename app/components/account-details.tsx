@@ -3,9 +3,8 @@
 import { useKYCStore } from "@/store/kyc-store";
 import { useUserSelectionStore } from "@/store/user-selection";
 import { Check, Loader } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { KYCVerificationModal } from "./modals/KYCVerificationModal";
-import useWalletGetInfo from "@/hooks/useWalletGetInfo";
 
 export const FetchingAccountDetails = () => {
   return (
@@ -18,21 +17,13 @@ export const FetchingAccountDetails = () => {
 
 const AccountDetails = () => {
   const { paymentMethod } = useUserSelectionStore();
-  const { address } = useWalletGetInfo();
+  // const { address } = useWalletGetInfo();
   //   const [isLoading, setIsLoading] = useState(false);
   const [showKYCModal, setShowKYCModal] = useState(false);
 
-  const { setIsCheckingKyc, kycData, isCheckingKyc } = useKYCStore();
+  const { setIsCheckingKyc, kycData } = useKYCStore();
 
   // Automatically show KYC modal when status is not verified
-  useEffect(() => {
-    if (kycData && kycData.kycStatus !== "VERIFIED" && address) {
-      setTimeout(() => {
-        // setIsLoading(false);
-        setShowKYCModal(true);
-      }, 3000);
-    }
-  }, [kycData, isCheckingKyc]);
 
   //   if (isLoading) {
   //     return <FetchingAccountDetails />;

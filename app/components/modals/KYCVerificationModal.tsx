@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useKYCStore } from "@/store/kyc-store";
 import useWalletGetInfo from "@/hooks/useWalletGetInfo";
@@ -20,10 +20,17 @@ export function KYCVerificationModal({
   onClose,
   kycLink,
 }: KYCVerificationModalProps) {
-  const { setIsCheckingKyc, isCheckingKyc } = useKYCStore();
+  const { setIsCheckingKyc, isCheckingKyc, kycData } = useKYCStore();
   const { address } = useWalletGetInfo();
   const [accepted, setAccepted] = useState(false);
   const [showQR, setShowQR] = useState(false);
+
+  useEffect(() => {
+    if (kycData && kycData.kycStatus === "VERIFIED") {
+      onClose();
+      setIsCheckingKyc(false);
+    }
+  }, [kycData]);
 
   if (!open) return null;
 
@@ -32,7 +39,7 @@ export function KYCVerificationModal({
     setIsCheckingKyc(true);
   };
 
-  const fullKycUrl = `${kycLink}/metadata={"address":"${address}","email":"dummy@email.com"}&redirect=${KYC_REDIRECT_URL}`;
+  const fullKycUrl = `${kycLink}&metadata={"address":"${address}"}&redirect=${KYC_REDIRECT_URL}`;
 
   if (showQR) {
     return (
@@ -55,21 +62,33 @@ export function KYCVerificationModal({
             </p>
 
             <div className="bg-white p-4 rounded-xl mb-4 mx-auto max-w-[280px]">
-              {kycLink ? (
-                <Image
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=${encodeURIComponent(
-                    fullKycUrl
-                  )}`}
-                  alt="KYC verification QR code"
-                  width={256}
-                  height={256}
-                  className="w-full h-full"
-                  unoptimized
-                />
-              ) : (
+              {kycData?.kycStatus === "PENDING" ? (
                 <div className="w-full aspect-square bg-neutral-100 rounded-lg flex items-center justify-center">
-                  <span className="text-neutral-400">QR Code Loading...</span>
+                  <span className="text-neutral-400">
+                    Verifying your KYC data...
+                  </span>
                 </div>
+              ) : (
+                <>
+                  {kycLink ? (
+                    <Image
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=${encodeURIComponent(
+                        fullKycUrl
+                      )}`}
+                      alt="KYC verification QR code"
+                      width={256}
+                      height={256}
+                      className="w-full h-full"
+                      unoptimized
+                    />
+                  ) : (
+                    <div className="w-full aspect-square bg-neutral-100 rounded-lg flex items-center justify-center">
+                      <span className="text-neutral-400">
+                        QR Code Loading...
+                      </span>
+                    </div>
+                  )}
+                </>
               )}
             </div>
 
@@ -77,38 +96,45 @@ export function KYCVerificationModal({
 
             <Button
               className="w-full py-6 bg-neutral-800 text-white hover:bg-neutral-700"
+              disabled={kycData?.kycStatus === "PENDING"}
               onClick={() => {
                 if (kycLink) window.open(fullKycUrl, "_blank");
               }}
             >
-              Open URL
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                className="ml-2"
-              >
-                <path
-                  d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M15 3h6v6"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M10 14L21 3"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              {kycData?.kycStatus === "PENDING" ? (
+                <span className="text-neutral-400">Verifying...</span>
+              ) : (
+                <>
+                  Open URL
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    className="ml-2"
+                  >
+                    <path
+                      d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M15 3h6v6"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M10 14L21 3"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </>
+              )}
             </Button>
           </div>
           {isCheckingKyc && (
