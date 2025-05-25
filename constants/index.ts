@@ -1,8 +1,15 @@
 import axios from "axios";
 
-export const ONERAMP_API_URL = "http://localhost:4000";
-export const KYC_REDIRECT_URL = "http://localhost:3000";
+// LOCAL URLS
+// export const ONERAMP_API_URL = "http://localhost:4000";
+// export const KYC_REDIRECT_URL = "http://localhost:3000";
 export const MOCK_TRANSACTIONS = false;
+
+// BETA URLS
+export const ONERAMP_API_URL =
+  "https://beta-api-testing-production.up.railway.app";
+export const KYC_REDIRECT_URL =
+  "https://signup.metamap.com/?merchantToken=671a3cf5673134001da20657&flowId=671a3cf5673134001da20656";
 
 export const oneRampApi = axios.create({
   baseURL: ONERAMP_API_URL,
