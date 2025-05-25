@@ -6,6 +6,8 @@ import { CountryCurrencyModal } from "./modals/CountryCurrencyModal";
 import { TokenSelectModal } from "./modals/TokenSelectModal";
 import { InstitutionModal } from "./modals/InstitutionModal";
 import { BuyTransactionReviewModal } from "./modals/BuyTransactionReviewModal";
+import { useUserSelectionStore } from "@/store/user-selection";
+import { Institution } from "@/types";
 
 // Reuse the same country list from SwapPanel
 export const countryCurrencies = [
@@ -18,96 +20,6 @@ export const countryCurrencies = [
 ];
 
 // Country-specific institution lists
-const countryInstitutions = {
-  Nigeria: [
-    { name: "OPay" },
-    { name: "PalmPay" },
-    { name: "Moniepoint MFB" },
-    { name: "Kuda Microfinance Bank" },
-    { name: "Access Bank" },
-    { name: "Citibank" },
-    { name: "Diamond Bank" },
-    { name: "Ecobank Bank" },
-    { name: "FBNQuest Merchant Bank" },
-    { name: "FCMB" },
-    { name: "Fidelity Bank" },
-    { name: "First Bank Of Nigeria" },
-    { name: "FSDH Merchant Bank" },
-    { name: "Greenwich Merchant Bank" },
-    { name: "Guaranty Trust Bank" },
-    { name: "Heritage" },
-    { name: "Jaiz Bank" },
-    { name: "Keystone Bank" },
-    { name: "Paystack-Titan MFB" },
-    { name: "Polaris Bank" },
-    { name: "Providus Bank" },
-    { name: "Rand Merchant Bank" },
-    { name: "Safe Haven MFB" },
-    { name: "Stanbic IBTC Bank" },
-    { name: "Standard Chartered Bank" },
-    { name: "Sterling Bank" },
-    { name: "Suntrust Bank" },
-    { name: "Union Bank" },
-    { name: "United Bank for Africa" },
-    { name: "Unity Bank" },
-    { name: "Wema Bank" },
-    { name: "Zenith Bank" },
-  ],
-  Kenya: [
-    { name: "AIRTEL" },
-    { name: "M-PESA" },
-    { name: "ABSA Bank Kenya" },
-    { name: "African Bank Corporation Limited" },
-    { name: "Bank of Africa" },
-    { name: "Bank of Baroda" },
-    { name: "Caritas Microfinance Bank" },
-    { name: "Choice Microfinance Bank Kenya Limited" },
-    { name: "Citi Bank" },
-    { name: "Commercial International Bank Kenya Limited" },
-    { name: "Consolidated Bank Kenya" },
-    { name: "Cooperative Bank of Kenya" },
-    { name: "Credit Bank Limited" },
-    { name: "Diamond Trust Bank" },
-    { name: "Dubai Islamic Bank" },
-    { name: "Ecobank Transnational Inc." },
-    { name: "Equity Bank" },
-    { name: "Family Bank" },
-    { name: "Faulu Bank" },
-    { name: "First Community Bank" },
-    { name: "Guaranty Trust Holding Company PLC" },
-    { name: "Guardian Bank Limited" },
-    { name: "Gulf African Bank" },
-    { name: "Housing finance Company" },
-    { name: "Investments & Morgage Limited" },
-    { name: "Kenya Commercial Bank" },
-    { name: "Kenya Women Microfinance Bank" },
-    { name: "Kingdom Bank Limited" },
-    { name: "Middle East Bank" },
-    { name: "National Bank of Kenya" },
-    { name: "National Commercial Bank of Africa" },
-    { name: "Oriental Commercial Bank Limited" },
-    { name: "Paramount Bank" },
-    { name: "Prime Bank Limited" },
-    { name: "SBM Bank Kenya" },
-    { name: "Sidian Bank" },
-    { name: "Stanbic Bank Kenya" },
-    { name: "Standard Chartered Kenya" },
-    { name: "Stima SACCO" },
-    { name: "Unaitas Sacco" },
-    { name: "United Bank for Africa" },
-    { name: "Victoria Commercial Bank" },
-  ],
-  Uganda: [{ name: "AIRTEL" }, { name: "MTN" }],
-  Ghana: [{ name: "AIRTEL" }, { name: "MTN" }],
-  Zambia: [{ name: "AIRTEL" }, { name: "MTN" }],
-  Tanzania: [
-    { name: "AIRTEL" },
-    { name: "MTN" },
-    { name: "SAFARICOM" },
-    { name: "VADAFORN" },
-  ],
-};
-
 // Available networks
 const networks = [
   "All Networks",
@@ -200,9 +112,9 @@ export function BuyPanel() {
     networkLogo: string;
   }>(null);
   const [showTokenModal, setShowTokenModal] = useState(false);
+  const { institution } = useUserSelectionStore();
 
   // New states for recipient details
-  const [institution, setInstitution] = useState<string | null>(null);
   const [showInstitutionModal, setShowInstitutionModal] = useState(false);
   const [accountNumber, setAccountNumber] = useState("");
   const [description, setDescription] = useState("");
@@ -210,14 +122,14 @@ export function BuyPanel() {
   const [amount, setAmount] = useState("100");
 
   // Get institutions based on selected country
-  const getInstitutionsForCountry = () => {
-    if (!selectedCountry) return [];
-    return (
-      countryInstitutions[
-        selectedCountry.name as keyof typeof countryInstitutions
-      ] || []
-    );
-  };
+  // const getInstitutionsForCountry = () => {
+  //   if (!selectedCountry) return [];
+  //   return (
+  //     countryInstitutions[
+  //       selectedCountry.name as keyof typeof countryInstitutions
+  //     ] || []
+  //   );
+  // };
 
   // Handler for buy confirmation
   const handleConfirmBuy = () => {
@@ -356,7 +268,6 @@ export function BuyPanel() {
                   onClick={() => setShowInstitutionModal(true)}
                   className="bg-transparent border border-[#444] text-neutral-400 rounded-full py-3 px-4 cursor-pointer flex items-center justify-between"
                 >
-                  <span>{institution || "Select institution"}</span>
                   <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
                     <path
                       d="M7 10l5 5 5-5"
@@ -457,11 +368,8 @@ export function BuyPanel() {
         <InstitutionModal
           open={showInstitutionModal}
           onClose={() => setShowInstitutionModal(false)}
-          institutions={getInstitutionsForCountry()}
-          onSelect={(inst) => {
-            setInstitution(inst);
-            setShowInstitutionModal(false);
-          }}
+          selectedInstitution={institution || null}
+          onSelect={(inst) => console.log("inst", inst)}
           country={selectedCountry.name}
         />
       )}
@@ -484,7 +392,7 @@ export function BuyPanel() {
               : "Not specified"
           }
           account={accountNumber || "Not specified"}
-          institution={institution || "Not specified"}
+          institution={(institution as Institution) || "Not specified"}
           network={selectedToken.network}
           networkLogo={selectedToken.networkLogo}
           walletAddress={description || undefined}

@@ -70,10 +70,9 @@ export const SUPPORTED_NETWORKS_WITH_RPC_URLS: Network[] = [
     caipNetworkId: `eip155:${starknet.id}` as const,
     logo: "/logos/starknet.png",
     type: ChainTypes.Starknet,
-    nativeCurrency: {
-      name: "Starknet",
-      symbol: "STRK",
-      decimals: 18,
+    explorers: {
+      starkscan: ["https://starkscan.co"],
+      voyager: ["https://voyager.online"],
     },
   },
 ];
