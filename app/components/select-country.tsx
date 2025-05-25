@@ -84,15 +84,21 @@ const SelectCountry = () => {
   const isAmountValid = useMemo(() => {
     if (!calculatedAmount || !country) return true;
     const numericAmount = parseFloat(calculatedAmount);
-    const valid =
+    return (
       (numericAmount > country.fiatMinMax.min &&
         numericAmount < country.fiatMinMax.max) ||
       numericAmount === country.fiatMinMax.min ||
-      numericAmount === country.fiatMinMax.max;
-    setIsValid(valid);
-    // setFiatAmount(calculatedAmount);
-    return valid;
-  }, [calculatedAmount, country, setIsValid, setFiatAmount]);
+      numericAmount === country.fiatMinMax.max
+    );
+  }, [calculatedAmount, country]);
+
+  // Move state updates to useEffect
+  useEffect(() => {
+    setIsValid(isAmountValid);
+    if (calculatedAmount) {
+      setFiatAmount(calculatedAmount);
+    }
+  }, [isAmountValid, calculatedAmount, setIsValid, setFiatAmount]);
 
   const handleCountrySelect = (selectedCountry: Country) => {
     const rate = exchangeRate?.exchange ?? selectedCountry.exchangeRate;
