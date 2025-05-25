@@ -281,20 +281,21 @@ const SelectInstitution = () => {
 
   const isAccountNumberValid = () => {
     if (!userPayLoad) return false;
-
-    const { country } = userPayLoad;
-
-    if (!country) return false;
-
     if (!accountNumber) return false;
 
-    if (userPayLoad.paymentMethod === "bank") {
+    const { country, paymentMethod } = userPayLoad;
+
+    if (!country?.accountNumberLength) return false;
+
+    if (paymentMethod === "bank" && country.accountNumberLength?.bankLength) {
       return accountNumber.length >= country.accountNumberLength.bankLength;
     }
 
-    if (userPayLoad.paymentMethod === "momo") {
+    if (paymentMethod === "momo" && country.accountNumberLength?.mobileLength) {
       return accountNumber.length >= country.accountNumberLength.mobileLength;
     }
+
+    return false;
   };
 
   return (
