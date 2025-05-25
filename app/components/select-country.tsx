@@ -23,7 +23,7 @@ const SelectCountry = () => {
   // Fetch exchange rate when country or payment method changes
   useEffect(() => {
     const fetchExchangeRate = async () => {
-      if (!country?.countryCode) return;
+      if (!country?.countryCode || !paymentMethod) return;
 
       try {
         setAppState(AppState.Processing);
@@ -56,6 +56,7 @@ const SelectCountry = () => {
     setExchangeRate,
     setIsLoading,
     setError,
+    setAppState,
   ]);
 
   const calculatedAmount = useMemo(() => {
