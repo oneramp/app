@@ -43,10 +43,6 @@ export function TransactionReviewModal() {
   const { chainId, address, isConnected } = useWalletInfo();
   // if (!open) return null;
 
-  console.log("====================================");
-  console.log("starknetPay.data", starknetPay);
-  console.log("====================================");
-
   useEffect(() => {
     if (chainId !== currentNetwork?.chainId) {
       setWrongChainState({
