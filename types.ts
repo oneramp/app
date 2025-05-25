@@ -34,6 +34,9 @@ export interface Network extends Omit<Chain, "id"> {
   chainId: number;
   tokenAddress?: string;
   id: string | number;
+  explorers?: {
+    [key: string]: string[];
+  };
   chainNamespace: "eip155" | "solana" | "bip122" | "polkadot" | "cosmos";
   caipNetworkId:
     | `eip155:${string}`

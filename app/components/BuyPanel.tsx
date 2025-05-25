@@ -458,7 +458,6 @@ export function BuyPanel() {
           open={showInstitutionModal}
           onClose={() => setShowInstitutionModal(false)}
           institutions={getInstitutionsForCountry()}
-          selectedInstitution={institution}
           onSelect={(inst) => {
             setInstitution(inst);
             setShowInstitutionModal(false);

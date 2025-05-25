@@ -1,11 +1,15 @@
+import { submitTransactionHash } from "@/actions/transfer";
+import { ConnectSingleWallet } from "@/components/connect-single-wallet";
 import { Button } from "@/components/ui/button";
 import useWalletInfo from "@/hooks/useWalletGetInfo";
 import useEVMPay from "@/onchain/useEVMPay";
+import usePayStarknet from "@/onchain/usePayStarknet";
 import { useNetworkStore } from "@/store/network";
 import { useQuoteStore } from "@/store/quote-store";
 import { useTransferStore } from "@/store/transfer-store";
 import { useUserSelectionStore } from "@/store/user-selection";
-import { AppState, OrderStep } from "@/types";
+import { AppState, ChainTypes, OrderStep } from "@/types";
+import { useMutation } from "@tanstack/react-query";
 import { Loader } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -13,12 +17,11 @@ import { toast } from "sonner";
 import { parseUnits } from "viem";
 import AssetAvator from "../cards/asset-avator";
 import { CancelModal } from "./cancel-modal";
-import { useMutation } from "@tanstack/react-query";
-import { submitTransactionHash } from "@/actions/transfer";
 
 export function TransactionReviewModal() {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const { quote, resetQuote } = useQuoteStore();
+  const [loading, setLoading] = useState(false);
   const { institution, accountNumber, updateSelection, orderStep, asset } =
     useUserSelectionStore();
   const { currentNetwork } = useNetworkStore();
@@ -32,8 +35,17 @@ export function TransactionReviewModal() {
 
   const { payWithEVM, isLoading, isSuccess, transactionReceipt } = useEVMPay();
 
-  const { chainId } = useWalletInfo();
+  // Initialize Starknet pay
+  const starknetPay = usePayStarknet(
+    asset?.networks["Starknet"]?.tokenAddress as string
+  );
+
+  const { chainId, address, isConnected } = useWalletInfo();
   // if (!open) return null;
+
+  console.log("====================================");
+  console.log("starknetPay.data", starknetPay);
+  console.log("====================================");
 
   useEffect(() => {
     if (chainId !== currentNetwork?.chainId) {
@@ -42,25 +54,68 @@ export function TransactionReviewModal() {
         chainId: currentNetwork?.chainId ?? 0,
         buttonText: "Switch to " + currentNetwork?.name,
       });
-    } else {
+      return;
+    }
+
+    if (address && isConnected) {
       setWrongChainState({
         isWrongChain: false,
         chainId: chainId ?? 0,
         buttonText: "Confirm payment",
       });
+      return;
     }
-  }, [chainId, currentNetwork]);
+
+    if (!address || !isConnected) {
+      setWrongChainState({
+        isWrongChain: true,
+        chainId: currentNetwork?.chainId ?? 0,
+        buttonText: "Connect " + currentNetwork?.name,
+      });
+      return;
+    }
+  }, [chainId, currentNetwork, address, isConnected]);
 
   useEffect(() => {
-    if (isSuccess && !isLoading && transactionReceipt && transfer?.transferId) {
+    if (
+      isSuccess &&
+      !isLoading &&
+      transactionReceipt?.transactionHash &&
+      transfer?.transferId &&
+      !wrongChainState.isWrongChain &&
+      currentNetwork?.type === ChainTypes.EVM
+    ) {
       setTransactionHash(transactionReceipt.transactionHash);
       // updateSelection({ orderStep: OrderStep.GotTransfer });
       submitTxHashMutation.mutate({
         transferId: transfer?.transferId,
         txHash: transactionReceipt.transactionHash,
       });
+      return;
     }
-  }, [isSuccess, isLoading, transactionReceipt]);
+
+    if (
+      starknetPay.status === "success" &&
+      starknetPay.data?.transaction_hash &&
+      transfer?.transferId &&
+      !wrongChainState.isWrongChain &&
+      currentNetwork?.type === ChainTypes.Starknet
+    ) {
+      setTransactionHash(starknetPay.data.transaction_hash);
+      // updateSelection({ orderStep: OrderStep.GotTransfer });
+      submitTxHashMutation.mutate({
+        transferId: transfer?.transferId,
+        txHash: starknetPay.data.transaction_hash,
+      });
+      return;
+    }
+  }, [
+    isSuccess,
+    isLoading,
+    transactionReceipt,
+    starknetPay.status,
+    starknetPay.data,
+  ]);
 
   const handleBackClick = () => {
     setShowCancelModal(true);
@@ -85,6 +140,8 @@ export function TransactionReviewModal() {
       return;
     }
 
+    setLoading(true);
+
     const amountInWei = parseUnits(quote.amountPaid.toString(), 6);
 
     const recipient = transfer.transferAddress;
@@ -95,14 +152,29 @@ export function TransactionReviewModal() {
       tokenAddress: contractAddress,
     };
 
-    updateSelection({ appState: AppState.Processing });
+    const isStarknet = currentNetwork.type === ChainTypes.Starknet;
 
-    await payWithEVM(transactionPayload);
+    if (isStarknet) {
+      const strkPayload = {
+        recipient: recipient,
+        amount: quote.amountPaid,
+        tokenAddress: contractAddress,
+      };
+      updateSelection({ appState: AppState.Processing });
+      starknetPay.payWithStarknet(strkPayload);
+    } else {
+      updateSelection({ appState: AppState.Processing });
+      payWithEVM(transactionPayload);
+    }
 
     // setShowCancelModal(false);
     // resetQuote();
     // resetTransfer();
     // updateSelection({ orderStep: OrderStep.Initial });
+
+    setTimeout(() => {
+      setLoading(false);
+    }, 7000);
   };
 
   const submitTxHashMutation = useMutation({
@@ -111,10 +183,14 @@ export function TransactionReviewModal() {
       updateSelection({ orderStep: OrderStep.GotTransfer });
     },
     onError: (error) => {
-      toast.error("Failed to submit transaction hash", {
-        description: error.message,
-      });
+      // toast.error("Failed to submit transaction hash", {
+      //   description: error.message,
+      // });
+      console.log("error", error.message);
     },
+    retry: 3,
+    retryDelay: 5000,
+    // networkMode: "online",
   });
 
   if (orderStep !== OrderStep.GotQuote) return null;
@@ -224,23 +300,34 @@ export function TransactionReviewModal() {
                 variant="outline"
                 className="flex-1 bg-[#333] hover:bg-[#444] border-none text-white p-6 text-lg rounded-xl"
                 onClick={handleBackClick}
-                disabled={isLoading}
+                disabled={
+                  isLoading || loading || submitTxHashMutation.isPending
+                }
               >
                 Back
               </Button>
 
-              <Button
-                className="flex-1 bg-[#7B68EE] hover:bg-[#6A5ACD] text-white p-6 text-lg rounded-xl"
-                // onClick={() => transferInMutation.mutate()}
-                onClick={makeBlockchainTransaction}
-                disabled={isLoading || submitTxHashMutation.isPending}
-              >
-                {isLoading || submitTxHashMutation.isPending ? (
-                  <Loader className="animate-spin" />
-                ) : (
-                  wrongChainState.buttonText
-                )}
-              </Button>
+              {!isConnected ? (
+                <ConnectSingleWallet large chainType={currentNetwork?.type} />
+              ) : (
+                <Button
+                  className="flex-1 bg-[#7B68EE] hover:bg-[#6A5ACD] text-white p-6 text-lg rounded-xl"
+                  // onClick={() => transferInMutation.mutate()}
+                  onClick={makeBlockchainTransaction}
+                  disabled={
+                    isLoading ||
+                    submitTxHashMutation.isPending ||
+                    loading ||
+                    wrongChainState.isWrongChain
+                  }
+                >
+                  {isLoading || submitTxHashMutation.isPending || loading ? (
+                    <Loader className="animate-spin" />
+                  ) : (
+                    wrongChainState.buttonText
+                  )}
+                </Button>
+              )}
             </div>
           </div>
         </div>

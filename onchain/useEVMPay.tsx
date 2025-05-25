@@ -1,13 +1,14 @@
 import { mockOnChainTransaction } from "@/actions/mocker";
-import { submitTransactionHash } from "@/actions/transfer";
 import { MOCK_TRANSACTIONS } from "@/constants";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { erc20Abi, TransactionReceipt } from "viem";
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 
+// Starknet imports
+
 export type TransactionPayload = {
   recipient: string;
-  amount: bigint;
+  amount: bigint | string | number;
   tokenAddress: string;
 };
 
@@ -44,7 +45,7 @@ const useEVMPay = () => {
       address: tokenAddress as `0x${string}`,
       abi: erc20Abi,
       functionName: "transfer",
-      args: [recipient as `0x${string}`, amount],
+      args: [recipient as `0x${string}`, amount as bigint],
     });
   };
 

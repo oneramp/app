@@ -12,9 +12,10 @@ import { useEffect } from "react";
 import AssetAvator from "./asset-avator";
 import { useQuoteStore } from "@/store/quote-store";
 import { toast } from "sonner";
+
 const OrderProcessing = () => {
   const { updateSelection } = useUserSelectionStore();
-  const { transfer, transactionHash } = useTransferStore();
+  const { transfer } = useTransferStore();
   const { quote } = useQuoteStore();
 
   const { data: transferStatus, isLoading } = useQuery({
@@ -50,17 +51,17 @@ const OrderProcessing = () => {
     },
   });
 
-  const handleTryAgain = () => {
-    if (!transfer?.transferId || !transactionHash) {
-      toast.error("Transfer ID or transaction hash is required");
-      return;
-    }
+  // const handleTryAgain = () => {
+  //   if (!transfer?.transferId || !transactionHash) {
+  //     toast.error("Transfer ID or transaction hash is required");
+  //     return;
+  //   }
 
-    submitTxHashMutation.mutate({
-      transferId: transfer?.transferId,
-      txHash: transactionHash,
-    });
-  };
+  //   submitTxHashMutation.mutate({
+  //     transferId: transfer?.transferId,
+  //     txHash: transactionHash,
+  //   });
+  // };
 
   // const handlePaymentCompleted = () => {
   //   updateSelection({ orderStep: OrderStep.PaymentCompleted });
@@ -75,7 +76,7 @@ const OrderProcessing = () => {
 
           {quote && (
             <AssetAvator
-              cryptoAmount={quote?.cryptoAmount}
+              cryptoAmount={quote?.amountPaid}
               cryptoType={quote?.cryptoType}
             />
           )}
@@ -87,11 +88,11 @@ const OrderProcessing = () => {
               <div className="border-[1px] h-32 border-neutral-700 border-dashed w-[1px]"></div>
               <div className=" size-2.5 rounded-full bg-[#2ecc71] z-10"></div>
               <Button
-                disabled
-                // onClick={() => {
-                //   updateSelection({ orderStep: OrderStep.PaymentCompleted });
-                // }}
-                onClick={handleTryAgain}
+                // disabled
+                onClick={() => {
+                  updateSelection({ orderStep: OrderStep.PaymentCompleted });
+                }}
+                // onClick={handleTryAgain}
                 // disabled={submitTxHashMutation.isPending}
                 className=" p-3 bg-[#232323] rounded-xl hover:bg-[#2a2a2a] text-white font-medium text-sm transition-colors w-fit"
               >

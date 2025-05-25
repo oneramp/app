@@ -24,7 +24,13 @@ import { useMutation } from "@tanstack/react-query";
 import { getKYC } from "@/actions/kyc";
 import { useKYCStore } from "@/store/kyc-store";
 
-export const ConnectButton = ({ large }: { large?: boolean }) => {
+export const ConnectSingleWallet = ({
+  large,
+  chainType,
+}: {
+  large?: boolean;
+  chainType?: ChainTypes;
+}) => {
   const { address, isConnected } = useWalletGetInfo();
   const { open } = useAppKit();
   const [popoverOpen, setPopoverOpen] = useState(false);
@@ -233,78 +239,82 @@ export const ConnectButton = ({ large }: { large?: boolean }) => {
 
         <div className="flex flex-col gap-4">
           <>
+            {chainType !== undefined && chainType === ChainTypes.EVM && (
+              <>
+                {isConnected && hasAnyEvmNetwork ? (
+                  <ConnectedWalletCard
+                    disconnect={() =>
+                      handleDisconnectCurrentWallet(ChainTypes.EVM)
+                    }
+                    network={ChainTypes.EVM}
+                  />
+                ) : (
+                  <Button
+                    onClick={() => handleWalletTypeSelect("evm")}
+                    variant="outline"
+                    className="flex justify-start items-center gap-4 w-full h-16   border-[#232323] hover:bg-[#2a2a2a] rounded-2xl transition-all hover:scale-[1.02] border  hover:border-[#353535] group"
+                  >
+                    <div className="p-2 bg-[#353535] rounded-lg group-hover:bg-[#454545] transition-colors">
+                      <Image
+                        src="/logos/ethereum.png"
+                        alt="EVM"
+                        width={24}
+                        height={24}
+                        className="rounded-lg"
+                      />
+                    </div>
+                    <div className="flex flex-col items-start flex-1">
+                      <span className="text-white font-medium text-base">
+                        EVM Wallet
+                      </span>
+                    </div>
+                    <Button className="bg-white text-black rounded-md hover:bg-neutral-200 text-sm">
+                      Connect
+                    </Button>
+                  </Button>
+                )}
+              </>
+            )}
+          </>
+
+          {chainType !== undefined && chainType === ChainTypes.Starknet && (
             <>
-              {isConnected && hasAnyEvmNetwork ? (
+              {isConnected && hasAnyStarknetNetwork ? (
                 <ConnectedWalletCard
                   disconnect={() =>
-                    handleDisconnectCurrentWallet(ChainTypes.EVM)
+                    handleDisconnectCurrentWallet(ChainTypes.Starknet)
                   }
-                  network={ChainTypes.EVM}
+                  network={ChainTypes.Starknet}
                 />
               ) : (
                 <Button
-                  onClick={() => handleWalletTypeSelect("evm")}
+                  onClick={() => handleWalletTypeSelect("starknet")}
                   variant="outline"
-                  className="flex justify-start items-center gap-4 w-full h-16   border-[#232323] hover:bg-[#2a2a2a] rounded-2xl transition-all hover:scale-[1.02] border  hover:border-[#353535] group"
+                  className="flex justify-start items-center  gap-4 w-full h-16  border-[#232323] hover:bg-[#2a2a2a] rounded-2xl transition-all hover:scale-[1.02] border  hover:border-[#353535] group"
                 >
                   <div className="p-2 bg-[#353535] rounded-lg group-hover:bg-[#454545] transition-colors">
                     <Image
-                      src="/logos/ethereum.png"
-                      alt="EVM"
+                      src="/logos/starknet.png"
+                      alt="Starknet"
                       width={24}
                       height={24}
                       className="rounded-lg"
                     />
                   </div>
+
                   <div className="flex flex-col items-start flex-1">
                     <span className="text-white font-medium text-base">
-                      EVM Wallet
+                      Starknet Wallet
                     </span>
                   </div>
+
                   <Button className="bg-white text-black rounded-md hover:bg-neutral-200 text-sm">
                     Connect
                   </Button>
                 </Button>
               )}
             </>
-          </>
-
-          <>
-            {isConnected && hasAnyStarknetNetwork ? (
-              <ConnectedWalletCard
-                disconnect={() =>
-                  handleDisconnectCurrentWallet(ChainTypes.Starknet)
-                }
-                network={ChainTypes.Starknet}
-              />
-            ) : (
-              <Button
-                onClick={() => handleWalletTypeSelect("starknet")}
-                variant="outline"
-                className="flex justify-start items-center  gap-4 w-full h-16  border-[#232323] hover:bg-[#2a2a2a] rounded-2xl transition-all hover:scale-[1.02] border  hover:border-[#353535] group"
-              >
-                <div className="p-2 bg-[#353535] rounded-lg group-hover:bg-[#454545] transition-colors">
-                  <Image
-                    src="/logos/starknet.png"
-                    alt="Starknet"
-                    width={24}
-                    height={24}
-                    className="rounded-lg"
-                  />
-                </div>
-
-                <div className="flex flex-col items-start flex-1">
-                  <span className="text-white font-medium text-base">
-                    Starknet Wallet
-                  </span>
-                </div>
-
-                <Button className="bg-white text-black rounded-md hover:bg-neutral-200 text-sm">
-                  Connect
-                </Button>
-              </Button>
-            )}
-          </>
+          )}
         </div>
 
         {isConnected && (

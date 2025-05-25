@@ -25,7 +25,7 @@ export function InstitutionModal({
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["institutions", country],
-    queryFn: () => getInstitutions(country),
+    queryFn: () => getInstitutions(country, "sell"),
   });
 
   if (!open) return null;

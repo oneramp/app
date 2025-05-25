@@ -107,10 +107,6 @@ const SelectInstitution = () => {
           },
         };
 
-        console.log("====================================");
-        console.log("payload", payload);
-        console.log("====================================");
-
         const transferOutResponse = await createTransferOut(payload);
 
         setTransfer(transferOutResponse);

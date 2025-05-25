@@ -33,6 +33,7 @@ const SelectCountry = () => {
           orderType: "selling",
           providerType: paymentMethod,
         });
+
         setExchangeRate(response);
         setError(null);
       } catch (error) {

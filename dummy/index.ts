@@ -115,7 +115,7 @@ export const MockSuccessTransactionReceipt = {
     status: "success",
     to: "0xceba9300f2b948710d2653dd7b07f33a8b32118c",
     transactionHash:
-      "0xdfc95dcda07d93dfbfda183e5bab476ea362e3cdeed872c6389112703acfcffc",
+      "0xa1070cd1686919e76e2a6ef109d50dee888fe4b64eafd1b7fded8c8add736512",
     transactionIndex: 6,
     type: "eip1559",
   },

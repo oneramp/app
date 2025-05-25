@@ -5,19 +5,22 @@ import Confetti from "react-confetti";
 import { useQuoteStore } from "@/store/quote-store";
 import { useWindowSize } from "react-use";
 import { useUserSelectionStore } from "@/store/user-selection";
-import { OrderStep } from "@/types";
+import { ChainTypes, OrderStep } from "@/types";
 import { useEffect, useState } from "react";
 import AssetAvator from "./asset-avator";
 import { assets } from "@/data/currencies";
 import { useTransferStore } from "@/store/transfer-store";
+import { useNetworkStore } from "@/store/network";
 
 const OrderSuccessful = () => {
+  const [exploreUrl, setExploreUrl] = useState<string>("");
   const { reset, updateSelection, orderStep } = useUserSelectionStore();
   const { quote } = useQuoteStore();
   const { width, height } = useWindowSize();
   const { resetQuote } = useQuoteStore();
-  const { resetTransfer } = useTransferStore();
+  const { resetTransfer, transactionHash } = useTransferStore();
   const [showConfetti, setShowConfetti] = useState(true);
+  const { currentNetwork } = useNetworkStore();
 
   useEffect(() => {
     // Stop confetti after 5 seconds
@@ -35,6 +38,19 @@ const OrderSuccessful = () => {
       }, 5000);
     }
   }, [orderStep]);
+
+  useEffect(() => {
+    if (transactionHash) {
+      if (currentNetwork?.type === ChainTypes.EVM) {
+        setExploreUrl(
+          currentNetwork?.blockExplorers?.default.url + "/tx/" + transactionHash
+        );
+      } else if (currentNetwork?.type === ChainTypes.Starknet) {
+        const url = "https://voyager.online/tx/" + transactionHash;
+        setExploreUrl(url);
+      }
+    }
+  }, [transactionHash, currentNetwork]);
 
   const handleBackClick = () => {
     reset();
@@ -64,7 +80,7 @@ const OrderSuccessful = () => {
 
           <AssetAvator
             cryptoType={quote?.cryptoType}
-            cryptoAmount={quote?.cryptoAmount}
+            cryptoAmount={quote?.amountPaid}
           />
 
           {/* Vertical line with dot */}
@@ -111,7 +127,7 @@ const OrderSuccessful = () => {
             <p>
               Your transfer of{" "}
               <span className="text-white">
-                {quote?.cryptoAmount} {quote?.cryptoType} ({quote.fiatType}{" "}
+                {quote?.amountPaid} {quote?.cryptoType} ({quote.fiatType}{" "}
                 {quote.fiatAmount})
               </span>{" "}
               to Ok has been completed successfully.
@@ -120,7 +136,10 @@ const OrderSuccessful = () => {
 
           {/* Action Buttons */}
           <div className="flex gap-3 mt-2">
-            <Button className="px-4 py-2 bg-[#232323] hover:bg-[#2a2a2a] text-white text-sm rounded-md transition-colors">
+            <Button
+              disabled
+              className="px-4 py-2 bg-[#232323] hover:bg-[#2a2a2a] text-white text-sm rounded-md transition-colors"
+            >
               Get receipt
             </Button>
             <Button
@@ -154,7 +173,11 @@ const OrderSuccessful = () => {
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-[#666666]">Onchain receipt</span>
-              <a href="#" className="text-[#7B68EE] hover:underline">
+              <a
+                href={exploreUrl}
+                target="_blank"
+                className="text-[#7B68EE] hover:underline"
+              >
                 View in explorer
               </a>
             </div>
@@ -171,7 +194,12 @@ const OrderSuccessful = () => {
               </p>
             </div>
             <div className="flex gap-2">
-              <button className="flex items-center gap-2 px-4 py-2 bg-[#232323] hover:bg-[#2a2a2a] text-white text-sm rounded-md transition-colors">
+              <a
+                href="https://x.com/0xOneramp"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-4 py-2 bg-[#232323] hover:bg-[#2a2a2a] text-white text-sm rounded-md transition-colors"
+              >
                 <svg
                   className="w-4 h-4"
                   viewBox="0 0 24 24"
@@ -180,8 +208,8 @@ const OrderSuccessful = () => {
                   <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                 </svg>
                 X (Twitter)
-              </button>
-              <button className="flex items-center gap-2 px-4 py-2 bg-[#232323] hover:bg-[#2a2a2a] text-white text-sm rounded-md transition-colors">
+              </a>
+              {/* <button className="flex items-center gap-2 px-4 py-2 bg-[#232323] hover:bg-[#2a2a2a] text-white text-sm rounded-md transition-colors">
                 <svg
                   className="w-4 h-4"
                   viewBox="0 0 24 24"
@@ -191,7 +219,7 @@ const OrderSuccessful = () => {
                   <path d="M8 16l8-8M16 16L8 8" />
                 </svg>
                 Warpcast
-              </button>
+              </button> */}
             </div>
           </div>
         </div>

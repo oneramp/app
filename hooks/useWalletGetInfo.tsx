@@ -37,14 +37,14 @@ const useWalletInfo = () => {
   } = useAppKitNetwork();
 
   // Starknet Wallet data
-  const { address: starknetAddress, status } = useAccount();
+  const {
+    address: starknetAddress,
+    status,
+    isConnected: starknetIsConnected,
+  } = useAccount();
   const starknetChainId = currentNetwork?.id;
 
   useEffect(() => {
-    console.log("====================================");
-    console.log("evmChainId", evmChainId);
-    console.log("====================================");
-
     // Set the address and isConnected state based on the current network
     if (currentNetwork?.type === "evm" && evmAddress) {
       setAddress(evmAddress);
@@ -65,6 +65,20 @@ const useWalletInfo = () => {
           ? parseInt(starknetChainId)
           : starknetChainId ?? null
       );
+      return;
+    }
+
+    if (currentNetwork?.type === "starknet" && !starknetIsConnected) {
+      setAddress(null);
+      setIsConnected(false);
+      setChainId(null);
+      return;
+    }
+
+    if (currentNetwork?.type === "evm" && !evmIsConnected) {
+      setAddress(null);
+      setIsConnected(false);
+      setChainId(null);
       return;
     }
 
