@@ -26,3 +26,13 @@ export const createQuoteOut = async (payload: QuoteRequest) => {
     throw new Error("Failed to create quote", { cause: error });
   }
 };
+
+export const createQuoteInBuy = async (payload: QuoteRequest) => {
+  try {
+    const response = await oneRampApi.post("/quote-in", payload);
+
+    return response.data;
+  } catch (error) {
+    throw new Error("Failed to create quote", { cause: error });
+  }
+};

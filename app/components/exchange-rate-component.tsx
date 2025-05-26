@@ -3,7 +3,11 @@ import { useUserSelectionStore } from "@/store/user-selection";
 import { useExchangeRateStore } from "@/store/exchange-rate-store";
 import { Loader2 } from "lucide-react";
 
-const ExchangeRateComponent = () => {
+const ExchangeRateComponent = ({
+  default: isDefault,
+}: {
+  default?: boolean;
+}) => {
   const { country, asset } = useUserSelectionStore();
   const { exchangeRate, isLoading } = useExchangeRateStore();
 
@@ -30,9 +34,11 @@ const ExchangeRateComponent = () => {
               </>
             )}
           </span>
-          <span className="text-neutral-400">
-            Swap usually completes in 30s
-          </span>
+          {!isDefault && (
+            <span className="text-neutral-400">
+              Swap usually completes in 30s
+            </span>
+          )}
         </div>
       )}
     </>

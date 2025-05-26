@@ -57,6 +57,7 @@ export enum TransferType {
 }
 
 export interface Asset {
+  network: string;
   name: string;
   logo: string;
   symbol: string;
@@ -228,6 +229,7 @@ export interface KYCVerificationResponse {
     additionalIdType: string;
     additionalIdNumber: string;
     additionalIdTypeSubType: string;
+    phoneNumber?: string;
   };
 }
 

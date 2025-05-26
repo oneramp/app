@@ -1,22 +1,50 @@
 "use client";
 import { Badge } from "@/components/ui/badge";
-import { Loader } from "lucide-react";
-import TakingLongCard from "./taking-long-card";
+import { Check, Copy, Loader } from "lucide-react";
 import { useUserSelectionStore } from "@/store/user-selection";
-import { OrderStep, TransferStatusEnum } from "@/types";
+import { OrderStep, TransferStatusEnum, TransferType } from "@/types";
 import { Button } from "@/components/ui/button";
 import { useTransferStore } from "@/store/transfer-store";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { getTransferStatus, submitTransactionHash } from "@/actions/transfer";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import AssetAvator from "./asset-avator";
 import { useQuoteStore } from "@/store/quote-store";
 import { toast } from "sonner";
+import { CancelModal } from "../modals/cancel-modal";
+
+const CopyButton = ({ value }: { value: string }) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      console.error("Failed to copy:", error);
+    }
+  };
+
+  return (
+    <button
+      onClick={handleCopy}
+      className="p-2 hover:bg-[#333] rounded-lg transition-colors"
+    >
+      {copied ? (
+        <Check className="h-4 w-4 text-green-500" />
+      ) : (
+        <Copy className="h-4 w-4 text-neutral-400" />
+      )}
+    </button>
+  );
+};
 
 const OrderProcessing = () => {
-  const { updateSelection } = useUserSelectionStore();
-  const { transfer } = useTransferStore();
-  const { quote } = useQuoteStore();
+  const { updateSelection, paymentMethod } = useUserSelectionStore();
+  const { transfer, resetTransfer } = useTransferStore();
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const { quote, resetQuote } = useQuoteStore();
 
   const { data: transferStatus, isLoading } = useQuery({
     queryKey: ["transferStatus", transfer?.transferId],
@@ -67,10 +95,21 @@ const OrderProcessing = () => {
   //   updateSelection({ orderStep: OrderStep.PaymentCompleted });
   // };
 
+  const handleCancelConfirm = () => {
+    setShowCancelModal(false);
+    resetQuote();
+    resetTransfer();
+    updateSelection({
+      orderStep: OrderStep.Initial,
+      accountNumber: undefined,
+      institution: undefined,
+    });
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex py-20  justify-center bg-[#181818] gap-x-16">
       {/* Left side - Timeline */}
-      <div className="flex justify-end w-1/2">
+      <div className="flex justify-end w-1/3">
         <div className="flex flex-col gap-y-2  ">
           {/* Top step - USDC */}
 
@@ -118,21 +157,136 @@ const OrderProcessing = () => {
             <h2 className="text-sm">Fulfilled</h2>
           </Badge>
 
-          <h2 className="text-2xl font-medium text-white mt-2">
-            Processing payment...
-          </h2>
+          {paymentMethod === "bank" &&
+          quote?.transferType === TransferType.TransferIn ? (
+            <div className="flex flex-col space-y-6">
+              <div>
+                <h2 className="text-2xl font-medium text-white mb-2">
+                  Deposit Account Details
+                </h2>
+                <p className="text-[#666666] text-sm">
+                  Send exactly{" "}
+                  <span className="text-white">
+                    {quote?.fiatType} {quote?.fiatAmount}
+                  </span>{" "}
+                  to the bank account below
+                </p>
+              </div>
 
-          <div className="text-[#666666] text-sm space-y-1">
-            <p>
-              Processing payment of{" "}
-              <span className="text-white">1 USDC (Ksh 134)</span> to
-            </p>
-            <p>Ok. Hang on, this will only take a few seconds</p>
-          </div>
+              <div className="flex flex-col space-y-3 bg-[#232323] rounded-xl p-4">
+                <div className="flex w-full items-center justify-between py-3 border-b border-neutral-700">
+                  <p className="text-neutral-400">Account Name</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-white font-medium">
+                      {transfer?.userActionDetails?.accountName}
+                    </p>
+                    <CopyButton
+                      value={transfer?.userActionDetails?.accountName || ""}
+                    />
+                  </div>
+                </div>
 
-          <TakingLongCard />
+                <div className="flex w-full items-center justify-between py-3 border-b border-neutral-700">
+                  <p className="text-neutral-400">Account Number</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-white font-bold">
+                      {transfer?.userActionDetails?.accountNumber}
+                    </p>
+                    <CopyButton
+                      value={transfer?.userActionDetails?.accountNumber || ""}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex w-full items-center justify-between py-3 border-b border-neutral-700">
+                  <p className="text-neutral-400">Amount</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-white font-bold">
+                      {quote?.fiatType}{" "}
+                      {Number(quote?.fiatAmount).toLocaleString()}
+                    </p>
+                    <CopyButton value={quote?.fiatAmount || ""} />
+                  </div>
+                </div>
+
+                <div className="flex w-full items-center justify-between py-3 border-b border-neutral-700">
+                  <p className="text-neutral-400">Institution Name</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-white font-medium">
+                      {transfer?.userActionDetails?.institutionName}
+                    </p>
+                    <CopyButton
+                      value={transfer?.userActionDetails?.institutionName || ""}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex w-full items-center justify-between py-3">
+                  <p className="text-neutral-400">Transaction Reference</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-white font-medium">
+                      {"********" +
+                        transfer?.userActionDetails?.transactionReference.slice(
+                          -4
+                        )}
+                    </p>
+                    <CopyButton
+                      value={
+                        transfer?.userActionDetails?.transactionReference || ""
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-yellow-500/10 p-4 rounded-lg">
+                <p className="text-yellow-500 text-sm">
+                  Important: Send the exact amount to avoid transaction delays.
+                </p>
+              </div>
+
+              <div className="flex justify-end">
+                <Button
+                  variant="ghost"
+                  onClick={() => setShowCancelModal(true)}
+                  className="text-red-500 hover:text-red-400 hover:bg-red-500/10"
+                >
+                  Cancel Transaction
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col">
+              <h2 className="text-2xl font-medium text-white mt-2">
+                Processing payment...
+              </h2>
+
+              <div className="text-[#666666] text-sm space-y-1">
+                <p>
+                  Processing payment of{" "}
+                  <span className="text-white">
+                    {quote?.amountPaid} {quote?.cryptoType} ({quote?.fiatAmount}{" "}
+                    {quote?.fiatType})
+                  </span>{" "}
+                  to
+                </p>
+                <p>Ok. Hang on, this will only take a few seconds</p>
+              </div>
+
+              {/* <TakingLongCard /> */}
+            </div>
+          )}
         </div>
       </div>
+
+      {showCancelModal && (
+        <CancelModal
+          title="Cancel Transaction?"
+          description="Are you sure you want to cancel this transaction? Your current progress will be lost."
+          onClose={() => setShowCancelModal(false)}
+          onConfirm={handleCancelConfirm}
+        />
+      )}
     </div>
   );
 };

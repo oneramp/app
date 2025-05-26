@@ -1,14 +1,22 @@
-import { submitTransactionHash } from "@/actions/transfer";
+import { createTransferIn, submitTransactionHash } from "@/actions/transfer";
 import { ConnectSingleWallet } from "@/components/connect-single-wallet";
 import { Button } from "@/components/ui/button";
 import useWalletInfo from "@/hooks/useWalletGetInfo";
 import useEVMPay from "@/onchain/useEVMPay";
 import usePayStarknet from "@/onchain/usePayStarknet";
+import { useKYCStore } from "@/store/kyc-store";
 import { useNetworkStore } from "@/store/network";
 import { useQuoteStore } from "@/store/quote-store";
 import { useTransferStore } from "@/store/transfer-store";
 import { useUserSelectionStore } from "@/store/user-selection";
-import { AppState, ChainTypes, OrderStep } from "@/types";
+import {
+  AppState,
+  ChainTypes,
+  OrderStep,
+  TransferBankRequest,
+  TransferMomoRequest,
+  TransferType,
+} from "@/types";
 import { useMutation } from "@tanstack/react-query";
 import { Loader } from "lucide-react";
 import Image from "next/image";
@@ -18,16 +26,30 @@ import { parseUnits } from "viem";
 import AssetAvator from "../cards/asset-avator";
 import { CancelModal } from "./cancel-modal";
 
+interface WrongChainState {
+  isWrongChain: boolean;
+  chainId: number;
+  buttonText: string;
+}
+
 export function TransactionReviewModal() {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const { quote, resetQuote } = useQuoteStore();
   const [loading, setLoading] = useState(false);
-  const { institution, accountNumber, updateSelection, orderStep, asset } =
-    useUserSelectionStore();
+  const {
+    institution,
+    accountNumber,
+    updateSelection,
+    orderStep: currentOrderStep,
+    asset,
+  } = useUserSelectionStore();
+  const userPayLoad = useUserSelectionStore();
+  const { kycData } = useKYCStore();
   const { currentNetwork } = useNetworkStore();
-  const { resetTransfer, transfer, setTransactionHash } = useTransferStore();
+  const { resetTransfer, transfer, setTransactionHash, setTransfer } =
+    useTransferStore();
 
-  const [wrongChainState, setWrongChainState] = useState({
+  const [wrongChainState, setWrongChainState] = useState<WrongChainState>({
     isWrongChain: false,
     chainId: 0,
     buttonText: "Confirm payment",
@@ -37,11 +59,10 @@ export function TransactionReviewModal() {
 
   // Initialize Starknet pay
   const starknetPay = usePayStarknet(
-    asset?.networks["Starknet"]?.tokenAddress as string
+    asset?.networks["Starknet"]?.tokenAddress ?? ""
   );
 
   const { chainId, address, isConnected } = useWalletInfo();
-  // if (!open) return null;
 
   useEffect(() => {
     if (chainId !== currentNetwork?.chainId) {
@@ -82,9 +103,8 @@ export function TransactionReviewModal() {
       currentNetwork?.type === ChainTypes.EVM
     ) {
       setTransactionHash(transactionReceipt.transactionHash);
-      // updateSelection({ orderStep: OrderStep.GotTransfer });
       submitTxHashMutation.mutate({
-        transferId: transfer?.transferId,
+        transferId: transfer.transferId,
         txHash: transactionReceipt.transactionHash,
       });
       return;
@@ -98,9 +118,8 @@ export function TransactionReviewModal() {
       currentNetwork?.type === ChainTypes.Starknet
     ) {
       setTransactionHash(starknetPay.data.transaction_hash);
-      // updateSelection({ orderStep: OrderStep.GotTransfer });
       submitTxHashMutation.mutate({
-        transferId: transfer?.transferId,
+        transferId: transfer.transferId,
         txHash: starknetPay.data.transaction_hash,
       });
       return;
@@ -111,6 +130,10 @@ export function TransactionReviewModal() {
     transactionReceipt,
     starknetPay.status,
     starknetPay.data,
+    transfer?.transferId,
+    wrongChainState.isWrongChain,
+    currentNetwork?.type,
+    setTransactionHash,
   ]);
 
   const handleBackClick = () => {
@@ -121,15 +144,19 @@ export function TransactionReviewModal() {
     setShowCancelModal(false);
     resetQuote();
     resetTransfer();
-    updateSelection({ orderStep: OrderStep.Initial });
+    updateSelection({
+      orderStep: OrderStep.Initial,
+      accountNumber: undefined,
+      institution: undefined,
+    });
   };
 
   const makeBlockchainTransaction = async () => {
     if (!asset || !currentNetwork || !quote || !transfer) return;
 
-    const networkName = currentNetwork?.name;
+    const networkName = currentNetwork.name;
 
-    const contractAddress = asset?.networks[networkName]?.tokenAddress;
+    const contractAddress = asset.networks[networkName]?.tokenAddress;
 
     if (!contractAddress) {
       toast.error("Contract address not found");
@@ -143,7 +170,7 @@ export function TransactionReviewModal() {
     const recipient = transfer.transferAddress;
 
     const transactionPayload = {
-      recipient: recipient,
+      recipient,
       amount: amountInWei,
       tokenAddress: contractAddress,
     };
@@ -152,7 +179,7 @@ export function TransactionReviewModal() {
 
     if (isStarknet) {
       const strkPayload = {
-        recipient: recipient,
+        recipient,
         amount: quote.amountPaid,
         tokenAddress: contractAddress,
       };
@@ -163,14 +190,130 @@ export function TransactionReviewModal() {
       payWithEVM(transactionPayload);
     }
 
-    // setShowCancelModal(false);
-    // resetQuote();
-    // resetTransfer();
-    // updateSelection({ orderStep: OrderStep.Initial });
-
     setTimeout(() => {
       setLoading(false);
     }, 7000);
+  };
+
+  const handleSubmitTransferIn = async () => {
+    if (!quote) return;
+
+    if (userPayLoad.paymentMethod === "momo") {
+      const { institution, country } = userPayLoad;
+      const { fullKYC } = kycData || {};
+
+      if (!institution || !accountNumber || !country || !fullKYC) return;
+
+      const {
+        fullName,
+        nationality,
+        dateOfBirth,
+        documentNumber,
+        documentType,
+        documentSubType,
+      } = fullKYC;
+
+      const accountNumberWithoutLeadingZero = accountNumber.replace(/^0+/, "");
+      const fullPhoneNumber = `${country.phoneCode}${accountNumberWithoutLeadingZero}`;
+
+      let updatedDocumentType = documentType;
+      let updatedDocumentTypeSubType = documentSubType;
+
+      if (country.countryCode === "NG") {
+        updatedDocumentTypeSubType = "BVN";
+        updatedDocumentType = "NIN";
+      } else if (documentType === "ID") {
+        updatedDocumentType = "NIN";
+      } else if (documentType === "P") {
+        updatedDocumentType = "Passport";
+      } else {
+        updatedDocumentType = "License";
+      }
+
+      const payload: TransferMomoRequest = {
+        phone: fullPhoneNumber,
+        operator: institution.name.toLowerCase(),
+        quoteId: quote.quoteId,
+        userDetails: {
+          name: fullName,
+          country: nationality,
+          address: country.countryCode || "",
+          phone: accountNumber,
+          dob: dateOfBirth,
+          idNumber: documentNumber,
+          idType: updatedDocumentType,
+          additionalIdType: updatedDocumentType,
+          additionalIdNumber: updatedDocumentTypeSubType,
+        },
+      };
+
+      const transferResponse = await createTransferIn(payload);
+      setTransfer(transferResponse);
+      return;
+    }
+
+    if (userPayLoad.paymentMethod === "bank") {
+      const { institution, country } = userPayLoad;
+      const { fullKYC } = kycData || {};
+
+      if (!institution || !accountNumber || !country || !fullKYC) return;
+
+      const {
+        fullName,
+        nationality,
+        dateOfBirth,
+        documentNumber,
+        documentType,
+        documentSubType,
+        phoneNumber,
+      } = fullKYC;
+
+      let updatedDocumentType = documentType;
+      let updatedDocumentTypeSubType = documentSubType;
+
+      if (country.countryCode === "NG") {
+        updatedDocumentTypeSubType = "BVN";
+        updatedDocumentType = "NIN";
+      } else if (documentType === "ID") {
+        updatedDocumentType = "NIN";
+      } else if (documentType === "P") {
+        updatedDocumentType = "Passport";
+      } else {
+        updatedDocumentType = "License";
+      }
+
+      const accountName =
+        userPayLoad.accountName === "OK"
+          ? fullName
+          : userPayLoad.accountName || fullName;
+
+      const payload: TransferBankRequest = {
+        bank: {
+          code: institution.code,
+          accountNumber: accountNumber,
+          accountName: accountName,
+        },
+        operator: "bank",
+        quoteId: quote.quoteId,
+        userDetails: {
+          name: fullName,
+          country: nationality,
+          address: country.countryCode || "",
+          phone: phoneNumber || accountNumber,
+          // phone: MOCK_NIGERIAN_PHONE_NUMBER_SUCCESS,
+          dob: dateOfBirth,
+          idNumber: documentNumber,
+          idType: updatedDocumentType,
+          additionalIdType: updatedDocumentType,
+          additionalIdNumber: updatedDocumentTypeSubType,
+        },
+      };
+
+      const transferResponse = await createTransferIn(payload);
+
+      setTransfer(transferResponse);
+      return;
+    }
   };
 
   const submitTxHashMutation = useMutation({
@@ -178,19 +321,21 @@ export function TransactionReviewModal() {
     onSuccess: () => {
       updateSelection({ orderStep: OrderStep.GotTransfer });
     },
-    onError: (error) => {
-      // toast.error("Failed to submit transaction hash", {
-      //   description: error.message,
-      // });
+    onError: (error: Error) => {
       console.log("error", error.message);
     },
     retry: 3,
     retryDelay: 5000,
-    // networkMode: "online",
   });
 
-  if (orderStep !== OrderStep.GotQuote) return null;
+  const submitTransferIn = useMutation({
+    mutationFn: handleSubmitTransferIn,
+    onSuccess: () => {
+      updateSelection({ orderStep: OrderStep.GotTransfer });
+    },
+  });
 
+  if (currentOrderStep !== OrderStep.GotQuote) return null;
   if (!quote) return null;
 
   return (
@@ -219,18 +364,20 @@ export function TransactionReviewModal() {
               <div className="flex justify-between items-center">
                 <span className="text-neutral-400 text-lg">Total value</span>
                 <span className="text-white text-lg font-medium">
-                  {quote?.fiatAmount} {quote?.fiatType}
+                  {quote.fiatAmount} {quote.fiatType}
                 </span>
               </div>
 
               {/* Recipient */}
-              <div className="flex justify-between items-center">
-                <span className="text-neutral-400 text-lg">Recipient</span>
-                <span className="text-white text-lg font-medium">
-                  {transfer?.transferAddress?.slice(0, 4)}...
-                  {transfer?.transferAddress?.slice(-4)}
-                </span>
-              </div>
+              {quote.transferType === TransferType.TransferOut && (
+                <div className="flex justify-between items-center">
+                  <span className="text-neutral-400 text-lg">Recipient</span>
+                  <span className="text-white text-lg font-medium">
+                    {transfer?.transferAddress?.slice(0, 4)}...
+                    {transfer?.transferAddress?.slice(-4)}
+                  </span>
+                </div>
+              )}
 
               {/* Account */}
               <div className="flex justify-between items-center">
@@ -250,14 +397,14 @@ export function TransactionReviewModal() {
                   <span className="text-neutral-400 text-lg">Network</span>
                   <div className="flex items-center gap-2">
                     <Image
-                      src={currentNetwork?.logo}
-                      alt={currentNetwork?.name}
+                      src={currentNetwork.logo}
+                      alt={currentNetwork.name}
                       width={24}
                       height={24}
                       className="rounded-full"
                     />
                     <span className="text-white text-lg font-medium">
-                      {currentNetwork?.name}
+                      {currentNetwork.name}
                     </span>
                   </div>
                 </div>
@@ -303,26 +450,49 @@ export function TransactionReviewModal() {
                 Back
               </Button>
 
-              {!isConnected ? (
-                <ConnectSingleWallet large chainType={currentNetwork?.type} />
-              ) : (
+              {quote && quote.transferType === TransferType.TransferIn ? (
                 <Button
                   className="flex-1 bg-[#7B68EE] hover:bg-[#6A5ACD] text-white p-6 text-lg rounded-xl"
-                  // onClick={() => transferInMutation.mutate()}
-                  onClick={makeBlockchainTransaction}
-                  disabled={
-                    isLoading ||
-                    submitTxHashMutation.isPending ||
-                    loading ||
-                    wrongChainState.isWrongChain
-                  }
+                  onClick={() => submitTransferIn.mutate()}
+                  disabled={submitTransferIn.isPending}
                 >
-                  {isLoading || submitTxHashMutation.isPending || loading ? (
+                  {isLoading ||
+                  submitTxHashMutation.isPending ||
+                  loading ||
+                  submitTransferIn.isPending ? (
                     <Loader className="animate-spin" />
                   ) : (
-                    wrongChainState.buttonText
+                    "Confirm Payment"
                   )}
                 </Button>
+              ) : (
+                <>
+                  {!isConnected ? (
+                    <ConnectSingleWallet
+                      large
+                      chainType={currentNetwork?.type}
+                    />
+                  ) : (
+                    <Button
+                      className="flex-1 bg-[#7B68EE] hover:bg-[#6A5ACD] text-white p-6 text-lg rounded-xl"
+                      onClick={makeBlockchainTransaction}
+                      disabled={
+                        isLoading ||
+                        submitTxHashMutation.isPending ||
+                        loading ||
+                        wrongChainState.isWrongChain
+                      }
+                    >
+                      {isLoading ||
+                      submitTxHashMutation.isPending ||
+                      loading ? (
+                        <Loader className="animate-spin" />
+                      ) : (
+                        wrongChainState.buttonText
+                      )}
+                    </Button>
+                  )}
+                </>
               )}
             </div>
           </div>

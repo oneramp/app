@@ -1,6 +1,6 @@
 "use client";
 
-import { createQuoteOut } from "@/actions/quote";
+import { createQuoteIn, createQuoteOut } from "@/actions/quote";
 import { createTransferOut } from "@/actions/transfer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ import { useAmountStore } from "@/store/amount-store";
 import { useKYCStore } from "@/store/kyc-store";
 import { useNetworkStore } from "@/store/network";
 import { useQuoteStore } from "@/store/quote-store";
+import { useTransferStore } from "@/store/transfer-store";
 import { useUserSelectionStore } from "@/store/user-selection";
 import {
   AppState,
@@ -27,9 +28,8 @@ import AccountDetails from "./account-details";
 import SubmitButton from "./buttons/submit-button";
 import { InstitutionModal } from "./modals/InstitutionModal";
 import { KYCVerificationModal } from "./modals/KYCVerificationModal";
-import { useTransferStore } from "@/store/transfer-store";
 
-const SelectInstitution = () => {
+const SelectInstitution = ({ buy }: { buy?: boolean }) => {
   const [accountNumber, setAccountNumber] = useState("");
   const [showInstitutionModal, setShowInstitutionModal] = useState(false);
   const { institution, country, updateSelection } = useUserSelectionStore();
@@ -47,7 +47,8 @@ const SelectInstitution = () => {
   const { setTransfer } = useTransferStore();
 
   const createMutation = useMutation({
-    mutationFn: async (payload: QuoteRequest) => await createQuoteOut(payload),
+    mutationFn: async (payload: QuoteRequest) =>
+      buy ? await createQuoteIn(payload) : await createQuoteOut(payload),
     onSuccess: async (data) => {
       updateSelection({ accountNumber, orderStep: OrderStep.GotQuote });
 
@@ -107,12 +108,14 @@ const SelectInstitution = () => {
           },
         };
 
-        const transferOutResponse = await createTransferOut(payload);
-
-        setTransfer(transferOutResponse);
-
         setQuote(data.quote);
-        return;
+
+        if (!buy) {
+          const transferResponse = await createTransferOut(payload);
+          setTransfer(transferResponse);
+
+          return;
+        }
       }
 
       if (userPayLoad.paymentMethod === "bank") {
@@ -172,11 +175,14 @@ const SelectInstitution = () => {
           },
         };
 
-        const transferOutResponse = await createTransferOut(payload);
-
-        setTransfer(transferOutResponse);
         setQuote(data.quote);
-        return;
+
+        if (!buy) {
+          const transferResponse = await createTransferOut(payload);
+          setTransfer(transferResponse);
+
+          return;
+        }
       }
     },
     onError: () => {
@@ -300,7 +306,7 @@ const SelectInstitution = () => {
 
   return (
     <>
-      <div className="mx-4 mb-2 bg-[#232323] rounded-2xl p-5 flex flex-col gap-4">
+      <div className={`mb-2 bg-[#232323] rounded-2xl p-5 flex flex-col gap-4 `}>
         <div className="flex items-center justify-between">
           <span className="text-white text-lg font-medium">Recipient</span>
         </div>
@@ -355,10 +361,44 @@ const SelectInstitution = () => {
           selectedInstitution={institution || null}
           onSelect={handleInstitutionSelect}
           country={country.countryCode}
+          buy={buy}
         />
       )}
 
-      <div className="mx-4 mb-4">
+      {buy && (
+        <>
+          <div className="flex items-center border border-[#444] rounded-full px-9 py-3">
+            <svg
+              width="24"
+              height="24"
+              className="mr-2 text-neutral-400"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke="#888"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M11 4H4v14a2 2 0 002 2h12a2 2 0 002-2v-5M9 15H4M15 1v6m-3-3h6"
+              />
+            </svg>
+            <Input
+              type="text"
+              placeholder="Paste your wallet address here..."
+              // value={}
+              // onChange={(e) => setDescription(e.target.value)}
+              className="bg-transparent text-white w-full focus:outline-none p-3 outline-none border-none"
+            />
+          </div>
+
+          <h1 className="text-center text-neutral-700 text-sm font-medium">
+            OR
+          </h1>
+        </>
+      )}
+
+      <div className=" mb-4">
         <SubmitButton
           onClick={handleSubmit}
           disabled={

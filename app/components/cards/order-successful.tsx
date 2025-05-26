@@ -5,7 +5,7 @@ import Confetti from "react-confetti";
 import { useQuoteStore } from "@/store/quote-store";
 import { useWindowSize } from "react-use";
 import { useUserSelectionStore } from "@/store/user-selection";
-import { ChainTypes, OrderStep } from "@/types";
+import { ChainTypes, OrderStep, TransferType } from "@/types";
 import { useEffect, useState } from "react";
 import AssetAvator from "./asset-avator";
 import { assets } from "@/data/currencies";
@@ -60,6 +60,10 @@ const OrderSuccessful = () => {
     updateSelection({ orderStep: OrderStep.Initial });
   };
 
+  console.log("====================================");
+  console.log("quote", quote);
+  console.log("====================================");
+
   if (!quote) return null;
 
   return (
@@ -74,7 +78,7 @@ const OrderSuccessful = () => {
       )}
 
       {/* Left side - Timeline */}
-      <div className="flex w-full justify-end">
+      <div className="flex w-1/2 justify-end">
         <div className="flex flex-col gap-y-2">
           {/* Top step - USDC */}
 
@@ -98,7 +102,7 @@ const OrderSuccessful = () => {
       </div>
 
       {/* Right side - Content */}
-      <div className="flex w-full">
+      <div className="flex w-1/2">
         <div className="flex flex-col gap-4 max-w-md">
           <svg
             className="text-[#2ecc71] w-10 h-10"
@@ -171,16 +175,19 @@ const OrderSuccessful = () => {
               <span className="text-[#666666]">Time spent</span>
               <span className="text-white">167 seconds</span>
             </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-[#666666]">Onchain receipt</span>
-              <a
-                href={exploreUrl}
-                target="_blank"
-                className="text-[#7B68EE] hover:underline"
-              >
-                View in explorer
-              </a>
-            </div>
+
+            {quote?.transferType === TransferType.TransferOut && (
+              <div className="flex justify-between text-sm">
+                <span className="text-[#666666]">Onchain receipt</span>
+                <a
+                  href={exploreUrl}
+                  target="_blank"
+                  className="text-[#7B68EE] hover:underline"
+                >
+                  View in explorer
+                </a>
+              </div>
+            )}
           </div>
 
           {/* Social Share */}

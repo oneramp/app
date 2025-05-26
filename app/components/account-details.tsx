@@ -21,7 +21,6 @@ export const FetchingAccountDetails = () => {
 const AccountDetails = ({ accountNumber }: { accountNumber: string }) => {
   const { paymentMethod, country, institution, setAppState, updateSelection } =
     useUserSelectionStore();
-  // const { address } = useWalletGetInfo();
   //   const [isLoading, setIsLoading] = useState(false);
   const [showKYCModal, setShowKYCModal] = useState(false);
 
@@ -42,6 +41,8 @@ const AccountDetails = ({ accountNumber }: { accountNumber: string }) => {
         currency: country?.currency || "",
       }),
     enabled: !!accountNumber && !!country,
+    retry: true,
+    retryDelay: 3000,
   });
 
   useEffect(() => {
@@ -76,20 +77,20 @@ const AccountDetails = ({ accountNumber }: { accountNumber: string }) => {
         kycLink={kycData?.message?.link || null}
       />
       <div className="flex items-center justify-between">
-        {kycData && kycData.kycStatus === "VERIFIED" && (
-          <>
-            <div className="flex p-1 text-white border-2 bg-neutral-900 border-[#bcbcff] rounded-lg px-4 text-sm font-medium border-gradient-to-r from-purple-500/20 to-indigo-500/20">
-              {paymentMethod === "momo" ? (
-                <h3>OK</h3>
-              ) : (
-                <h3 className="line-clamp-1">
-                  {accountDetails?.accountName || "Account Name"}
-                </h3>
-              )}
-            </div>
-            <Check className="size-6 text-green-500" />
-          </>
-        )}
+        {/* {kycData && kycData.kycStatus === "VERIFIED" && ( */}
+        <>
+          <div className="flex p-1 text-white border-2 bg-neutral-900 border-[#bcbcff] rounded-lg px-4 text-sm font-medium border-gradient-to-r from-purple-500/20 to-indigo-500/20">
+            {paymentMethod === "momo" ? (
+              <h3>OK</h3>
+            ) : (
+              <h3 className="line-clamp-1">
+                {accountDetails?.accountName || "Account Name"}
+              </h3>
+            )}
+          </div>
+          <Check className="size-6 text-green-500" />
+        </>
+        {/* )} */}
       </div>
     </div>
   );

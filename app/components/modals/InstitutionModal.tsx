@@ -13,6 +13,7 @@ interface InstitutionModalProps {
   selectedInstitution: Institution | null;
   onSelect: (institution: Institution) => void;
   country: string;
+  buy?: boolean;
 }
 
 export function InstitutionModal({
@@ -20,12 +21,13 @@ export function InstitutionModal({
   onClose,
   onSelect,
   country,
+  buy,
 }: InstitutionModalProps) {
   const [searchQuery, setSearchQuery] = useState("");
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["institutions", country],
-    queryFn: () => getInstitutions(country, "sell"),
+    queryFn: () => getInstitutions(country, buy ? "buy" : "sell"),
   });
 
   if (!open) return null;

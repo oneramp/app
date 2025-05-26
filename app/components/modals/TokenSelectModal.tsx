@@ -1,55 +1,56 @@
+import { Button } from "@/components/ui/button";
+import { assets } from "@/data/currencies";
+import { SUPPORTED_NETWORKS_WITH_RPC_URLS } from "@/data/networks";
+import { Asset, Network } from "@/types";
 import { useState } from "react";
-import Image from "next/image";
-
-interface Token {
-  symbol: string;
-  name: string;
-  logo: string;
-  network: string;
-  networkLogo: string;
-}
+import AssetCard from "../cards/asset-card";
+import { useNetworkStore } from "@/store/network";
+import { useUserSelectionStore } from "@/store/user-selection";
 
 interface TokenSelectModalProps {
   open: boolean;
   onClose: () => void;
-  tokens: Token[];
-  selectedToken: Token | null;
-  onSelect: (token: Token) => void;
-  networks: string[];
 }
 
-export function TokenSelectModal({
-  open,
-  onClose,
-  tokens,
-  // selectedToken,
-  onSelect,
-  networks,
-}: TokenSelectModalProps) {
+export function TokenSelectModal({ open, onClose }: TokenSelectModalProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedNetwork, setSelectedNetwork] = useState("All Networks");
   const [showNetworkDropdown, setShowNetworkDropdown] = useState(false);
 
+  const { setCurrentNetwork } = useNetworkStore();
+  const { updateSelection } = useUserSelectionStore();
+
   // Filter tokens based on search query and selected network
-  const filteredTokens = tokens.filter((token) => {
+  const filteredTokens = assets.filter((token) => {
     // Filter by search query
     const matchesSearch =
       searchQuery === "" ||
       token.symbol.toLowerCase().includes(searchQuery.toLowerCase()) ||
       token.name.toLowerCase().includes(searchQuery.toLowerCase());
 
-    // Filter by network
+    // Filter by network if a specific network is selected
     const matchesNetwork =
-      selectedNetwork === "All Networks" || token.network === selectedNetwork;
+      selectedNetwork === "All Networks" ||
+      Object.keys(token.networks).includes(selectedNetwork);
 
     return matchesSearch && matchesNetwork;
   });
 
   if (!open) return null;
 
+  const handleTokenSelect = (token: Asset, network: Network) => {
+    setCurrentNetwork(network);
+
+    updateSelection({
+      asset: token,
+    });
+
+    onClose();
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center ">
-      <div className="bg-[#232323] rounded-2xl max-w-md w-[95%] shadow-2xl max-h-[80vh] flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="bg-[#232323] w-[95%] max-w-md shadow-2xl h-screen flex flex-col">
         {/* Header */}
         <div className="flex items-center p-5 border-b border-[#3a4155]">
           <button
@@ -124,19 +125,31 @@ export function TokenSelectModal({
             {/* Network Dropdown Menu */}
             {showNetworkDropdown && (
               <div className="absolute right-0 mt-2 bg-[#1f2533] border border-[#3a4155] rounded-xl w-full z-10 shadow-lg">
-                {networks.map((network) => (
-                  <button
-                    key={network}
+                <Button
+                  key="all-networks"
+                  className={`w-full text-left px-4 py-2 text-white hover:bg-[#3a4155] ${
+                    selectedNetwork === "All Networks" ? "bg-[#3a4155]" : ""
+                  }`}
+                  onClick={() => {
+                    setSelectedNetwork("All Networks");
+                    setShowNetworkDropdown(false);
+                  }}
+                >
+                  All Networks
+                </Button>
+                {SUPPORTED_NETWORKS_WITH_RPC_URLS.map((network) => (
+                  <Button
+                    key={network.name}
                     className={`w-full text-left px-4 py-2 text-white hover:bg-[#3a4155] ${
-                      selectedNetwork === network ? "bg-[#3a4155]" : ""
+                      selectedNetwork === network.name ? "bg-[#3a4155]" : ""
                     }`}
                     onClick={() => {
-                      setSelectedNetwork(network);
+                      setSelectedNetwork(network.name);
                       setShowNetworkDropdown(false);
                     }}
                   >
-                    {network}
-                  </button>
+                    {network.name}
+                  </Button>
                 ))}
               </div>
             )}
@@ -146,32 +159,38 @@ export function TokenSelectModal({
         {/* Token List */}
         <div className="overflow-y-auto flex-1">
           {filteredTokens.length > 0 ? (
-            filteredTokens.map((token, index) => (
-              <button
-                key={`${token.symbol}-${token.network}-${index}`}
-                className="flex items-center justify-between w-full p-2 hover:bg-[#3a4155] transition-colors border-b border-[#3a4155] last:border-0"
-                onClick={() => {
-                  onSelect(token);
-                }}
-              >
-                <div className="flex items-center gap-3">
-                  <Image
-                    src={token.logo}
-                    alt={token.symbol}
-                    width={40}
-                    height={40}
-                    className="rounded-full"
+            selectedNetwork === "All Networks" ? (
+              // Show all tokens grouped by networks
+              SUPPORTED_NETWORKS_WITH_RPC_URLS.map((network) =>
+                filteredTokens.map((token) => {
+                  // Only show if token exists on this network
+                  if (!token.networks[network.name]) return null;
+
+                  return (
+                    <AssetCard
+                      key={`${token.symbol}-${network.name}`}
+                      token={token}
+                      network={network}
+                      handleTokenSelect={handleTokenSelect}
+                    />
+                  );
+                })
+              )
+            ) : (
+              // Show tokens for selected network
+              filteredTokens.map((token) => {
+                if (!token.networks[selectedNetwork]) return null;
+
+                return (
+                  <AssetCard
+                    key={`${token.symbol}-${selectedNetwork}`}
+                    token={token}
+                    network={token.networks[selectedNetwork] as Network}
+                    handleTokenSelect={handleTokenSelect}
                   />
-                  <div className="text-left">
-                    <div className="text-white font-medium">{token.symbol}</div>
-                    <div className="text-neutral-400 text-sm">{token.name}</div>
-                  </div>
-                </div>
-                <div className="bg-[#232836] px-3 py-1 rounded-full text-white text-sm">
-                  {token.network}
-                </div>
-              </button>
-            ))
+                );
+              })
+            )
           ) : (
             <div className="p-4 text-center text-neutral-400">
               No tokens found matching your criteria

@@ -16,18 +16,6 @@ import { TransactionReviewModal } from "./modals/TransactionReviewModal";
 import { NetworkSelector } from "./NetworkSelector";
 import SelectCountry from "./select-country";
 import SelectInstitution from "./select-institution";
-// import { WalletConnectionModal } from "./WalletConnectionModal";
-
-// interface AppKitAccount {
-//   address?: string;
-// }
-
-// interface AppKit {
-//   subscribeAccount: (callback: (account: AppKitAccount) => void) => () => void;
-//   disconnect?: () => void;
-//   getAccount: () => Promise<AppKitAccount>;
-//   switchChain: (params: { chainId: string }) => Promise<void>;
-// }
 
 declare global {
   interface Window {
@@ -248,7 +236,9 @@ export function SwapPanel() {
       <ExchangeRateComponent />
 
       {country ? (
-        <SelectInstitution />
+        <div className="px-4">
+          <SelectInstitution />
+        </div>
       ) : (
         <div className="px-4 mt-4">
           <SubmitButton disabled>SWAP</SubmitButton>

@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useAmountStore } from "@/store/amount-store";
 
-const ValueInput = () => {
+const BuyValueInput = () => {
   const { amount, setAmount } = useAmountStore();
   const [isInvalid, setIsInvalid] = useState(false);
 
@@ -55,13 +55,12 @@ const ValueInput = () => {
   const getFontSize = () => {
     if (amount.length > 12) return "text-[1.25rem] md:text-[1.5rem]";
     if (amount.length > 9) return "text-[1.5rem] md:text-[1.75rem]";
-    return "text-[2rem] md:text-[2.5rem]";
+    return "text-[2rem] md:text-[3rem]";
   };
 
   const getWidth = () => {
-    if (amount.length > 3) return "w-2/3";
-    if (amount.length > 6) return "w-full";
-    return "w-full";
+    if (amount.length > 3) return "w-full";
+    return "w-1/2";
   };
 
   return (
@@ -69,6 +68,14 @@ const ValueInput = () => {
       className={cn("relative flex items-center justify-center", getWidth())}
     >
       <div className="w-full relative">
+        <div
+          className={cn(
+            "absolute pointer-events-none flex items-center h-full pl-3",
+            getFontSize()
+          )}
+        >
+          <span className="text-white font-semibold">$</span>
+        </div>
         <Input
           type="text"
           inputMode="decimal"
@@ -76,7 +83,7 @@ const ValueInput = () => {
           value={formatNumber(amount)}
           onChange={handleChange}
           className={cn(
-            "w-full text-left pr-2 !leading-tight py-4 font-semibold outline-none bg-transparent border-none focus:ring-0 focus:border-0 focus-visible:ring-0 focus-visible:border-transparent focus:outline-none",
+            "w-full pl-11 text-left pr-2 py-6 font-semibold outline-none bg-transparent border-none focus:ring-0 focus:border-0 focus-visible:ring-0 focus-visible:border-transparent focus:outline-none leading-none",
             isInvalid ? "text-red-500" : "text-white",
             getFontSize(),
             "transition-all duration-200"
@@ -87,4 +94,4 @@ const ValueInput = () => {
   );
 };
 
-export default ValueInput;
+export default BuyValueInput;

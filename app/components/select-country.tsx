@@ -1,19 +1,15 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import React, { useState, useMemo, useEffect } from "react";
-import { CountryCurrencyModal } from "./modals/CountryCurrencyModal";
-import Image from "next/image";
-import { useUserSelectionStore } from "@/store/user-selection";
+import { getCountryExchangeRate } from "@/actions/rates";
+import { cn } from "@/lib/utils";
 import { useAmountStore } from "@/store/amount-store";
 import { useExchangeRateStore } from "@/store/exchange-rate-store";
+import { useUserSelectionStore } from "@/store/user-selection";
 import { AppState, Country } from "@/types";
-import { cn } from "@/lib/utils";
-import { getCountryExchangeRate } from "@/actions/rates";
+import { useEffect, useMemo } from "react";
+import SelectCountryModal from "./modals/select-country-modal";
 
 const SelectCountry = () => {
-  const [showCountryCurrencyModal, setShowCountryCurrencyModal] =
-    useState(false);
   const { country, updateSelection, paymentMethod, setAppState } =
     useUserSelectionStore();
   const { amount, setIsValid, setFiatAmount } = useAmountStore();
@@ -113,7 +109,6 @@ const SelectCountry = () => {
       address: undefined,
       accountNumber: undefined,
     });
-    setShowCountryCurrencyModal(false);
   };
 
   return (
@@ -138,42 +133,8 @@ const SelectCountry = () => {
           </span>
         </div>
 
-        <Button
-          variant="default"
-          className="flex items-center gap-2 bg-black border-none px-4 py-2 rounded-full min-w-[140px]"
-          onClick={() => setShowCountryCurrencyModal(true)}
-        >
-          {country ? (
-            <>
-              <Image
-                src={country.logo}
-                alt={country.name}
-                width={28}
-                height={28}
-                className="rounded-full"
-              />
-              <span className="text-white font-medium">{country.name}</span>
-            </>
-          ) : (
-            <span className="text-neutral-400 font-medium">Select Country</span>
-          )}
-          <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
-            <path
-              d="M7 10l5 5 5-5"
-              stroke="#fff"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </Button>
+        <SelectCountryModal handleCountrySelect={handleCountrySelect} />
       </div>
-
-      <CountryCurrencyModal
-        open={showCountryCurrencyModal}
-        onClose={() => setShowCountryCurrencyModal(false)}
-        onSelect={handleCountrySelect}
-      />
     </>
   );
 };

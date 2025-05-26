@@ -12,6 +12,7 @@ export const assets: Asset[] = [
     name: "USDC",
     logo: "/logos/USDC.svg",
     symbol: "USDC",
+    network: "Ethereum",
     networks: {
       Ethereum: {
         ...mainnet,
@@ -50,19 +51,29 @@ export const assets: Asset[] = [
         tokenAddress: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
       },
       Starknet: {
-        ...starknet,
+        name: "Starknet",
         id: starknet.id.toString(),
         chainId: Number(starknet.id),
         chainNamespace: "eip155" as const,
         caipNetworkId: `eip155:${starknet.id}` as const,
         logo: "/logos/starknet.png",
+        type: ChainTypes.Starknet,
+        tokenAddress:
+          "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8",
         explorers: {
           starkscan: ["https://starkscan.co"],
           voyager: ["https://voyager.online"],
         },
-        type: ChainTypes.Starknet,
-        tokenAddress:
-          "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8",
+        nativeCurrency: {
+          name: "Starknet",
+          symbol: "STRK",
+          decimals: 18,
+        },
+        rpcUrls: {
+          default: {
+            http: ["https://starknet-mainnet.public.blastapi.io"],
+          },
+        },
       },
       //   .... more networks
     },
@@ -72,6 +83,7 @@ export const assets: Asset[] = [
     name: "USDT",
     logo: "/logos/USDT.svg",
     symbol: "USDT",
+    network: "Ethereum",
     networks: {
       Ethereum: {
         ...mainnet,
@@ -110,19 +122,29 @@ export const assets: Asset[] = [
         tokenAddress: "0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2",
       },
       Starknet: {
-        ...starknet,
+        name: "Starknet",
         id: starknet.id.toString(),
         chainId: Number(starknet.id),
         chainNamespace: "eip155" as const,
         caipNetworkId: `eip155:${starknet.id}` as const,
         logo: "/logos/starknet.png",
+        type: ChainTypes.Starknet,
+        tokenAddress:
+          "0x068f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8",
         explorers: {
           starkscan: ["https://starkscan.co"],
           voyager: ["https://voyager.online"],
         },
-        type: ChainTypes.Starknet,
-        tokenAddress:
-          "0x068f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8",
+        nativeCurrency: {
+          name: "Ether",
+          symbol: "ETH",
+          decimals: 18,
+        },
+        rpcUrls: {
+          default: {
+            http: ["https://starknet-mainnet.public.blastapi.io"],
+          },
+        },
       },
       //   .... more networks
     },
