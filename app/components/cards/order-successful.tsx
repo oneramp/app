@@ -60,10 +60,6 @@ const OrderSuccessful = () => {
     updateSelection({ orderStep: OrderStep.Initial });
   };
 
-  console.log("====================================");
-  console.log("quote", quote);
-  console.log("====================================");
-
   if (!quote) return null;
 
   return (

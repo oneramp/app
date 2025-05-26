@@ -14,7 +14,6 @@ export async function getInstitutions(country: string, method = "buy") {
     return response.data;
   } catch (error) {
     console.error(error);
-    // throw new Error("Failed to get country exchange rate", { cause: error });
     return [];
   }
 }
