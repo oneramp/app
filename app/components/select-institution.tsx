@@ -57,10 +57,10 @@ const SelectInstitution = ({ buy }: { buy?: boolean }) => {
     watch,
     setValue,
     reset,
-    formState: { errors },
+    formState: { errors, touchedFields },
     trigger,
   } = useForm<FormInputs>({
-    mode: "onChange",
+    mode: "onBlur",
     defaultValues: {
       accountNumber: "",
       walletAddress: userPayLoad.pastedAddress || "",
@@ -449,12 +449,12 @@ const SelectInstitution = ({ buy }: { buy?: boolean }) => {
                 },
               })}
               className={`bg-transparent border border-[#444] text-lg text-white font-medium rounded-full h-full pl-6 w-full focus:outline-none ${
-                errors.accountNumber
+                touchedFields.accountNumber && errors.accountNumber
                   ? "border-red-500 focus:border-red-500"
                   : "focus:border-purple-400"
               }`}
             />
-            {errors.accountNumber && (
+            {touchedFields.accountNumber && errors.accountNumber && (
               <p className="mt-1 text-xs text-red-500">
                 {errors.accountNumber.message}
               </p>
