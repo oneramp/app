@@ -10,10 +10,8 @@ export const MOCK_NIGERIAN_ACCOUNT_NUMBER_SUCCESS = "1111111111";
 export const MOCK_NIGERIAN_ACCOUNT_NUMBER_FAILED = "0000000000";
 
 // BETA URLS
-export const ONERAMP_API_URL =
-  "https://beta-api-testing-production.up.railway.app";
-export const KYC_REDIRECT_URL =
-  "https://signup.metamap.com/?merchantToken=671a3cf5673134001da20657&flowId=671a3cf5673134001da20656";
+export const ONERAMP_API_URL = process.env.ONERAMP_API_URL;
+export const KYC_REDIRECT_URL = process.env.KYC_REDIRECT_URL;
 
 export const oneRampApi = axios.create({
   baseURL: ONERAMP_API_URL,
