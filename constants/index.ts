@@ -1,8 +1,5 @@
 import axios from "axios";
 
-// LOCAL URLS
-// export const ONERAMP_API_URL = "http://localhost:4000";
-// export const KYC_REDIRECT_URL = "http://localhost:3000";
 export const MOCK_TRANSACTIONS = false;
 export const MOCK_NIGERIAN_PHONE_NUMBER_SUCCESS = "+2341111111111";
 export const MOCK_NIGERIAN_PHONE_NUMBER_FAILED = "+2340000000000";
