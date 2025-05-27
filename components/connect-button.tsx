@@ -23,11 +23,13 @@ import { ChainTypes } from "@/types";
 import { useMutation } from "@tanstack/react-query";
 import { getKYC } from "@/actions/kyc";
 import { useKYCStore } from "@/store/kyc-store";
+import { useUserSelectionStore } from "@/store/user-selection";
 
 export const ConnectButton = ({ large }: { large?: boolean }) => {
   const { address, isConnected } = useWalletGetInfo();
   const { open } = useAppKit();
   const [popoverOpen, setPopoverOpen] = useState(false);
+  const { updateSelection } = useUserSelectionStore();
 
   const {
     setCurrentNetwork,
@@ -63,6 +65,8 @@ export const ConnectButton = ({ large }: { large?: boolean }) => {
   const handleSuccessfulEvmConnection = async () => {
     // Set the current network to the EVM network
     setCurrentNetwork(SUPPORTED_NETWORKS_WITH_RPC_URLS[0]);
+    updateSelection({ pastedAddress: undefined });
+
     // First check if the network is already connected
     if (
       !connectedNetworks.some(
@@ -79,6 +83,7 @@ export const ConnectButton = ({ large }: { large?: boolean }) => {
       SUPPORTED_NETWORKS_WITH_RPC_URLS[
         SUPPORTED_NETWORKS_WITH_RPC_URLS.length - 1
       ];
+    updateSelection({ pastedAddress: undefined });
     setCurrentNetwork(starknetPositionInArray);
     // First check if the network is already connected
     if (
@@ -143,6 +148,7 @@ export const ConnectButton = ({ large }: { large?: boolean }) => {
         // Only clear network state after both disconnections complete
         setCurrentNetwork(null);
         clearConnectedNetworks();
+        updateSelection({ address: undefined });
       } catch (error) {
         console.error("Error during wallet disconnection:", error);
       }
@@ -158,6 +164,7 @@ export const ConnectButton = ({ large }: { large?: boolean }) => {
             removeConnectedNetwork(network);
           }
         });
+        updateSelection({ address: undefined });
       } catch (error) {
         console.error("Failed to disconnect EVM wallet:", error);
       }
@@ -172,6 +179,7 @@ export const ConnectButton = ({ large }: { large?: boolean }) => {
             removeConnectedNetwork(network);
           }
         });
+        updateSelection({ address: undefined });
       } catch (error) {
         console.error("Failed to disconnect Starknet wallet:", error);
       }

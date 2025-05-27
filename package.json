@@ -33,6 +33,7 @@
     "react-confetti": "^6.4.0",
     "react-confetti-explosion": "^2.1.2",
     "react-dom": "19.0.0",
+    "react-hook-form": "^7.56.4",
     "react-use": "^17.6.0",
     "sonner": "^2.0.3",
     "starknetkit": "^2.10.4",

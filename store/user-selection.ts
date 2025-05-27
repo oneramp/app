@@ -22,6 +22,7 @@ const initialState: UserSelectionGlobalState = {
   accountNumber: undefined,
   orderStep: OrderStep.Initial,
   appState: AppState.Idle,
+  pastedAddress: undefined,
 };
 
 export const useUserSelectionStore = create<UserSelectionStore>()(

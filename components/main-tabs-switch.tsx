@@ -15,6 +15,7 @@ export function MainTabsSwitch() {
       accountNumber: undefined,
       accountName: undefined,
       institution: undefined,
+      pastedAddress: undefined,
     });
   };
 

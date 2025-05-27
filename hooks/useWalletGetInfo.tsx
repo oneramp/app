@@ -11,6 +11,7 @@ import {
 import { useAccount } from "@starknet-react/core";
 import { useEffect, useState } from "react";
 import { useClientMounted } from "./useClientMounted";
+import { useUserSelectionStore } from "@/store/user-selection";
 
 const useWalletInfo = () => {
   const { currentNetwork } = useNetworkStore();
@@ -18,6 +19,7 @@ const useWalletInfo = () => {
   const [address, setAddress] = useState<string | null>(null);
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [chainId, setChainId] = useState<number | null>(null);
+  const { pastedAddress } = useUserSelectionStore();
 
   // EVM Wallet data
   const kitTheme = useAppKitTheme();
@@ -47,6 +49,9 @@ const useWalletInfo = () => {
   useEffect(() => {
     // Set the address and isConnected state based on the current network
     if (currentNetwork?.type === "evm" && evmAddress) {
+      console.log("====================================");
+      console.log("evmAddress", evmAddress);
+      console.log("====================================");
       setAddress(evmAddress);
       setIsConnected(evmIsConnected);
       setChainId(
@@ -58,6 +63,9 @@ const useWalletInfo = () => {
     }
 
     if (currentNetwork?.type === "starknet" && starknetAddress) {
+      console.log("====================================");
+      console.log("starknetAddress", starknetAddress);
+      console.log("====================================");
       setAddress(starknetAddress);
       setIsConnected(status === "connected");
       setChainId(
@@ -69,6 +77,12 @@ const useWalletInfo = () => {
     }
 
     if (currentNetwork?.type === "starknet" && !starknetIsConnected) {
+      if (pastedAddress && pastedAddress !== "") {
+        setAddress(pastedAddress);
+        setIsConnected(true);
+        setChainId(null);
+        return;
+      }
       setAddress(null);
       setIsConnected(false);
       setChainId(null);
@@ -76,6 +90,13 @@ const useWalletInfo = () => {
     }
 
     if (currentNetwork?.type === "evm" && !evmIsConnected) {
+      if (pastedAddress && pastedAddress !== "") {
+        setAddress(pastedAddress);
+        setIsConnected(true);
+        setChainId(null);
+        return;
+      }
+
       setAddress(null);
       setIsConnected(false);
       setChainId(null);
@@ -93,6 +114,7 @@ const useWalletInfo = () => {
     status,
     starknetChainId,
     evmChainId,
+    pastedAddress,
   ]);
 
   return {

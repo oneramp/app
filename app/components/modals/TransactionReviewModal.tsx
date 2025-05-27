@@ -147,7 +147,9 @@ export function TransactionReviewModal() {
     updateSelection({
       orderStep: OrderStep.Initial,
       accountNumber: undefined,
+      accountName: undefined,
       institution: undefined,
+      pastedAddress: undefined,
     });
   };
 

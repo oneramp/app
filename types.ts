@@ -101,6 +101,7 @@ export interface UserSelectionGlobalState {
   accountName?: string;
   orderStep: OrderStep;
   appState: AppState;
+  pastedAddress?: string;
 }
 
 export interface MINMAX {
