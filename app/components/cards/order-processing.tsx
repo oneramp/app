@@ -12,6 +12,7 @@ import AssetAvator from "./asset-avator";
 import { useQuoteStore } from "@/store/quote-store";
 import { toast } from "sonner";
 import { CancelModal } from "../modals/cancel-modal";
+import TakingLongCard from "./taking-long-card";
 
 const CopyButton = ({ value }: { value: string }) => {
   const [copied, setCopied] = useState(false);
@@ -103,6 +104,7 @@ const OrderProcessing = () => {
       orderStep: OrderStep.Initial,
       accountNumber: undefined,
       institution: undefined,
+      paymentMethod: undefined,
     });
   };
 
@@ -127,7 +129,7 @@ const OrderProcessing = () => {
               <div className="border-[1px] h-32 border-neutral-700 border-dashed w-[1px]"></div>
               <div className=" size-2.5 rounded-full bg-[#2ecc71] z-10"></div>
               <Button
-                // disabled
+                disabled
                 onClick={() => {
                   updateSelection({ orderStep: OrderStep.PaymentCompleted });
                 }}
@@ -244,16 +246,6 @@ const OrderProcessing = () => {
                   Important: Send the exact amount to avoid transaction delays.
                 </p>
               </div>
-
-              <div className="flex justify-end">
-                <Button
-                  variant="ghost"
-                  onClick={() => setShowCancelModal(true)}
-                  className="text-red-500 hover:text-red-400 hover:bg-red-500/10"
-                >
-                  Cancel Transaction
-                </Button>
-              </div>
             </div>
           ) : (
             <div className="flex flex-col">
@@ -273,9 +265,20 @@ const OrderProcessing = () => {
                 <p>Ok. Hang on, this will only take a few seconds</p>
               </div>
 
-              {/* <TakingLongCard /> */}
+              <div className="flex my-4 w-[80%]">
+                <TakingLongCard />
+              </div>
             </div>
           )}
+          <div className="flex  ">
+            <Button
+              variant="ghost"
+              onClick={() => setShowCancelModal(true)}
+              className="text-red-500 hover:text-red-400 hover:bg-red-500/10"
+            >
+              Cancel
+            </Button>
+          </div>
         </div>
       </div>
 
