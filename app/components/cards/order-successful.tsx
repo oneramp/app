@@ -74,21 +74,23 @@ const OrderSuccessful = () => {
       )}
 
       {/* Left side - Timeline */}
-      <div className="flex w-1/2 justify-end">
-        <div className="flex flex-col gap-y-2">
+      <div className="flex flex-col md:flex-row md:justify-end w-full md:w-1/2">
+        <div className="flex gap-4 px-4 md:px-0 md:gap-0 items-center justify-between flex-row md:flex-col gap-y-2  ">
           {/* Top step - USDC */}
 
-          <AssetAvator
-            cryptoType={quote?.cryptoType}
-            cryptoAmount={quote?.amountPaid}
-          />
+          <div className="flex ">
+            <AssetAvator
+              cryptoType={quote?.cryptoType}
+              cryptoAmount={quote?.amountPaid}
+            />
+          </div>
 
           {/* Vertical line with dot */}
-          <div className="flex flex-1 flex-row justify-between">
+          <div className="flex flex-1 flex-col md:flex-row justify-between ">
             <div className="flex flex-1"></div>
-            <div className="flex flex-col items-center gap-4">
-              <div className="border-[1px] h-full border-neutral-700 border-dashed w-[1px]"></div>
-              <div className="size-2.5 rounded-full bg-[#2ecc71] z-10"></div>
+            <div className="flex flex-row md:flex-col  items-center gap-4 ">
+              <div className="border-[1px] h-[1px] md:h-32 border-neutral-700 border-dashed w-full md:w-[1px]"></div>
+              <div className="hidden md:block size-2.5 rounded-full bg-[#2ecc71] z-10"></div>
               <Button className="p-3 bg-[#232323] rounded-xl hover:bg-[#2a2a2a] text-white font-medium text-sm transition-colors w-fit">
                 Ok
               </Button>

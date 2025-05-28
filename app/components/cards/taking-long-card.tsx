@@ -3,7 +3,7 @@ import React from "react";
 
 const TakingLongCard = () => {
   return (
-    <Card className="p-4 bg-neutral-800 border-none w-1/2">
+    <Card className="p-4 bg-neutral-800 border-none w-full md:w-1/2">
       <div className="flex flex-row items-center justify-between ">
         <div className="flex flex-col gap-2">
           <h2 className="text-sm text-white">Taking Longer Than Expected?</h2>

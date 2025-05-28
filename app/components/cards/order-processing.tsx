@@ -109,25 +109,27 @@ const OrderProcessing = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex py-20  justify-center bg-[#181818] gap-x-16">
+    <div className="fixed inset-0 z-50 flex-col md:flex-row flex py-20  justify-center bg-[#181818] gap-x-16">
       {/* Left side - Timeline */}
-      <div className="flex justify-end w-1/3">
-        <div className="flex flex-col gap-y-2  ">
+      <div className="flex flex-col md:flex-row md:justify-end w-full md:w-1/3">
+        <div className="flex gap-4 px-4 md:px-0 md:gap-0 items-center justify-between flex-row md:flex-col gap-y-2  ">
           {/* Top step - USDC */}
 
-          {quote && (
-            <AssetAvator
-              cryptoAmount={quote?.amountPaid}
-              cryptoType={quote?.cryptoType}
-            />
-          )}
+          <div className="flex ">
+            {quote && (
+              <AssetAvator
+                cryptoAmount={quote?.amountPaid}
+                cryptoType={quote?.cryptoType}
+              />
+            )}
+          </div>
 
           {/* Vertical line with dot */}
-          <div className="flex flex-1 flex-row justify-between ">
+          <div className="flex flex-1 flex-col md:flex-row justify-between ">
             <div className="flex flex-1 "></div>
-            <div className="flex flex-col items-center gap-4 ">
-              <div className="border-[1px] h-32 border-neutral-700 border-dashed w-[1px]"></div>
-              <div className=" size-2.5 rounded-full bg-[#2ecc71] z-10"></div>
+            <div className="flex flex-row md:flex-col  items-center gap-4 ">
+              <div className="border-[1px] h-[1px] md:h-32 border-neutral-700 border-dashed w-full md:w-[1px]"></div>
+              <div className="hidden md:block size-2.5 rounded-full bg-[#2ecc71] z-10"></div>
               <Button
                 disabled
                 onClick={() => {
@@ -149,7 +151,7 @@ const OrderProcessing = () => {
       </div>
 
       {/* Right side - Content */}
-      <div className=" flex gap-x-10 flex-1 w-full">
+      <div className="p-5 md:p-0 flex gap-x-10 flex-1 w-full">
         <div className="flex flex-col gap-4">
           <Badge
             variant="outline"
@@ -265,7 +267,7 @@ const OrderProcessing = () => {
                 <p>Ok. Hang on, this will only take a few seconds</p>
               </div>
 
-              <div className="flex my-4 w-[80%]">
+              <div className="flex my-4 w-full md:w-[80%] ">
                 <TakingLongCard />
               </div>
             </div>
