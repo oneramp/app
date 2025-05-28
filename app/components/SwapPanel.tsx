@@ -62,26 +62,26 @@ export function SwapPanel() {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto min-h-[450px] bg-[#181818]  rounded-3xl p-0 flex flex-col gap-0 md:shadow-lg md:border border-[#232323] relative">
+    <div className="w-full max-w-md mx-auto min-h-[450px] bg-[#181818] rounded-3xl p-0 flex flex-col gap-0 md:shadow-lg md:border border-[#232323] relative">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 pt-6 pb-2">
+      <div className="flex items-center justify-between px-4 md:px-6 pt-6 pb-2">
         <div className="flex items-center gap-3">
-          <span className="text-2xl font-bold text-white">Swap</span>
+          <span className="text-xl md:text-2xl font-bold text-white">Swap</span>
           <div className="relative">
             <Button
               variant="default"
-              className="flex items-center gap-2 bg-[#232323] border-none px-4 py-2 rounded-full min-w-[90px]"
+              className="flex items-center gap-2 bg-[#232323] border-none px-3 md:px-4 py-2 rounded-full min-w-[80px] md:min-w-[90px]"
               onClick={() => setShowDropdown((v) => !v)}
               type="button"
             >
               <Image
                 src={selectedCurrency.logo}
                 alt={selectedCurrency.symbol}
-                width={24}
-                height={24}
+                width={20}
+                height={20}
                 className="rounded-full"
               />
-              <span className="text-white font-medium">
+              <span className="text-white text-sm md:text-base font-medium">
                 {selectedCurrency.symbol}
               </span>
               <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
@@ -151,7 +151,7 @@ export function SwapPanel() {
           variant="outline"
           className="bg-[#232323] border-none p-2 rounded-xl"
         >
-          <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
             <rect
               x="4"
               y="4"
@@ -172,22 +172,24 @@ export function SwapPanel() {
       </div>
 
       {/* From Panel */}
-      <div className="mx-4 mt-2 bg-[#232323] rounded-2xl p-5 flex flex-col gap-2 relative">
+      <div className="mx-3 md:mx-4 mt-2 bg-[#232323] rounded-2xl p-4 md:p-5 flex flex-col gap-2 relative">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-neutral-200 text-lg font-medium">From</span>
-          <span className="text-neutral-400 text-sm">
+          <span className="text-neutral-200 text-base md:text-lg font-medium">
+            From
+          </span>
+          <span className="text-neutral-400 text-xs md:text-sm">
             Balance: 0{" "}
             <span className="text-red-400 ml-1 cursor-pointer">Max</span>
           </span>
         </div>
-        <div className="flex items-center gap-3 ">
+        <div className="flex items-center gap-2 md:gap-3">
           <ValueInput />
           <div className="flex-1 w-full">
             <NetworkSelector
               selectedNetwork={currentNetwork || networks[0]}
               onNetworkChange={handleNetworkSelect}
               canSwitch={canSwitchNetwork}
-              buttonClassName="bg-black border-none px-4  rounded-full min-w-[120px]"
+              buttonClassName="bg-black border-none px-2 md:px-4 rounded-full min-w-[100px] md:min-w-[120px]"
             />
           </div>
         </div>
@@ -200,10 +202,10 @@ export function SwapPanel() {
       >
         <div className="absolute left-1/2 -translate-x-1/2 -top-6">
           <div
-            className="bg-[#181818] border-4 border-[#232323] rounded-xl p-3 shadow-lg flex items-center justify-center"
-            style={{ width: 56, height: 56 }}
+            className="bg-[#181818] border-4 border-[#232323] rounded-xl p-2 md:p-3 shadow-lg flex items-center justify-center"
+            style={{ width: 48, height: 48 }}
           >
-            <svg width="28" height="28" fill="none" viewBox="0 0 24 24">
+            <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
               <path
                 d="M12 5v14m0 0l-5-5m5 5l5-5"
                 stroke="#fff"
@@ -217,11 +219,13 @@ export function SwapPanel() {
       </div>
 
       {/* To Panel */}
-      <div className="mx-4 mb-2 bg-[#232323] rounded-2xl p-5 flex flex-col gap-2 relative">
+      <div className="mx-3 md:mx-4 mb-2 bg-[#232323] rounded-2xl p-4 md:p-5 flex flex-col gap-2 relative">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-neutral-200 text-lg font-medium">To</span>
+          <span className="text-neutral-200 text-base md:text-lg font-medium">
+            To
+          </span>
           {selectedCountryCurrency && (
-            <span className="text-purple-400 font-medium text-sm cursor-pointer">
+            <span className="text-purple-400 text-xs md:text-sm font-medium cursor-pointer">
               Select beneficiary
             </span>
           )}
@@ -236,11 +240,11 @@ export function SwapPanel() {
       <ExchangeRateComponent />
 
       {country ? (
-        <div className="px-4">
+        <div className="px-3 md:px-4">
           <SelectInstitution />
         </div>
       ) : (
-        <div className="px-4 mt-4">
+        <div className="px-3 md:px-4 mt-4">
           <SubmitButton disabled>SWAP</SubmitButton>
         </div>
       )}

@@ -5,15 +5,15 @@ import { VerifyAccountDetailsRequest } from "@/types";
 
 export async function getInstitutions(country: string, method = "buy") {
   try {
+    console.log("getInstitutions", country, method);
     if (!country) {
       throw new Error("Country is required");
     }
 
     const response = await oneRampApi.get(`/institutions/${country}/${method}`);
-
     return response.data;
   } catch (error) {
-    console.error(error);
+    console.error("Failed to fetch institutions:", error);
     return [];
   }
 }

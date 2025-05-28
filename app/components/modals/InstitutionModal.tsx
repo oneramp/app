@@ -41,7 +41,7 @@ export function InstitutionModal({
 
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/10 backdrop-blur-sm">
-      <div className="bg-[#232323] rounded-2xl p-6 max-w-md w-full min-h-[50vh] max-h-[80vh] shadow-2xl relative">
+      <div className="bg-[#232323] sm:max-w-[380px] rounded-2xl p-6 max-w-md w-full min-h-[50vh] max-h-[80vh] shadow-2xl relative">
         <button
           className="absolute top-4 right-4 text-neutral-400 hover:text-white"
           onClick={onClose}

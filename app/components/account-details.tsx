@@ -11,7 +11,7 @@ import { AppState } from "@/types";
 
 export const FetchingAccountDetails = () => {
   return (
-    <div className="flex items-center justify-between gap-2 text-neutral-600 text-sm">
+    <div className="flex items-center gap-3 text-neutral-600 text-sm">
       <Loader className="size-4 animate-spin" />
       <p>Verifying account name...</p>
     </div>
@@ -40,13 +40,14 @@ const AccountDetails = ({ accountNumber }: { accountNumber: string }) => {
         accountNumber: accountNumber,
         currency: country?.currency || "",
       }),
-    enabled: !!accountNumber && !!country,
+    enabled: !!accountNumber && !!country && !!kycData,
     retry: true,
     retryDelay: 3000,
+    refetchOnWindowFocus: true,
   });
 
   useEffect(() => {
-    if (isLoading) {
+    if (isLoading && kycData && kycData?.message?.link) {
       setAppState(AppState.Processing);
     }
 
@@ -54,9 +55,9 @@ const AccountDetails = ({ accountNumber }: { accountNumber: string }) => {
       setAppState(AppState.Idle);
       updateSelection({ accountName: accountDetails.accountName });
     }
-  }, [isLoading, error, accountDetails]);
+  }, [isLoading, error, accountDetails, kycData]);
 
-  if (isLoading) {
+  if (isLoading && kycData && !kycData?.message?.link) {
     return <FetchingAccountDetails />;
   }
 
@@ -77,20 +78,20 @@ const AccountDetails = ({ accountNumber }: { accountNumber: string }) => {
         kycLink={kycData?.message?.link || null}
       />
       <div className="flex items-center justify-between">
-        {/* {kycData && kycData.kycStatus === "VERIFIED" && ( */}
-        <>
-          <div className="flex p-1 text-white border-2 bg-neutral-900 border-[#bcbcff] rounded-lg px-4 text-sm font-medium border-gradient-to-r from-purple-500/20 to-indigo-500/20">
-            {paymentMethod === "momo" ? (
-              <h3>OK</h3>
-            ) : (
-              <h3 className="line-clamp-1">
-                {accountDetails?.accountName || "Account Name"}
-              </h3>
-            )}
-          </div>
-          <Check className="size-6 text-green-500" />
-        </>
-        {/* )} */}
+        {kycData && !kycData?.message?.link && (
+          <>
+            <div className="flex p-1 text-white border-2 bg-neutral-900 border-[#bcbcff] rounded-lg px-4 text-sm font-medium border-gradient-to-r from-purple-500/20 to-indigo-500/20">
+              {paymentMethod === "momo" ? (
+                <h3>OK</h3>
+              ) : (
+                <h3 className="line-clamp-1">
+                  {accountDetails?.accountName || "Account Name"}
+                </h3>
+              )}
+            </div>
+            <Check className="size-6 text-green-500" />
+          </>
+        )}
       </div>
     </div>
   );

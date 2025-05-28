@@ -5,7 +5,7 @@ import { useAmountStore } from "@/store/amount-store";
 import { useExchangeRateStore } from "@/store/exchange-rate-store";
 import { useNetworkStore } from "@/store/network";
 import { useUserSelectionStore } from "@/store/user-selection";
-import { AppState, Country, Institution } from "@/types";
+import { Country, Institution } from "@/types";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import ExchangeRateComponent from "./exchange-rate-component";
@@ -42,19 +42,10 @@ export function BuyPanel() {
     networkLogo: string;
   }>(null);
   const [showTokenModal, setShowTokenModal] = useState(false);
-  const {
-    institution,
-    updateSelection,
-    country,
-    paymentMethod,
-    setAppState,
-    asset,
-  } = useUserSelectionStore();
-  const { exchangeRate, setExchangeRate, setIsLoading, setError } =
-    useExchangeRateStore();
+  const { institution, updateSelection, country, paymentMethod, asset } =
+    useUserSelectionStore();
+  const { exchangeRate, setExchangeRate, setError } = useExchangeRateStore();
   const { currentNetwork } = useNetworkStore();
-
-  // const { quote } = useQuoteStore();
 
   const { amount, setAmount } = useAmountStore();
 
@@ -69,8 +60,6 @@ export function BuyPanel() {
       if (!country?.countryCode || !paymentMethod) return;
 
       try {
-        setAppState(AppState.Processing);
-        setIsLoading(true);
         const response = await getCountryExchangeRate({
           country: country.countryCode,
           orderType: "buying",
@@ -86,21 +75,11 @@ export function BuyPanel() {
             : "Failed to fetch exchange rate"
         );
         setExchangeRate(null);
-      } finally {
-        setAppState(AppState.Idle);
-        setIsLoading(false);
       }
     };
 
     fetchExchangeRate();
-  }, [
-    country?.countryCode,
-    paymentMethod,
-    setExchangeRate,
-    setIsLoading,
-    setError,
-    setAppState,
-  ]);
+  }, [country?.countryCode, paymentMethod, setExchangeRate, setError]);
 
   // Handler for buy confirmation
   const handleConfirmBuy = () => {};
@@ -121,20 +100,22 @@ export function BuyPanel() {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto bg-[#181818] rounded-2xl min-h-[450px] p-6 flex flex-col gap-4 border border-[#232323]">
-      <div className="flex justify-between items-center mb-4">
-        <span className="text-neutral-400 text-lg">You&apos;re buying</span>
+    <div className="w-full max-w-md mx-auto bg-[#181818] rounded-2xl min-h-[450px] p-4 md:p-6 flex flex-col gap-3 md:gap-4 border border-[#232323]">
+      <div className="flex justify-between items-center mb-2 md:mb-4">
+        <span className="text-neutral-400 text-base md:text-lg">
+          You&apos;re buying
+        </span>
         <SelectCountryModal handleCountrySelect={handleCountrySelect} />
       </div>
-      <div className="flex flex-col items-center justify-center gap-4 ">
+      <div className="flex flex-col items-center justify-center gap-3 md:gap-4">
         <div className="w-full flex items-center justify-center">
-          <div className="w-full max-w-[300px] flex justify-center">
+          <div className="w-full max-w-[280px] md:max-w-[300px] flex justify-center">
             <BuyValueInput />
           </div>
         </div>
         <Button
           variant="default"
-          className="bg-white hover:bg-gray-100 text-black px-6 py-2 rounded-full font-medium flex items-center gap-2"
+          className="bg-white hover:bg-gray-100 text-black px-4 md:px-6 py-2 rounded-full text-sm md:text-base font-medium flex items-center gap-2"
           onClick={() => setShowTokenModal(true)}
         >
           {asset ? (
@@ -142,8 +123,8 @@ export function BuyPanel() {
               <Image
                 src={asset.logo}
                 alt={asset.symbol}
-                width={24}
-                height={24}
+                width={20}
+                height={20}
                 className="rounded-full"
               />
               <span className="font-medium">{asset.symbol}</span>
@@ -168,24 +149,24 @@ export function BuyPanel() {
         </Button>
 
         {/* Quick amount buttons */}
-        <div className="flex gap-4 mt-2">
+        <div className="flex gap-2 md:gap-4 mt-1 md:mt-2">
           <Button
             variant="outline"
-            className="rounded-full px-6 py-2 text-white bg-[#232323] border-none hover:bg-[#3a4155]"
+            className="rounded-full px-4 md:px-6 py-2 text-sm md:text-base text-white bg-[#232323] border-none hover:bg-[#3a4155]"
             onClick={() => setAmount("100")}
           >
             $100
           </Button>
           <Button
             variant="outline"
-            className="rounded-full px-6 py-2 text-white bg-[#232323] border-none hover:bg-[#3a4155]"
+            className="rounded-full px-4 md:px-6 py-2 text-sm md:text-base text-white bg-[#232323] border-none hover:bg-[#3a4155]"
             onClick={() => setAmount("300")}
           >
             $300
           </Button>
           <Button
             variant="outline"
-            className="rounded-full px-6 py-2 text-white bg-[#232323] border-none hover:bg-[#3a4155]"
+            className="rounded-full px-4 md:px-6 py-2 text-sm md:text-base text-white bg-[#232323] border-none hover:bg-[#3a4155]"
             onClick={() => setAmount("500")}
           >
             $500
@@ -205,7 +186,7 @@ export function BuyPanel() {
 
       {!country && !asset && (
         <Button
-          className={`w-full bg-[#232323] text-white text-base font-bold h-14 mt-2 rounded-2xl `}
+          className="w-full bg-[#232323] text-white text-sm md:text-base font-bold h-12 md:h-14 mt-2 rounded-2xl"
           disabled={true}
         >
           Select country and token

@@ -5,16 +5,14 @@ import { cn } from "@/lib/utils";
 import { useAmountStore } from "@/store/amount-store";
 import { useExchangeRateStore } from "@/store/exchange-rate-store";
 import { useUserSelectionStore } from "@/store/user-selection";
-import { AppState, Country } from "@/types";
+import { Country } from "@/types";
 import { useEffect, useMemo } from "react";
 import SelectCountryModal from "./modals/select-country-modal";
 
 const SelectCountry = () => {
-  const { country, updateSelection, paymentMethod, setAppState } =
-    useUserSelectionStore();
+  const { country, updateSelection, paymentMethod } = useUserSelectionStore();
   const { amount, setIsValid, setFiatAmount } = useAmountStore();
-  const { exchangeRate, isLoading, setExchangeRate, setIsLoading, setError } =
-    useExchangeRateStore();
+  const { exchangeRate, setExchangeRate, setError } = useExchangeRateStore();
 
   // Fetch exchange rate when country or payment method changes
   useEffect(() => {
@@ -22,8 +20,6 @@ const SelectCountry = () => {
       if (!country?.countryCode || !paymentMethod) return;
 
       try {
-        setAppState(AppState.Processing);
-        setIsLoading(true);
         const response = await getCountryExchangeRate({
           country: country.countryCode,
           orderType: "selling",
@@ -39,21 +35,11 @@ const SelectCountry = () => {
             : "Failed to fetch exchange rate"
         );
         setExchangeRate(null);
-      } finally {
-        setAppState(AppState.Idle);
-        setIsLoading(false);
       }
     };
 
     fetchExchangeRate();
-  }, [
-    country?.countryCode,
-    paymentMethod,
-    setExchangeRate,
-    setIsLoading,
-    setError,
-    setAppState,
-  ]);
+  }, [country?.countryCode, paymentMethod, setExchangeRate, setError]);
 
   const calculatedAmount = useMemo(() => {
     if (!country || !amount || !exchangeRate) return null;
@@ -62,18 +48,7 @@ const SelectCountry = () => {
 
     // Use the exchange rate from the API response
     const rate = exchangeRate.exchange;
-
     const convertedAmount = numericAmount * rate;
-
-    // Include fees from conversionResponse if available
-    // THIS IS THE FEE CALCULATION FUNCTIONALITY
-
-    // if (exchangeRate.conversionResponse) {
-    //   const { chargeFeeInFiat, gasFeeInFiat } = exchangeRate.conversionResponse;
-    //   const totalFees = (chargeFeeInFiat || 0) + (gasFeeInFiat || 0);
-    //   return (convertedAmount + totalFees).toFixed(2);
-    // }
-
     return convertedAmount.toFixed(2);
   }, [amount, country, exchangeRate]);
 
@@ -122,9 +97,7 @@ const SelectCountry = () => {
               isAmountValid ? "" : ""
             )}
           >
-            {isLoading
-              ? ""
-              : calculatedAmount
+            {calculatedAmount
               ? parseFloat(calculatedAmount).toLocaleString("en-US", {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,

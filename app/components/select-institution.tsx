@@ -2,6 +2,7 @@
 
 import { createQuoteIn, createQuoteOut } from "@/actions/quote";
 import { createTransferOut } from "@/actions/transfer";
+import { ModalConnectButton } from "@/components/modal-connect-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SUPPORTED_NETWORKS_WITH_RPC_URLS } from "@/data/networks";
@@ -263,8 +264,10 @@ const SelectInstitution = ({ buy }: { buy?: boolean }) => {
 
     // Update button text based on conditions
     if (!isConnected) {
+      console.log("isConnected", isConnected);
       setButtonText("Connect Wallet");
     } else if (!hasRequiredWallet()) {
+      console.log("hasRequiredWallet", hasRequiredWallet());
       setButtonText(
         currentNetwork?.type === "starknet"
           ? "Connect Starknet Wallet"
@@ -274,10 +277,11 @@ const SelectInstitution = ({ buy }: { buy?: boolean }) => {
       //  else if (!accountNumber) {
       //   setButtonText("Enter account number");
     } else if (!institution) {
+      console.log("institution", institution);
       setButtonText("Select institution");
     } else if (!isAmountValid) {
+      console.log("isAmountValid", isAmountValid);
       setButtonText("Invalid amount");
-    } else if (Object.keys(errors).length > 0) {
       // setButtonText("Please fix form errors");
     } else {
       setButtonText(buy ? "Buy" : "Swap");
@@ -454,11 +458,6 @@ const SelectInstitution = ({ buy }: { buy?: boolean }) => {
                   : "focus:border-purple-400"
               }`}
             />
-            {touchedFields.accountNumber && errors.accountNumber && (
-              <p className="mt-1 text-xs text-red-500">
-                {errors.accountNumber.message}
-              </p>
-            )}
           </div>
         </div>
 
@@ -541,6 +540,10 @@ const SelectInstitution = ({ buy }: { buy?: boolean }) => {
             "Buy"
           )}
         </SubmitButton>
+      ) : buttonText === "Connect Wallet" ? (
+        <div className="flex w-full justify-center my-4">
+          <ModalConnectButton large />
+        </div>
       ) : (
         <div className="mb-4">
           <SubmitButton

@@ -20,8 +20,8 @@ export function MainTabsSwitch() {
   };
 
   return (
-    <Tabs defaultValue="Swap" className="w-[500px]">
-      <TabsList className="grid w-[250px] mx-auto grid-cols-2 p-1 bg-transparent rounded-full mb-2 h-12 ">
+    <Tabs defaultValue="Swap" className="w-full md:w-[500px]">
+      <TabsList className="grid w-[250px] mx-auto grid-cols-2 p-1 bg-transparent rounded-full mb-2 h-12">
         <TabsTrigger
           value="Swap"
           onClick={washTheseFields}
@@ -37,10 +37,10 @@ export function MainTabsSwitch() {
           Buy
         </TabsTrigger>
       </TabsList>
-      <TabsContent value="Swap">
+      <TabsContent value="Swap" className="w-full">
         <SwapPanel />
       </TabsContent>
-      <TabsContent value="Buy">
+      <TabsContent value="Buy" className="w-full">
         <BuyPanel />
       </TabsContent>
     </Tabs>

@@ -156,7 +156,7 @@ export function Header({ logoOnly }: { logoOnly?: boolean }) {
       <div className="max-w-[1200px] mx-auto flex justify-between items-center px-6">
         {/* Logo */}
         {logoOnly ? (
-          <div className="flex items-center">
+          <div className=" items-center hidden md:flex">
             <div className="block md:hidden ">
               <Image
                 src="/logos/oneramp.png"
