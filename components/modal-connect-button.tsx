@@ -244,8 +244,8 @@ export const ModalConnectButton = ({ large }: { large?: boolean }) => {
       )}
 
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="sm:max-w-[420px] max-w-[80%] h-2/5  p-0 bg-[#181818] border border-[#232323] rounded-3xl overflow-hidden">
-          <div className=" px-5 flex items-center justify-between">
+        <DialogContent className="sm:max-w-[420px] max-w-[90%] h-1/2 p-0 bg-[#181818] border border-[#232323] md:rounded-3xl rounded-t-3xl rounded-b-none overflow-hidden fixed md:bottom-0 bottom-auto translate-y-0">
+          <div className=" px-5 flex items-center justify-between  ">
             <h1 className="text-white text-xl font-semibold">My Wallets</h1>
             <button
               className="absolute top-2 right-4 text-neutral-400 hover:text-white p-2 rounded-xl hover:bg-[#232323] transition-colors"
