@@ -49,9 +49,6 @@ const useWalletInfo = () => {
   useEffect(() => {
     // Set the address and isConnected state based on the current network
     if (currentNetwork?.type === "evm" && evmAddress) {
-      console.log("====================================");
-      console.log("evmAddress", evmAddress);
-      console.log("====================================");
       setAddress(evmAddress);
       setIsConnected(evmIsConnected);
       setChainId(
@@ -63,9 +60,6 @@ const useWalletInfo = () => {
     }
 
     if (currentNetwork?.type === "starknet" && starknetAddress) {
-      console.log("====================================");
-      console.log("starknetAddress", starknetAddress);
-      console.log("====================================");
       setAddress(starknetAddress);
       setIsConnected(status === "connected");
       setChainId(
@@ -102,6 +96,8 @@ const useWalletInfo = () => {
       setChainId(null);
       return;
     }
+
+    // Handle disconnect from all wallets
 
     setAddress(null);
     setIsConnected(false);

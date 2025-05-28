@@ -15,15 +15,19 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { StarknetkitConnector, useStarknetkitConnectModal } from "starknetkit";
 import ConnectedWalletCard from "./connected-wallet-card";
-import { ChainTypes } from "@/types";
+import { ChainTypes, OrderStep } from "@/types";
 import { useMutation } from "@tanstack/react-query";
 import { getKYC } from "@/actions/kyc";
 import { useKYCStore } from "@/store/kyc-store";
 import { useUserSelectionStore } from "@/store/user-selection";
+import { useQuoteStore } from "@/store/quote-store";
+import { useTransferStore } from "@/store/transfer-store";
 
 export const ModalConnectButton = ({ large }: { large?: boolean }) => {
   const { address, isConnected } = useWalletGetInfo();
   const { open } = useAppKit();
+  const { resetQuote } = useQuoteStore();
+  const { resetTransfer } = useTransferStore();
   const [modalOpen, setModalOpen] = useState(false);
   const { updateSelection } = useUserSelectionStore();
 
@@ -102,6 +106,7 @@ export const ModalConnectButton = ({ large }: { large?: boolean }) => {
     }
 
     if (chainType === "evm") {
+      setModalOpen(false);
       try {
         await open();
         // Only update networks if the wallet was successfully connected
@@ -112,6 +117,7 @@ export const ModalConnectButton = ({ large }: { large?: boolean }) => {
     }
 
     if (chainType === "starknet") {
+      setModalOpen(false);
       try {
         const { connector } = await starknetkitConnectModal();
         if (!connector) return;
@@ -144,9 +150,12 @@ export const ModalConnectButton = ({ large }: { large?: boolean }) => {
         // Only clear network state after both disconnections complete
         setCurrentNetwork(null);
         clearConnectedNetworks();
-        updateSelection({ address: undefined });
+        // updateSelection({ address: undefined });
+        handleCancelConfirm();
       } catch (error) {
         console.error("Error during wallet disconnection:", error);
+      } finally {
+        handleCancelConfirm();
       }
       return;
     }
@@ -160,9 +169,12 @@ export const ModalConnectButton = ({ large }: { large?: boolean }) => {
             removeConnectedNetwork(network);
           }
         });
-        updateSelection({ address: undefined });
+        // updateSelection({ address: undefined });
+        handleCancelConfirm();
       } catch (error) {
         console.error("Failed to disconnect EVM wallet:", error);
+      } finally {
+        handleCancelConfirm();
       }
     }
 
@@ -175,11 +187,28 @@ export const ModalConnectButton = ({ large }: { large?: boolean }) => {
             removeConnectedNetwork(network);
           }
         });
-        updateSelection({ address: undefined });
+        // updateSelection({ address: undefined });
+        handleCancelConfirm();
       } catch (error) {
         console.error("Failed to disconnect Starknet wallet:", error);
+      } finally {
+        handleCancelConfirm();
       }
     }
+  };
+
+  const handleCancelConfirm = () => {
+    // setShowCancelModal(false);
+    resetQuote();
+    resetTransfer();
+    updateSelection({
+      address: undefined,
+      orderStep: OrderStep.Initial,
+      accountNumber: undefined,
+      accountName: undefined,
+      institution: undefined,
+      pastedAddress: undefined,
+    });
   };
 
   const hasAnyEvmNetwork = connectedNetworks.some(
