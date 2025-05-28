@@ -30,6 +30,7 @@ import AccountDetails from "./account-details";
 import SubmitButton from "./buttons/submit-button";
 import { InstitutionModal } from "./modals/InstitutionModal";
 import { KYCVerificationModal } from "./modals/KYCVerificationModal";
+import { assets } from "@/data/currencies";
 
 interface FormInputs {
   accountNumber: string;
@@ -321,7 +322,15 @@ const SelectInstitution = ({ buy }: { buy?: boolean }) => {
 
     const { country, asset } = userPayLoad;
 
-    if (!country || !asset || !currentNetwork) return;
+    if (!country || !currentNetwork) return;
+
+    let selectedAsset;
+
+    if (!asset) {
+      selectedAsset = assets[0];
+    } else {
+      selectedAsset = asset;
+    }
 
     // Verify KYC
     if (kycData && kycData.kycStatus !== "VERIFIED") {
@@ -349,7 +358,7 @@ const SelectInstitution = ({ buy }: { buy?: boolean }) => {
       address: walletAddress as string,
       country: country?.countryCode,
       cryptoAmount: userAmountEntered,
-      cryptoType: asset?.symbol,
+      cryptoType: selectedAsset?.symbol,
       fiatType: country?.currency,
       network: currentNetwork?.name.toLowerCase(),
     };
@@ -545,6 +554,7 @@ const SelectInstitution = ({ buy }: { buy?: boolean }) => {
           <ModalConnectButton large />
         </div>
       ) : (
+        // Put a console.log statement here
         <div className="mb-4">
           <SubmitButton
             onClick={onSubmit}
