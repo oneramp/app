@@ -18,7 +18,7 @@ export default function Home() {
           </div>
 
           {/* Center section - Main content */}
-          <div className="flex flex-col items-center justify-start md:justify-center w-full px-4 py-2 md:py-4">
+          <div className="flex flex-col items-center justify-start md:justify-center w-full py-2 md:py-4">
             <StateContextProvider />
             <SwapBuyTabs />
           </div>
