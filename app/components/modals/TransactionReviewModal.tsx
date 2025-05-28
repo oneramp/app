@@ -21,7 +21,6 @@ import { useMutation } from "@tanstack/react-query";
 import { Loader } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
 import { parseUnits } from "viem";
 import AssetAvator from "../cards/asset-avator";
 import { CancelModal } from "./cancel-modal";
@@ -161,7 +160,6 @@ export function TransactionReviewModal() {
     const contractAddress = asset.networks[networkName]?.tokenAddress;
 
     if (!contractAddress) {
-      toast.error("Contract address not found");
       return;
     }
 

@@ -246,9 +246,7 @@ const SelectInstitution = ({ buy }: { buy?: boolean }) => {
         walletAddress: "",
       });
     },
-    onError: () => {
-      toast.error("Failed to create quote");
-    },
+    onError: () => {},
   });
 
   // Update button disabled state and text whenever dependencies change
@@ -434,7 +432,7 @@ const SelectInstitution = ({ buy }: { buy?: boolean }) => {
           {/* Account Number */}
           <div className="flex-1 h-full">
             <Input
-              type="text"
+              type="number"
               placeholder="Account number"
               {...register("accountNumber", {
                 required: "Account number is required",
