@@ -1,3 +1,4 @@
+import { ConnectButton } from "@/components/connect-button";
 import { Header } from "./components/Header";
 import { SwapBuyTabs } from "./components/SwapBuyTabs";
 import StateContextProvider from "./providers/StateContextProvider";
@@ -15,6 +16,11 @@ export default function Home() {
           {/* Mobile header - Only shown on mobile */}
           <div className="flex md:hidden w-full p-4">
             <Header logoOnly />
+          </div>
+
+          <div className="w-full flex justify-between items-center px-6 md:hidden">
+            <div className="flex flex-1" />
+            <ConnectButton />
           </div>
 
           {/* Center section - Main content */}

@@ -24,6 +24,7 @@ export const modal = createAppKit({
   networks,
   metadata,
   themeMode: "light",
+  enableWalletConnect: true,
   features: {
     analytics: true, // Optional - defaults to your Cloud configuration
   },
