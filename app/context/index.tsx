@@ -27,6 +27,9 @@ export const modal = createAppKit({
   enableWalletConnect: true,
   features: {
     analytics: true, // Optional - defaults to your Cloud configuration
+    email: false,
+    onramp: false,
+    socials: false,
   },
   themeVariables: {
     "--w3m-accent": "#000000",
