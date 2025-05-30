@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import useWalletGetInfo from "@/hooks/useWalletGetInfo";
 import { useKYCStore } from "@/store/kyc-store";
+import { KYC_REDIRECT_URL } from "@/constants";
 import { X } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -38,7 +39,7 @@ export function KYCVerificationModal({
     setIsCheckingKyc(true);
   };
 
-  const fullKycUrl = `${kycLink}&metadata={"address":"${address}"}&redirect=${window.location.origin}`;
+  const fullKycUrl = `${kycLink}&metadata={"address":"${address}"}&redirect=${KYC_REDIRECT_URL}`;
 
   if (showQR) {
     return (

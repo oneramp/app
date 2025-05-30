@@ -1,13 +1,13 @@
 "use client";
 
+import { verifyAccountDetails } from "@/actions/institutions";
 import { useKYCStore } from "@/store/kyc-store";
 import { useUserSelectionStore } from "@/store/user-selection";
+import { AppState } from "@/types";
+import { useQuery } from "@tanstack/react-query";
 import { Check, Loader } from "lucide-react";
 import { useEffect, useState } from "react";
 import { KYCVerificationModal } from "./modals/KYCVerificationModal";
-import { useQuery } from "@tanstack/react-query";
-import { verifyAccountDetails } from "@/actions/institutions";
-import { AppState } from "@/types";
 
 export const FetchingAccountDetails = () => {
   return (
