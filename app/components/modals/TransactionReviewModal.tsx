@@ -480,7 +480,8 @@ export function TransactionReviewModal() {
                         isLoading ||
                         submitTxHashMutation.isPending ||
                         loading ||
-                        wrongChainState.isWrongChain
+                        wrongChainState.isWrongChain ||
+                        !transfer
                       }
                     >
                       {isLoading ||

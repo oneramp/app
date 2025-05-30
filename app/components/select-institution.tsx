@@ -2,9 +2,9 @@
 
 import { createQuoteIn, createQuoteOut } from "@/actions/quote";
 import { createTransferOut } from "@/actions/transfer";
-import { ModalConnectButton } from "@/components/modal-connect-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { assets } from "@/data/currencies";
 import { SUPPORTED_NETWORKS_WITH_RPC_URLS } from "@/data/networks";
 import useWalletGetInfo from "@/hooks/useWalletGetInfo";
 import { useAmountStore } from "@/store/amount-store";
@@ -30,7 +30,6 @@ import AccountDetails from "./account-details";
 import SubmitButton from "./buttons/submit-button";
 import { InstitutionModal } from "./modals/InstitutionModal";
 import { KYCVerificationModal } from "./modals/KYCVerificationModal";
-import { assets } from "@/data/currencies";
 
 interface FormInputs {
   accountNumber: string;
@@ -547,11 +546,11 @@ const SelectInstitution = ({ buy }: { buy?: boolean }) => {
             "Buy"
           )}
         </SubmitButton>
-      ) : buttonText === "Connect Wallet" ? (
-        <div className="flex w-full justify-center my-4">
-          <ModalConnectButton large />
-        </div>
       ) : (
+        // ) : buttonText === "Connect Wallet" ? (
+        //   <div className="flex w-full justify-center my-4">
+        //     <ModalConnectButton large />
+        //   </div>
         // Put a console.log statement here
         <div className="mb-4">
           <SubmitButton

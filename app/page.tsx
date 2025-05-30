@@ -1,4 +1,5 @@
-import { ConnectButton } from "@/components/connect-button";
+import { ModalConnectButton } from "@/components/modal-connect-button";
+import Image from "next/image";
 import { Header } from "./components/Header";
 import { SwapBuyTabs } from "./components/SwapBuyTabs";
 import StateContextProvider from "./providers/StateContextProvider";
@@ -19,8 +20,17 @@ export default function Home() {
           </div>
 
           <div className="w-full flex justify-between items-center px-6 md:hidden">
+            <Image
+              src="/logos/oneramp-long.png"
+              alt="OneRamp"
+              width={32}
+              height={32}
+              priority
+              className="rounded-full"
+            />
             <div className="flex flex-1" />
-            <ConnectButton />
+            {/* <ConnectButton /> */}
+            <ModalConnectButton />
           </div>
 
           {/* Center section - Main content */}

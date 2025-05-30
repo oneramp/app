@@ -235,11 +235,11 @@ export const ModalConnectButton = ({ large }: { large?: boolean }) => {
         <Button
           onClick={() => setModalOpen(true)}
           className={cn(
-            "rounded-full px-6 py-1.5 w-full my-4 text-sm font-semibold transition-colors bg-[#2563eb] hover:bg-[#1d4ed8] text-white",
+            "rounded-full px-6 py-1.5 my-4 text-sm font-semibold transition-colors bg-[#2563eb] hover:bg-[#1d4ed8] text-white",
             large && "w-full flex-1 p-6 text-lg rounded-xl "
           )}
         >
-          Swap
+          Connect Wallet
         </Button>
       )}
 
