@@ -63,7 +63,7 @@ const OrderSuccessful = () => {
   if (!quote) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex py-20 justify-center bg-[#181818] gap-x-16">
+    <div className="fixed inset-0 z-50 flex-col md:flex-row flex py-20  justify-center bg-[#181818] gap-x-16">
       {orderStep === OrderStep.PaymentCompleted && showConfetti && (
         <Confetti
           width={width}
@@ -74,20 +74,22 @@ const OrderSuccessful = () => {
       )}
 
       {/* Left side - Timeline */}
-      <div className="flex flex-col md:flex-row md:justify-end w-full md:w-1/2">
+      <div className=" flex-col md:flex-row md:justify-end w-full md:w-1/3 flex">
         <div className="flex gap-4 px-4 md:px-0 md:gap-0 items-center justify-between flex-row md:flex-col gap-y-2  ">
           {/* Top step - USDC */}
 
           <div className="flex ">
-            <AssetAvator
-              cryptoType={quote?.cryptoType}
-              cryptoAmount={quote?.amountPaid}
-            />
+            {quote && (
+              <AssetAvator
+                cryptoType={quote?.cryptoType}
+                cryptoAmount={quote?.amountPaid}
+              />
+            )}
           </div>
 
           {/* Vertical line with dot */}
           <div className="flex flex-1 flex-col md:flex-row justify-between ">
-            <div className="flex flex-1"></div>
+            <div className="flex flex-1 "></div>
             <div className="flex flex-row md:flex-col  items-center gap-4 ">
               <div className="border-[1px] h-[1px] md:h-32 border-neutral-700 border-dashed w-full md:w-[1px]"></div>
               <div className="hidden md:block size-2.5 rounded-full bg-[#2ecc71] z-10"></div>
@@ -100,30 +102,32 @@ const OrderSuccessful = () => {
       </div>
 
       {/* Right side - Content */}
-      <div className="flex w-1/2">
+      <div className="p-8 md:p-0 flex gap-x-10 flex-1 w-full">
         <div className="flex flex-col gap-4 max-w-md">
-          <svg
-            className="text-[#2ecc71] w-10 h-10"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-          >
-            <path
-              d="M22 11.08V12a10 10 0 1 1-5.93-9.14"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M22 4L12 14.01l-3-3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <div className="flex items-center gap-2 ">
+            <svg
+              className="text-[#2ecc71] w-10 h-10"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path
+                d="M22 11.08V12a10 10 0 1 1-5.93-9.14"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M22 4L12 14.01l-3-3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
 
-          <h2 className="text-2xl font-medium text-white">
-            Transaction successful
-          </h2>
+            <h2 className="text-2xl font-medium text-white">
+              Transaction successful
+            </h2>
+          </div>
 
           <div className="text-[#666666] text-sm space-y-1">
             <p>
