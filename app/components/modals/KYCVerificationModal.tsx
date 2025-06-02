@@ -251,7 +251,7 @@ export function KYCVerificationModal({
             className="mt-1"
           />
           <label htmlFor="terms" className="text-neutral-400 text-sm">
-            By clicking &quot;Accept and sign&quot; below, you are agreeing to
+            By clicking &quot;Accept&quot; below, you are agreeing to
             the KYC Policy and hereby request an identity verification check for
             your wallet address.
           </label>
@@ -270,7 +270,7 @@ export function KYCVerificationModal({
             onClick={handleAcceptAndSign}
             className="flex-1 py-6 bg-neutral-700 text-white hover:bg-neutral-600 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Accept and sign
+            Accept
           </Button>
         </div>
       </div>
