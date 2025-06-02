@@ -3,8 +3,8 @@ import { useRef, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { StarknetkitConnector, useStarknetkitConnectModal } from "starknetkit";
-import { useConnect as useStarknetConnect } from "@starknet-react/core";
-import { Connector } from "@starknet-react/core";
+import { useConnect, Connector } from "@starknet-react/core";
+
 
 interface WalletDetailsModalProps {
   isOpen: boolean;
@@ -30,13 +30,11 @@ export function WalletDetailsModal({
 }: WalletDetailsModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
 
-  // Starknet connection functions
-  const { connect: connectStarknet, connectors: starknetConnectors } =
-    useStarknetConnect();
+  // Starknet connection function 
+  const { connect, connectors } = useConnect();
   const { starknetkitConnectModal } = useStarknetkitConnectModal({
-    connectors: starknetConnectors as StarknetkitConnector[],
+    connectors: connectors as StarknetkitConnector[],
   });
-
   // Format the displayed addresses
   const displayEvmAddress = evmAddress
     ? `${evmAddress.slice(0, 6)}...${evmAddress.slice(-4)}`
@@ -71,7 +69,7 @@ export function WalletDetailsModal({
     if (!connector) {
       return;
     }
-    await connectStarknet({ connector: connector as Connector });
+    await connect({ connector: connector as Connector });
     onClose();
   }
 
