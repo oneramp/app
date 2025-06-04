@@ -509,7 +509,7 @@ const SelectInstitution = ({ buy }: { buy?: boolean }) => {
                 // required: buy ? "Wallet address is required" : false,
                 required: false,
                 pattern: {
-                  value: /^0x[a-fA-F0-9]{40}$/,
+                  value: /^0x[a-fA-F0-9]{40}$|^0x[a-fA-F0-9]{64}$/,
                   message: "Invalid wallet address format",
                 },
               })}
