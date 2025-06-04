@@ -89,6 +89,12 @@ export const countryInstitutions: Record<string, Institution[]> = {
     { name: "SAFARICOM" },
     { name: "VADAFORN" },
   ],
+  SouthAfrica: [
+    { name: "AIRTEL" },
+    { name: "MTN" },
+    { name: "SAFARICOM" },
+    { name: "VADAFORN" },
+  ],
 };
 
 export const countryCurrencies = [
@@ -98,6 +104,7 @@ export const countryCurrencies = [
   { name: "Zambia", logo: "/logos/zambia.png" },
   { name: "Uganda", logo: "/logos/uganda.png" },
   { name: "Tanzania", logo: "/logos/tanzania.png" },
+  { name: "South Africa", logo: "/logos/southafrica.png" },
 ];
 
 export const countries: Country[] = [
@@ -188,6 +195,21 @@ export const countries: Country[] = [
     cryptoMinMax: { min: 5, max: 2_500 },
     accountNumberLength: {
       bankLength: 12,
+      mobileLength: 10,
+    },
+  },
+  {
+    name: "South Africa",
+    logo: "/logos/southafrica.png",
+    currency: "ZAR",
+    countryCode: "ZA",
+    phoneCode: "+27",
+    exchangeRate: 18.57,
+    institutions: countryInstitutions.SouthAfrica,
+    fiatMinMax: { min: 18.35, max: 35_000 },
+    cryptoMinMax: { min: 5, max: 2_500 },
+    accountNumberLength: {
+      bankLength: 13,
       mobileLength: 10,
     },
   },
