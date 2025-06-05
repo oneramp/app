@@ -14,6 +14,7 @@ import { useQuoteStore } from "@/store/quote-store";
 import { toast } from "sonner";
 import { CancelModal } from "../modals/cancel-modal";
 import TakingLongCard from "./taking-long-card";
+import { useRouter } from "next/navigation";
 
 const CopyButton = ({ value }: { value: string }) => {
   const [copied, setCopied] = useState(false);
@@ -47,6 +48,7 @@ const OrderProcessing = () => {
   const { transfer, resetTransfer } = useTransferStore();
   const [showCancelModal, setShowCancelModal] = useState(false);
   const { quote, resetQuote } = useQuoteStore();
+  const router = useRouter();
 
   const { data: transferStatus, isLoading } = useQuery({
     queryKey: ["transferStatus", transfer?.transferId],
@@ -105,8 +107,10 @@ const OrderProcessing = () => {
       orderStep: OrderStep.Initial,
       accountNumber: undefined,
       institution: undefined,
-      paymentMethod: undefined,
+      paymentMethod: "momo",
+      pastedAddress: undefined,
     });
+    router.refresh();
   };
 
   return (

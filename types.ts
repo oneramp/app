@@ -246,9 +246,14 @@ export enum AppState {
 }
 
 export interface TransferMomoRequest {
-  phone: string;
+  phone?: string;
   operator: string;
   quoteId: string;
+  bank?: {
+    code: string;
+    accountNumber: string;
+    accountName: string;
+  };
   userDetails: {
     name: string;
     country: string;

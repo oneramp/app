@@ -11,6 +11,7 @@ import AssetAvator from "./asset-avator";
 import { assets } from "@/data/currencies";
 import { useTransferStore } from "@/store/transfer-store";
 import { useNetworkStore } from "@/store/network";
+import { useRouter } from "next/navigation";
 
 const OrderSuccessful = () => {
   const [exploreUrl, setExploreUrl] = useState<string>("");
@@ -21,6 +22,8 @@ const OrderSuccessful = () => {
   const { resetTransfer, transactionHash } = useTransferStore();
   const [showConfetti, setShowConfetti] = useState(true);
   const { currentNetwork } = useNetworkStore();
+
+  const router = useRouter();
 
   useEffect(() => {
     // Stop confetti after 5 seconds
@@ -58,6 +61,9 @@ const OrderSuccessful = () => {
     resetTransfer();
     updateSelection({ asset: assets[0] });
     updateSelection({ orderStep: OrderStep.Initial });
+    updateSelection({ pastedAddress: undefined });
+    updateSelection({ paymentMethod: "momo" });
+    router.refresh();
   };
 
   if (!quote) return null;

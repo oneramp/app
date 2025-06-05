@@ -202,61 +202,11 @@ export function TransactionReviewModal() {
       const { institution, country } = userPayLoad;
       const { fullKYC } = kycData || {};
 
-      if (!institution || !accountNumber || !country || !fullKYC) return;
+      // if (!institution || !accountNumber || !country || !fullKYC) return;
+      if (!country || !fullKYC) return;
 
-      const {
-        fullName,
-        nationality,
-        dateOfBirth,
-        documentNumber,
-        documentType,
-        documentSubType,
-      } = fullKYC;
-
-      const accountNumberWithoutLeadingZero = accountNumber.replace(/^0+/, "");
-      const fullPhoneNumber = `${country.phoneCode}${accountNumberWithoutLeadingZero}`;
-
-      let updatedDocumentType = documentType;
-      let updatedDocumentTypeSubType = documentSubType;
-
-      if (country.countryCode === "NG") {
-        updatedDocumentTypeSubType = "BVN";
-        updatedDocumentType = "NIN";
-      } else if (documentType === "ID") {
-        updatedDocumentType = "NIN";
-      } else if (documentType === "P") {
-        updatedDocumentType = "Passport";
-      } else {
-        updatedDocumentType = "License";
-      }
-
-      const payload: TransferMomoRequest = {
-        phone: fullPhoneNumber,
-        operator: institution.name.toLowerCase(),
-        quoteId: quote.quoteId,
-        userDetails: {
-          name: fullName,
-          country: nationality,
-          address: country.countryCode || "",
-          phone: accountNumber,
-          dob: dateOfBirth,
-          idNumber: documentNumber,
-          idType: updatedDocumentType,
-          additionalIdType: updatedDocumentType,
-          additionalIdNumber: updatedDocumentTypeSubType,
-        },
-      };
-
-      const transferResponse = await createTransferIn(payload);
-      setTransfer(transferResponse);
-      return;
-    }
-
-    if (userPayLoad.paymentMethod === "bank") {
-      const { institution, country } = userPayLoad;
-      const { fullKYC } = kycData || {};
-
-      if (!institution || !accountNumber || !country || !fullKYC) return;
+      const isNigeriaOrSouthAfrican =
+        country.countryCode === "NG" || country.countryCode === "ZA";
 
       const {
         fullName,
@@ -270,6 +220,95 @@ export function TransactionReviewModal() {
 
       let updatedDocumentType = documentType;
       let updatedDocumentTypeSubType = documentSubType;
+      let payload: TransferMomoRequest | TransferBankRequest;
+
+      if (country.countryCode === "NG") {
+        updatedDocumentTypeSubType = "BVN";
+        updatedDocumentType = "NIN";
+      } else if (documentType === "ID") {
+        updatedDocumentType = "NIN";
+      } else if (documentType === "P") {
+        updatedDocumentType = "Passport";
+      } else {
+        updatedDocumentType = "License";
+      }
+
+      const userDetails = {
+        name: fullName,
+        country: nationality,
+        address: country.countryCode || "",
+        phone: accountNumber,
+        dob: dateOfBirth,
+        idNumber: documentNumber,
+        idType: updatedDocumentType,
+        additionalIdType: updatedDocumentType,
+        additionalIdNumber: updatedDocumentTypeSubType,
+      };
+
+      if (isNigeriaOrSouthAfrican) {
+        if (!phoneNumber) return;
+        payload = {
+          bank: {
+            code: "",
+            accountNumber: "",
+            accountName: "",
+          },
+          operator: "bank",
+          quoteId: quote.quoteId,
+          userDetails: {
+            ...userDetails,
+            phone: phoneNumber,
+          },
+        };
+        updateSelection({
+          paymentMethod: "bank",
+        });
+      } else {
+        if (!institution || !accountNumber) return;
+        const accountNumberWithoutLeadingZero = accountNumber.replace(
+          /^0+/,
+          ""
+        );
+        const fullPhoneNumber = `${country.phoneCode}${accountNumberWithoutLeadingZero}`;
+        payload = {
+          phone: fullPhoneNumber,
+          operator: institution.name.toLowerCase(),
+          quoteId: quote.quoteId,
+          userDetails: {
+            ...userDetails,
+            phone: fullPhoneNumber,
+          },
+        };
+      }
+
+      const transferResponse = await createTransferIn(payload);
+      setTransfer(transferResponse);
+      return;
+    }
+
+    if (userPayLoad.paymentMethod === "bank") {
+      const { institution, country } = userPayLoad;
+      const { fullKYC } = kycData || {};
+
+      // if (!institution || !accountNumber || !country || !fullKYC) return;
+      if (!country || !fullKYC) return;
+
+      const isNigeriaOrSouthAfrican =
+        country.countryCode === "NG" || country.countryCode === "ZA";
+
+      const {
+        fullName,
+        nationality,
+        dateOfBirth,
+        documentNumber,
+        documentType,
+        documentSubType,
+        phoneNumber,
+      } = fullKYC;
+
+      let updatedDocumentType = documentType;
+      let updatedDocumentTypeSubType = documentSubType;
+      let payload;
 
       if (country.countryCode === "NG") {
         updatedDocumentTypeSubType = "BVN";
@@ -287,27 +326,59 @@ export function TransactionReviewModal() {
           ? fullName
           : userPayLoad.accountName || fullName;
 
-      const payload: TransferBankRequest = {
-        bank: {
-          code: institution.code,
-          accountNumber: accountNumber,
-          accountName: accountName,
-        },
-        operator: "bank",
-        quoteId: quote.quoteId,
-        userDetails: {
-          name: fullName,
-          country: nationality,
-          address: country.countryCode || "",
-          phone: phoneNumber || accountNumber,
-          // phone: MOCK_NIGERIAN_PHONE_NUMBER_SUCCESS,
-          dob: dateOfBirth,
-          idNumber: documentNumber,
-          idType: updatedDocumentType,
-          additionalIdType: updatedDocumentType,
-          additionalIdNumber: updatedDocumentTypeSubType,
-        },
+      const userDetails = {
+        name: fullName,
+        country: nationality,
+        address: country.countryCode || "",
+        phone: accountNumber,
+        dob: dateOfBirth,
+        idNumber: documentNumber,
+        idType: updatedDocumentType,
+        additionalIdType: updatedDocumentType,
+        additionalIdNumber: updatedDocumentTypeSubType,
       };
+
+      if (isNigeriaOrSouthAfrican) {
+        payload = {
+          bank: {
+            code: "",
+            accountNumber: "",
+            accountName: "",
+          },
+          operator: "bank",
+          quoteId: quote.quoteId,
+          userDetails: {
+            ...userDetails,
+            phone: phoneNumber,
+          },
+        };
+        updateSelection({
+          paymentMethod: "bank",
+        });
+      } else {
+        if (!institution || !accountNumber) return;
+        payload = {
+          bank: {
+            code: institution.code,
+            accountNumber: accountNumber,
+            accountName: accountName,
+          },
+          operator: "bank",
+          quoteId: quote.quoteId,
+          userDetails: {
+            name: fullName,
+            country: nationality,
+            address: country.countryCode || "",
+            phone: phoneNumber || accountNumber,
+            // phone: MOCK_NIGERIAN_PHONE_NUMBER_SUCCESS,
+            dob: dateOfBirth,
+            idNumber: documentNumber,
+            idType: updatedDocumentType,
+            additionalIdType: updatedDocumentType,
+            additionalIdNumber: updatedDocumentTypeSubType,
+          },
+        };
+      }
 
       const transferResponse = await createTransferIn(payload);
 
@@ -380,16 +451,18 @@ export function TransactionReviewModal() {
               )}
 
               {/* Account */}
-              <div className="flex justify-between items-center">
-                <span className="text-neutral-400 text-lg">Account</span>
-                <div className="text-white text-lg font-medium flex items-center">
-                  <span>
-                    {accountNumber?.slice(0, 4)}...{accountNumber?.slice(-4)}
-                  </span>
-                  <span className="text-neutral-400 mx-2">•</span>
-                  <span>{institution?.name.slice(0, 4)}</span>
+              {accountNumber && institution && (
+                <div className="flex justify-between items-center">
+                  <span className="text-neutral-400 text-lg">Account</span>
+                  <div className="text-white text-lg font-medium flex items-center">
+                    <span>
+                      {accountNumber?.slice(0, 4)}...{accountNumber?.slice(-4)}
+                    </span>
+                    <span className="text-neutral-400 mx-2">•</span>
+                    <span>{institution?.name.slice(0, 4)}</span>
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Network */}
               {currentNetwork && (
