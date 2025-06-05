@@ -24,6 +24,7 @@ import { useEffect, useState } from "react";
 import { parseUnits } from "viem";
 import AssetAvator from "../cards/asset-avator";
 import { CancelModal } from "./cancel-modal";
+import { useRouter } from "next/navigation";
 
 interface WrongChainState {
   isWrongChain: boolean;
@@ -47,6 +48,7 @@ export function TransactionReviewModal() {
   const { currentNetwork } = useNetworkStore();
   const { resetTransfer, transfer, setTransactionHash, setTransfer } =
     useTransferStore();
+  const router = useRouter();
 
   const [wrongChainState, setWrongChainState] = useState<WrongChainState>({
     isWrongChain: false,
@@ -149,7 +151,9 @@ export function TransactionReviewModal() {
       accountName: undefined,
       institution: undefined,
       pastedAddress: undefined,
+      paymentMethod: "momo",
     });
+    router.refresh();
   };
 
   const makeBlockchainTransaction = async () => {

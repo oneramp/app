@@ -13,13 +13,7 @@ import { useNetworkStore } from "@/store/network";
 import { useQuoteStore } from "@/store/quote-store";
 import { useTransferStore } from "@/store/transfer-store";
 import { useUserSelectionStore } from "@/store/user-selection";
-import {
-  AppState,
-  Institution,
-  OrderStep,
-  QuoteRequest,
-  TransferBankRequest,
-} from "@/types";
+import { AppState, Institution, OrderStep, QuoteRequest } from "@/types";
 import { useMutation } from "@tanstack/react-query";
 import { Loader } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -50,6 +44,10 @@ const SelectInstitution = ({ buy }: { buy?: boolean }) => {
   const { currentNetwork } = useNetworkStore();
   const { isConnected, address } = useWalletGetInfo();
   const { setTransfer } = useTransferStore();
+  const [isNigeriaOrSouthAfrican, setIsNigeriaOrSouthAfrican] = useState(
+    userPayLoad.country?.countryCode === "NG" ||
+      userPayLoad.country?.countryCode === "ZA"
+  );
 
   const {
     register,
@@ -82,6 +80,17 @@ const SelectInstitution = ({ buy }: { buy?: boolean }) => {
       updateSelection({ accountNumber });
     }
   }, [accountNumber, updateSelection]);
+
+  useEffect(() => {
+    if (
+      userPayLoad.country?.countryCode === "NG" ||
+      userPayLoad.country?.countryCode === "ZA"
+    ) {
+      setIsNigeriaOrSouthAfrican(true);
+    } else {
+      setIsNigeriaOrSouthAfrican(false);
+    }
+  }, [userPayLoad.country?.countryCode]);
 
   // Watch for wallet address changes and update global state
   useEffect(() => {
@@ -194,7 +203,11 @@ const SelectInstitution = ({ buy }: { buy?: boolean }) => {
         // const { institution } = userPayLoad;
         const { fullKYC } = kycData || {};
 
-        if (!institution || !accountNumber || !country || !fullKYC) return;
+        // if (!institution || !accountNumber || !country || !fullKYC) return;
+        if (!country || !fullKYC) return;
+
+        const isNigeriaOrSouthAfrican =
+          country.countryCode === "NG" || country.countryCode === "ZA";
 
         const {
           fullName,
@@ -203,10 +216,12 @@ const SelectInstitution = ({ buy }: { buy?: boolean }) => {
           documentNumber,
           documentType,
           documentSubType,
+          phoneNumber,
         } = fullKYC;
 
         let updatedDocumentType = documentType;
         let updatedDocumentTypeSubType = documentSubType;
+        let payload;
 
         if (country.countryCode === "NG") {
           updatedDocumentTypeSubType = "BVN";
@@ -226,29 +241,59 @@ const SelectInstitution = ({ buy }: { buy?: boolean }) => {
             ? fullName
             : userPayLoad.accountName || fullName;
 
-        const payload: TransferBankRequest = {
-          bank: {
-            code: institution.code,
-            accountNumber: accountNumber,
-            accountName: accountName,
-            // code: "",
-            // accountNumber: "",
-            // accountName: "",
-          },
-          operator: "bank",
-          quoteId: data.quote.quoteId,
-          userDetails: {
-            name: fullName,
-            country: nationality,
-            address: country?.countryCode || "",
-            phone: accountNumber,
-            dob: dateOfBirth,
-            idNumber: documentNumber,
-            idType: updatedDocumentType,
-            additionalIdType: updatedDocumentType,
-            additionalIdNumber: updatedDocumentTypeSubType,
-          },
+        const userDetails = {
+          name: fullName,
+          country: nationality,
+          address: country?.countryCode || "",
+          phone: accountNumber,
+          dob: dateOfBirth,
+          idNumber: documentNumber,
+          idType: updatedDocumentType,
+          additionalIdType: updatedDocumentType,
+          additionalIdNumber: updatedDocumentTypeSubType,
         };
+
+        if (isNigeriaOrSouthAfrican) {
+          payload = {
+            bank: {
+              code: "",
+              accountNumber: "",
+              accountName: "",
+            },
+            operator: "bank",
+            quoteId: data.quote.quoteId,
+            userDetails: {
+              ...userDetails,
+              phone: phoneNumber,
+            },
+          };
+        } else {
+          if (!institution) return;
+
+          payload = {
+            bank: {
+              code: institution.code,
+              accountNumber: accountNumber,
+              accountName: accountName,
+              // code: "",
+              // accountNumber: "",
+              // accountName: "",
+            },
+            operator: "bank",
+            quoteId: data.quote.quoteId,
+            userDetails: {
+              name: fullName,
+              country: nationality,
+              address: country?.countryCode || "",
+              phone: accountNumber,
+              dob: dateOfBirth,
+              idNumber: documentNumber,
+              idType: updatedDocumentType,
+              additionalIdType: updatedDocumentType,
+              additionalIdNumber: updatedDocumentTypeSubType,
+            },
+          };
+        }
 
         setQuote(data.quote);
 
@@ -302,7 +347,11 @@ const SelectInstitution = ({ buy }: { buy?: boolean }) => {
       //   setButtonText("Enter account number");
     } else if (!institution) {
       console.log("institution", institution);
-      setButtonText("Select institution");
+      if (!buy) {
+        setButtonText("Select institution");
+      } else {
+        setButtonText("Buy");
+      }
     } else if (!isAmountValid) {
       console.log("isAmountValid", isAmountValid);
       setButtonText("Invalid amount");
@@ -424,104 +473,100 @@ const SelectInstitution = ({ buy }: { buy?: boolean }) => {
 
   return (
     <form onSubmit={onSubmit}>
-      {userPayLoad.country?.countryCode != "NG" &&
-        userPayLoad.country?.countryCode != "ZA" && (
-          <>
-            <div
-              className={`mb-2 bg-[#232323] rounded-2xl p-5 flex flex-col gap-4 `}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-white text-lg font-medium">
-                  Recipient
-                </span>
-              </div>
-
-              <div className="flex gap-3 items-center h-14">
-                {/* Institution Selector */}
-                <Button
-                  type="button"
-                  variant="default"
-                  onClick={() => {
-                    setShowInstitutionModal(true);
-                    setValue("accountNumber", "");
-                    updateSelection({ paymentMethod: undefined });
-                  }}
-                  className="bg-transparent border w-1/3 h-full border-[#444] text-neutral-400 rounded-full p-3 cursor-pointer flex items-center justify-center"
-                >
-                  <span className="line-clamp-1">
-                    {institution?.name || "Select institution"}
-                  </span>
-                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
-                    <path
-                      d="M7 10l5 5 5-5"
-                      stroke="#fff"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </Button>
-
-                {/* Account Number */}
-                <div className="flex-1 h-full">
-                  <Input
-                    type="number"
-                    placeholder="Account number"
-                    {...register("accountNumber", {
-                      required: "Account number is required",
-                      validate: {
-                        validLength: (value) => {
-                          if (!userPayLoad?.country?.accountNumberLength)
-                            return true;
-                          if (userPayLoad.paymentMethod === "bank") {
-                            const minLength =
-                              userPayLoad.country.accountNumberLength
-                                .bankLength;
-                            return (
-                              value.length >= minLength ||
-                              `Account number must be at least ${minLength} digits`
-                            );
-                          }
-                          if (userPayLoad.paymentMethod === "momo") {
-                            const minLength =
-                              userPayLoad.country.accountNumberLength
-                                .mobileLength;
-                            return (
-                              value.length >= minLength ||
-                              `Mobile number must be at least ${minLength} digits`
-                            );
-                          }
-                          return true;
-                        },
-                      },
-                    })}
-                    className={`bg-transparent border border-[#444] text-lg text-white font-medium rounded-full h-full pl-6 w-full focus:outline-none ${
-                      touchedFields.accountNumber && errors.accountNumber
-                        ? "border-red-500 focus:border-red-500"
-                        : "focus:border-purple-400"
-                    }`}
-                  />
-                </div>
-              </div>
-
-              {/* Show account details only when account number is entered */}
-              {accountNumber && isAccountNumberValid() && (
-                <AccountDetails accountNumber={accountNumber} />
-              )}
+      {!isNigeriaOrSouthAfrican && (
+        <>
+          <div
+            className={`mb-2 bg-[#232323] rounded-2xl p-5 flex flex-col gap-4 `}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-white text-lg font-medium">Recipient</span>
             </div>
 
-            {country && (
-              <InstitutionModal
-                open={showInstitutionModal}
-                onClose={() => setShowInstitutionModal(false)}
-                selectedInstitution={institution || null}
-                onSelect={handleInstitutionSelect}
-                country={country.countryCode}
-                buy={buy}
-              />
+            <div className="flex gap-3 items-center h-14">
+              {/* Institution Selector */}
+              <Button
+                type="button"
+                variant="default"
+                onClick={() => {
+                  setShowInstitutionModal(true);
+                  setValue("accountNumber", "");
+                  updateSelection({ paymentMethod: undefined });
+                }}
+                className="bg-transparent border w-1/3 h-full border-[#444] text-neutral-400 rounded-full p-3 cursor-pointer flex items-center justify-center"
+              >
+                <span className="line-clamp-1">
+                  {institution?.name || "Select institution"}
+                </span>
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+                  <path
+                    d="M7 10l5 5 5-5"
+                    stroke="#fff"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </Button>
+
+              {/* Account Number */}
+              <div className="flex-1 h-full">
+                <Input
+                  type="number"
+                  placeholder="Account number"
+                  {...register("accountNumber", {
+                    required: "Account number is required",
+                    validate: {
+                      validLength: (value) => {
+                        if (!userPayLoad?.country?.accountNumberLength)
+                          return true;
+                        if (userPayLoad.paymentMethod === "bank") {
+                          const minLength =
+                            userPayLoad.country.accountNumberLength.bankLength;
+                          return (
+                            value.length >= minLength ||
+                            `Account number must be at least ${minLength} digits`
+                          );
+                        }
+                        if (userPayLoad.paymentMethod === "momo") {
+                          const minLength =
+                            userPayLoad.country.accountNumberLength
+                              .mobileLength;
+                          return (
+                            value.length >= minLength ||
+                            `Mobile number must be at least ${minLength} digits`
+                          );
+                        }
+                        return true;
+                      },
+                    },
+                  })}
+                  className={`bg-transparent border border-[#444] text-lg text-white font-medium rounded-full h-full pl-6 w-full focus:outline-none ${
+                    touchedFields.accountNumber && errors.accountNumber
+                      ? "border-red-500 focus:border-red-500"
+                      : "focus:border-purple-400"
+                  }`}
+                />
+              </div>
+            </div>
+
+            {/* Show account details only when account number is entered */}
+            {accountNumber && isAccountNumberValid() && (
+              <AccountDetails accountNumber={accountNumber} />
             )}
-          </>
-        )}
+          </div>
+
+          {country && (
+            <InstitutionModal
+              open={showInstitutionModal}
+              onClose={() => setShowInstitutionModal(false)}
+              selectedInstitution={institution || null}
+              onSelect={handleInstitutionSelect}
+              country={country.countryCode}
+              buy={buy}
+            />
+          )}
+        </>
+      )}
 
       {buy && (
         <>
@@ -565,7 +610,7 @@ const SelectInstitution = ({ buy }: { buy?: boolean }) => {
         </>
       )}
 
-      {userPayLoad.pastedAddress ? (
+      {userPayLoad.pastedAddress && buy ? (
         // Add a console.log statement here
         <SubmitButton
           onClick={onSubmit}
