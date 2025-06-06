@@ -473,101 +473,99 @@ const SelectInstitution = ({ buy }: { buy?: boolean }) => {
 
   return (
     <form onSubmit={onSubmit}>
-      {!isNigeriaOrSouthAfrican && (
-        <>
-          <div
-            className={`mb-2 bg-[#232323] rounded-2xl p-5 flex flex-col gap-4 `}
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-white text-lg font-medium">Recipient</span>
-            </div>
-
-            <div className="flex gap-3 items-center h-14">
-              {/* Institution Selector */}
-              <Button
-                type="button"
-                variant="default"
-                onClick={() => {
-                  setShowInstitutionModal(true);
-                  setValue("accountNumber", "");
-                  updateSelection({ paymentMethod: undefined });
-                }}
-                className="bg-transparent border w-1/3 h-full border-[#444] text-neutral-400 rounded-full p-3 cursor-pointer flex items-center justify-center"
-              >
-                <span className="line-clamp-1">
-                  {institution?.name || "Select institution"}
-                </span>
-                <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
-                  <path
-                    d="M7 10l5 5 5-5"
-                    stroke="#fff"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </Button>
-
-              {/* Account Number */}
-              <div className="flex-1 h-full">
-                <Input
-                  type="number"
-                  placeholder="Account number"
-                  {...register("accountNumber", {
-                    required: "Account number is required",
-                    validate: {
-                      validLength: (value) => {
-                        if (!userPayLoad?.country?.accountNumberLength)
-                          return true;
-                        if (userPayLoad.paymentMethod === "bank") {
-                          const minLength =
-                            userPayLoad.country.accountNumberLength.bankLength;
-                          return (
-                            value.length >= minLength ||
-                            `Account number must be at least ${minLength} digits`
-                          );
-                        }
-                        if (userPayLoad.paymentMethod === "momo") {
-                          const minLength =
-                            userPayLoad.country.accountNumberLength
-                              .mobileLength;
-                          return (
-                            value.length >= minLength ||
-                            `Mobile number must be at least ${minLength} digits`
-                          );
-                        }
-                        return true;
-                      },
-                    },
-                  })}
-                  className={`bg-transparent border border-[#444] text-lg text-white font-medium rounded-full h-full pl-6 w-full focus:outline-none ${
-                    touchedFields.accountNumber && errors.accountNumber
-                      ? "border-red-500 focus:border-red-500"
-                      : "focus:border-purple-400"
-                  }`}
-                />
-              </div>
-            </div>
-
-            {/* Show account details only when account number is entered */}
-            {accountNumber && isAccountNumberValid() && (
-              <AccountDetails accountNumber={accountNumber} />
-            )}
+      {(!buy || (buy && !isNigeriaOrSouthAfrican)) && (
+        <div
+          className={`mb-2 bg-[#232323] rounded-2xl p-5 flex flex-col gap-4 `}
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-white text-lg font-medium">Recipient</span>
           </div>
 
-          {country && (
-            <InstitutionModal
-              open={showInstitutionModal}
-              onClose={() => setShowInstitutionModal(false)}
-              selectedInstitution={institution || null}
-              onSelect={handleInstitutionSelect}
-              country={country.countryCode}
-              buy={buy}
-            />
+          <div className="flex gap-3 items-center h-14">
+            {/* Institution Selector */}
+            <Button
+              type="button"
+              variant="default"
+              onClick={() => {
+                setShowInstitutionModal(true);
+                setValue("accountNumber", "");
+                updateSelection({ paymentMethod: undefined });
+              }}
+              className="bg-transparent border w-1/3 h-full border-[#444] text-neutral-400 rounded-full p-3 cursor-pointer flex items-center justify-center"
+            >
+              <span className="line-clamp-1">
+                {institution?.name || "Select institution"}
+              </span>
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+                <path
+                  d="M7 10l5 5 5-5"
+                  stroke="#fff"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </Button>
+
+            {/* Account Number */}
+            <div className="flex-1 h-full">
+              <Input
+                type="number"
+                placeholder="Account number"
+                {...register("accountNumber", {
+                  required: "Account number is required",
+                  validate: {
+                    validLength: (value) => {
+                      if (!userPayLoad?.country?.accountNumberLength)
+                        return true;
+                      if (userPayLoad.paymentMethod === "bank") {
+                        const minLength =
+                          userPayLoad.country.accountNumberLength.bankLength;
+                        return (
+                          value.length >= minLength ||
+                          `Account number must be at least ${minLength} digits`
+                        );
+                      }
+                      if (userPayLoad.paymentMethod === "momo") {
+                        const minLength =
+                          userPayLoad.country.accountNumberLength.mobileLength;
+                        return (
+                          value.length >= minLength ||
+                          `Mobile number must be at least ${minLength} digits`
+                        );
+                      }
+                      return true;
+                    },
+                  },
+                })}
+                className={`bg-transparent border border-[#444] text-lg text-white font-medium rounded-full h-full pl-6 w-full focus:outline-none ${
+                  touchedFields.accountNumber && errors.accountNumber
+                    ? "border-red-500 focus:border-red-500"
+                    : "focus:border-purple-400"
+                }`}
+              />
+            </div>
+          </div>
+
+          {/* Show account details only when account number is entered */}
+          {accountNumber && isAccountNumberValid() && (
+            <AccountDetails accountNumber={accountNumber} />
           )}
-        </>
+        </div>
       )}
 
+      {country && (
+        <InstitutionModal
+          open={showInstitutionModal}
+          onClose={() => setShowInstitutionModal(false)}
+          selectedInstitution={institution || null}
+          onSelect={handleInstitutionSelect}
+          country={country.countryCode}
+          buy={buy}
+        />
+      )}
+
+      {/* Address form input */}
       {buy && (
         <>
           <div className="flex items-center border border-[#444] rounded-full px-9 py-3 my-4">
