@@ -20,11 +20,11 @@ import {
 import { useMutation } from "@tanstack/react-query";
 import { Loader } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { parseUnits } from "viem";
 import AssetAvator from "../cards/asset-avator";
 import { CancelModal } from "./cancel-modal";
-import { useRouter } from "next/navigation";
 
 interface WrongChainState {
   isWrongChain: boolean;
@@ -42,6 +42,7 @@ export function TransactionReviewModal() {
     updateSelection,
     orderStep: currentOrderStep,
     asset,
+    resetToDefault,
   } = useUserSelectionStore();
   const userPayLoad = useUserSelectionStore();
   const { kycData } = useKYCStore();
@@ -56,7 +57,8 @@ export function TransactionReviewModal() {
     buttonText: "Confirm payment",
   });
 
-  const { payWithEVM, isLoading, isSuccess, transactionReceipt } = useEVMPay();
+  const { payWithEVM, isLoading, isSuccess, transactionReceipt, resetState } =
+    useEVMPay();
 
   // Initialize Starknet pay
   const starknetPay = usePayStarknet(
@@ -64,6 +66,51 @@ export function TransactionReviewModal() {
   );
 
   const { chainId, address, isConnected } = useWalletInfo();
+
+  // Create the mutation with reset capability
+  const submitTxHashMutation = useMutation({
+    mutationKey: ["submit-tx-hash"], // Remove quote dependency to avoid unwanted retries
+    mutationFn: submitTransactionHash,
+    onSuccess: () => {
+      updateSelection({ orderStep: OrderStep.GotTransfer });
+      // Reset states after successful submission
+      if (currentNetwork?.type === ChainTypes.EVM) {
+        resetState();
+      } else if (currentNetwork?.type === ChainTypes.Starknet) {
+        starknetPay.resetState();
+      }
+    },
+    onError: (error: Error) => {
+      console.log("error", error.message);
+    },
+    retry: 3,
+    retryDelay: 5000,
+  });
+
+  // Reset states when component unmounts or when starting new transaction
+  useEffect(() => {
+    return () => {
+      // Cleanup function
+      submitTxHashMutation.reset();
+      if (currentNetwork?.type === ChainTypes.EVM) {
+        resetState();
+      } else if (currentNetwork?.type === ChainTypes.Starknet) {
+        starknetPay.resetState();
+      }
+    };
+  }, []);
+
+  // Reset mutation when starting a new transaction
+  useEffect(() => {
+    if (quote && currentOrderStep === OrderStep.GotQuote) {
+      submitTxHashMutation.reset();
+      if (currentNetwork?.type === ChainTypes.EVM) {
+        resetState();
+      } else if (currentNetwork?.type === ChainTypes.Starknet) {
+        starknetPay.resetState();
+      }
+    }
+  }, [quote?.quoteId, currentOrderStep]);
 
   useEffect(() => {
     if (chainId !== currentNetwork?.chainId) {
@@ -145,19 +192,26 @@ export function TransactionReviewModal() {
     setShowCancelModal(false);
     resetQuote();
     resetTransfer();
-    updateSelection({
-      orderStep: OrderStep.Initial,
-      accountNumber: undefined,
-      accountName: undefined,
-      institution: undefined,
-      pastedAddress: undefined,
-      paymentMethod: "momo",
-    });
+    submitTxHashMutation.reset();
+    if (currentNetwork?.type === ChainTypes.EVM) {
+      resetState();
+    } else if (currentNetwork?.type === ChainTypes.Starknet) {
+      starknetPay.resetState();
+    }
+    resetToDefault();
     router.refresh();
   };
 
   const makeBlockchainTransaction = async () => {
     if (!asset || !currentNetwork || !quote || !transfer) return;
+
+    // Reset states before starting new transaction
+    submitTxHashMutation.reset();
+    if (currentNetwork?.type === ChainTypes.EVM) {
+      resetState();
+    } else if (currentNetwork?.type === ChainTypes.Starknet) {
+      starknetPay.resetState();
+    }
 
     const networkName = currentNetwork.name;
 
@@ -391,18 +445,6 @@ export function TransactionReviewModal() {
     }
   };
 
-  const submitTxHashMutation = useMutation({
-    mutationFn: submitTransactionHash,
-    onSuccess: () => {
-      updateSelection({ orderStep: OrderStep.GotTransfer });
-    },
-    onError: (error: Error) => {
-      console.log("error", error.message);
-    },
-    retry: 3,
-    retryDelay: 5000,
-  });
-
   const submitTransferIn = useMutation({
     mutationFn: handleSubmitTransferIn,
     onSuccess: () => {
@@ -531,7 +573,7 @@ export function TransactionReviewModal() {
                 <Button
                   className="flex-1 bg-[#7B68EE] hover:bg-[#6A5ACD] text-white p-6 text-lg rounded-xl"
                   onClick={() => submitTransferIn.mutate()}
-                  disabled={submitTransferIn.isPending}
+                  // disabled={submitTransferIn.isPending}
                 >
                   {isLoading ||
                   submitTxHashMutation.isPending ||

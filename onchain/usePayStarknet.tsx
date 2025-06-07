@@ -8,7 +8,15 @@ import {
 import { type Abi, type Call } from "starknet";
 import { TransactionPayload } from "./useEVMPay";
 
-const usePayStarknet = (tokenAddress: string) => {
+export interface StarknetPayHookReturn {
+  payWithStarknet: (transactionPayload: TransactionPayload) => Promise<void>;
+  error: Error | null;
+  status: "idle" | "pending" | "success" | "error";
+  data: { transaction_hash: string } | undefined;
+  resetState: () => void;
+}
+
+const usePayStarknet = (tokenAddress: string): StarknetPayHookReturn => {
   const { address } = useAccount();
 
   const { contract } = useContract({
@@ -16,12 +24,20 @@ const usePayStarknet = (tokenAddress: string) => {
     abi: STRK_ABI as Abi,
   });
 
-  const { send, error, status, data } = useSendTransaction({
+  const { send, error, status, data, reset } = useSendTransaction({
     calls: undefined,
   });
 
+  const resetState = () => {
+    // Reset the transaction state
+    reset?.();
+  };
+
   const payWithStarknet = async (transactionPayload: TransactionPayload) => {
     try {
+      // Reset state before new transaction
+      resetState();
+
       const { recipient, amount } = transactionPayload;
 
       if (!contract || !address) {
@@ -49,6 +65,7 @@ const usePayStarknet = (tokenAddress: string) => {
     error,
     status,
     data,
+    resetState,
   };
 };
 

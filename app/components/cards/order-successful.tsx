@@ -1,21 +1,21 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import Confetti from "react-confetti";
+import { useNetworkStore } from "@/store/network";
 import { useQuoteStore } from "@/store/quote-store";
-import { useWindowSize } from "react-use";
+import { useTransferStore } from "@/store/transfer-store";
 import { useUserSelectionStore } from "@/store/user-selection";
 import { ChainTypes, OrderStep, TransferType } from "@/types";
-import { useEffect, useState } from "react";
-import AssetAvator from "./asset-avator";
-import { assets } from "@/data/currencies";
-import { useTransferStore } from "@/store/transfer-store";
-import { useNetworkStore } from "@/store/network";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import Confetti from "react-confetti";
+import { useWindowSize } from "react-use";
+import AssetAvator from "./asset-avator";
 
 const OrderSuccessful = () => {
   const [exploreUrl, setExploreUrl] = useState<string>("");
-  const { reset, updateSelection, orderStep } = useUserSelectionStore();
+  const { updateSelection, orderStep, resetToDefault } =
+    useUserSelectionStore();
   const { quote } = useQuoteStore();
   const { width, height } = useWindowSize();
   const { resetQuote } = useQuoteStore();
@@ -56,13 +56,10 @@ const OrderSuccessful = () => {
   }, [transactionHash, currentNetwork]);
 
   const handleBackClick = () => {
-    reset();
     resetQuote();
     resetTransfer();
-    updateSelection({ asset: assets[0] });
-    updateSelection({ orderStep: OrderStep.Initial });
-    updateSelection({ pastedAddress: undefined });
-    updateSelection({ paymentMethod: "momo" });
+    resetToDefault();
+
     router.refresh();
   };
 

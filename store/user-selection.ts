@@ -7,6 +7,7 @@ interface UserSelectionStore extends UserSelectionGlobalState {
   updateSelection: (updates: Partial<UserSelectionGlobalState>) => void;
   resetSelection: () => void;
   reset: () => void;
+  resetToDefault: () => void;
   setAppState: (state: AppState) => void;
 }
 
@@ -25,11 +26,15 @@ const initialState: UserSelectionGlobalState = {
   pastedAddress: undefined,
 };
 
+const defaultState = {
+  ...initialState,
+  asset: assets[0],
+};
+
 export const useUserSelectionStore = create<UserSelectionStore>()(
   persist(
     (set) => ({
-      ...initialState,
-      asset: assets[0],
+      ...defaultState,
       updateSelection: (updates) =>
         set((state) => ({
           ...state,
@@ -37,6 +42,7 @@ export const useUserSelectionStore = create<UserSelectionStore>()(
         })),
       resetSelection: () => set(initialState),
       reset: () => set(initialState),
+      resetToDefault: () => set(defaultState),
       setOrderStep: (step: OrderStep) =>
         set((state) => ({ ...state, orderStep: step })),
       setAppState: (newState: AppState) =>

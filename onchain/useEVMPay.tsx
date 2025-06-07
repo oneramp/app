@@ -12,6 +12,14 @@ export type TransactionPayload = {
   tokenAddress: string;
 };
 
+export interface EVMPayHookReturn {
+  payWithEVM: (transactionPayload: TransactionPayload) => Promise<unknown>;
+  isLoading: boolean;
+  isSuccess: boolean;
+  transactionReceipt: TransactionReceipt | null;
+  resetState: () => void;
+}
+
 export const TOKEN_ABI = [
   {
     name: "transfer",
@@ -23,13 +31,13 @@ export const TOKEN_ABI = [
   },
 ];
 
-const useEVMPay = () => {
+const useEVMPay = (): EVMPayHookReturn => {
   const [mockLoading, setMockLoading] = useState(false);
   const [mockSuccess, setMockSuccess] = useState(false);
   const [mockTransactionReceipt, setMockTransactionReceipt] =
     useState<TransactionReceipt | null>(null);
 
-  const { writeContract, data: hash } = useWriteContract();
+  const { writeContract, data: hash, reset: resetWrite } = useWriteContract();
   const {
     isLoading,
     isSuccess,
@@ -38,10 +46,23 @@ const useEVMPay = () => {
     hash,
   });
 
+  const resetState = () => {
+    // Reset mock states
+    setMockLoading(false);
+    setMockSuccess(false);
+    setMockTransactionReceipt(null);
+
+    // Reset wagmi states
+    resetWrite?.();
+  };
+
   const payWithEVM = async (transactionPayload: TransactionPayload) => {
+    // Reset state before new transaction
+    resetState();
+
     const { recipient, amount, tokenAddress } = transactionPayload;
 
-    await writeContract({
+    return writeContract({
       address: tokenAddress as `0x${string}`,
       abi: erc20Abi,
       functionName: "transfer",
@@ -50,6 +71,9 @@ const useEVMPay = () => {
   };
 
   const mockPayWithEVM = async (transactionPayload: TransactionPayload) => {
+    // Reset state before new transaction
+    resetState();
+
     setMockLoading(true);
     const transactionReceipt = await mockOnChainTransaction(transactionPayload);
     setMockSuccess(true);
@@ -66,7 +90,8 @@ const useEVMPay = () => {
     isSuccess: MOCK_TRANSACTIONS ? mockSuccess : isSuccess,
     transactionReceipt: MOCK_TRANSACTIONS
       ? mockTransactionReceipt
-      : transactionReceipt,
+      : transactionReceipt || null,
+    resetState,
   };
 };
 
