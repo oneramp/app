@@ -66,7 +66,7 @@ const ValueInput = () => {
 
   return (
     <div
-      className={cn("relative flex items-center justify-center", getWidth())}
+      className={cn("relative flex items-center justify-end", getWidth())}
     >
       <div className="w-full relative">
         <Input
@@ -76,7 +76,7 @@ const ValueInput = () => {
           value={formatNumber(amount)}
           onChange={handleChange}
           className={cn(
-            "w-full text-left pr-2 !leading-tight py-4 font-semibold outline-none bg-transparent border-none focus:ring-0 focus:border-0 focus-visible:ring-0 focus-visible:border-transparent focus:outline-none",
+            "w-full text-right pr-2 !leading-tight py-4 font-semibold outline-none bg-transparent border-none focus:ring-0 focus:border-0 focus-visible:ring-0 focus-visible:border-transparent focus:outline-none",
             isInvalid ? "text-red-500" : "text-white",
             getFontSize(),
             "transition-all duration-200"

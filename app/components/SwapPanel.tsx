@@ -184,7 +184,6 @@ export function SwapPanel() {
           </span>
         </div>
         <div className="flex items-center gap-2 md:gap-3">
-          <ValueInput />
           <div className="flex-1 w-full">
             <NetworkSelector
               selectedNetwork={currentNetwork || networks[0]}
@@ -193,6 +192,7 @@ export function SwapPanel() {
               buttonClassName="bg-black border-none px-2 md:px-4 rounded-full min-w-[100px] md:min-w-[120px]"
             />
           </div>
+          <ValueInput />
         </div>
       </div>
 

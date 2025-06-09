@@ -89,7 +89,9 @@ const SelectCountry = () => {
   return (
     <>
       <div className="flex items-center gap-3">
-        <div className="flex-1">
+        <SelectCountryModal handleCountrySelect={handleCountrySelect} />
+
+        <div className="flex-1 text-right">
           <span
             className={cn(
               "text-3xl font-semibold",
@@ -105,8 +107,6 @@ const SelectCountry = () => {
               : "0.00"}
           </span>
         </div>
-
-        <SelectCountryModal handleCountrySelect={handleCountrySelect} />
       </div>
     </>
   );
