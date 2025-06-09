@@ -33,18 +33,10 @@ const usePayStarknet = (tokenAddress: string): StarknetPayHookReturn => {
     calls: undefined,
   });
 
-  console.log("====================================");
-  console.log("data", data);
-  console.log("====================================");
-
   const transactionReceiptStarknet = useTransactionReceipt({
     hash: data?.transaction_hash,
     enabled: !!data?.transaction_hash,
   });
-
-  console.log("====================================");
-  console.log("transactionReceiptStarknet", transactionReceiptStarknet);
-  console.log("====================================");
 
   const resetState = () => {
     // Reset the transaction state
@@ -76,20 +68,15 @@ const usePayStarknet = (tokenAddress: string): StarknetPayHookReturn => {
 
       await sendAsync([transactionCall])
         .then((data) => {
-          console.log("Starknet transaction successful", data);
           transactionReceiptStarknet.refetch();
           handleSuccess(data);
           return data;
         })
         .catch((error) => {
-          console.log("error", error);
           handleFailed(error as unknown as Error);
           return error;
         });
-
-      console.log(`Transaction for ${amount} tokens sent successfully`);
     } catch (error) {
-      console.error("Starknet transaction failed:", error);
       throw error;
     }
   };

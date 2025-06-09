@@ -1,20 +1,19 @@
 "use client";
 
+import { getTransferStatus } from "@/actions/transfer";
 import { Badge } from "@/components/ui/badge";
-import { Check, Copy, Loader } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useQuoteStore } from "@/store/quote-store";
+import { useTransferStore } from "@/store/transfer-store";
 import { useUserSelectionStore } from "@/store/user-selection";
 import { OrderStep, TransferStatusEnum, TransferType } from "@/types";
-import { Button } from "@/components/ui/button";
-import { useTransferStore } from "@/store/transfer-store";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { getTransferStatus, submitTransactionHash } from "@/actions/transfer";
-import { useEffect, useState } from "react";
-import AssetAvator from "./asset-avator";
-import { useQuoteStore } from "@/store/quote-store";
-import { toast } from "sonner";
-import { CancelModal } from "../modals/cancel-modal";
-import TakingLongCard from "./taking-long-card";
+import { useQuery } from "@tanstack/react-query";
+import { Check, Copy, Loader } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { CancelModal } from "../modals/cancel-modal";
+import AssetAvator from "./asset-avator";
+import TakingLongCard from "./taking-long-card";
 
 const CopyButton = ({ value }: { value: string }) => {
   const [copied, setCopied] = useState(false);
@@ -71,34 +70,6 @@ const OrderProcessing = () => {
     }
   }, [transferStatus?.status, isLoading]);
 
-  const submitTxHashMutation = useMutation({
-    mutationFn: submitTransactionHash,
-    onSuccess: () => {
-      updateSelection({ orderStep: OrderStep.GotTransfer });
-    },
-    onError: (error) => {
-      toast.error("Failed to submit transaction hash", {
-        description: error.message,
-      });
-    },
-  });
-
-  // const handleTryAgain = () => {
-  //   if (!transfer?.transferId || !transactionHash) {
-  //     toast.error("Transfer ID or transaction hash is required");
-  //     return;
-  //   }
-
-  //   submitTxHashMutation.mutate({
-  //     transferId: transfer?.transferId,
-  //     txHash: transactionHash,
-  //   });
-  // };
-
-  // const handlePaymentCompleted = () => {
-  //   updateSelection({ orderStep: OrderStep.PaymentCompleted });
-  // };
-
   const handleCancelConfirm = () => {
     setShowCancelModal(false);
     resetQuote();
@@ -144,11 +115,12 @@ const OrderProcessing = () => {
                 // disabled={submitTxHashMutation.isPending}
                 className=" p-3 bg-[#232323] rounded-xl hover:bg-[#2a2a2a] text-white font-medium text-sm transition-colors w-fit"
               >
-                {submitTxHashMutation.isPending ? (
+                {/* {submitTxHashMutation.isPending || isLoading ? (
                   <Loader className="animate-spin" />
                 ) : (
                   "Ok"
-                )}
+                )} */}
+                Ok
               </Button>
             </div>
           </div>
