@@ -246,12 +246,14 @@ export function TransactionReviewModal() {
     setTransactionHash(transactionHash);
 
     // Wait for 10 seconds
-    await new Promise((resolve) => setTimeout(resolve, 10000));
+    await new Promise((resolve) => setTimeout(resolve, 15000));
 
     submitTxHashMutation.mutate({
       transferId: transfer.transferId,
       txHash: transactionHash,
     });
+
+    updateSelection({ orderStep: OrderStep.GotTransfer });
   };
 
   const handleStarknetPayFailed = (error: Error) => {
