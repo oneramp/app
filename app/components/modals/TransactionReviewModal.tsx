@@ -71,12 +71,16 @@ export function TransactionReviewModal() {
     mutationKey: ["submit-tx-hash"],
     mutationFn: submitTransactionHash,
     onSuccess: (response) => {
-      if (response.success) {
-        updateSelection({ orderStep: OrderStep.GotTransfer });
-        return;
-      }
+      submitTxHashMutation.reset();
+      updateSelection({ orderStep: OrderStep.GotTransfer });
+      // if (response.success) {
+      //   updateSelection({ orderStep: OrderStep.GotTransfer });
+      //   return;
+      // }
+      return response;
     },
     onError: (error: Error) => {
+      submitTxHashMutation.reset();
       console.error("Transaction submission error:", error);
     },
   });
@@ -198,7 +202,7 @@ export function TransactionReviewModal() {
     }
   };
 
-  const handleEVMPaySuccess = (txHash: string) => {
+  const handleEVMPaySuccess = async (txHash: string) => {
     if (
       !transfer?.transferId ||
       !txHash ||
@@ -210,10 +214,15 @@ export function TransactionReviewModal() {
 
     setTransactionHash(txHash);
 
+    // Wait for 10 seconds
+    await new Promise((resolve) => setTimeout(resolve, 10000));
+
     submitTxHashMutation.mutate({
       transferId: transfer.transferId,
       txHash: txHash,
     });
+
+    updateSelection({ orderStep: OrderStep.GotTransfer });
   };
 
   const handleEVMPayFailed = (error: Error) => {
@@ -239,12 +248,14 @@ export function TransactionReviewModal() {
     setTransactionHash(transactionHash);
 
     // Wait for 10 seconds
-    await new Promise((resolve) => setTimeout(resolve, 10000));
+    await new Promise((resolve) => setTimeout(resolve, 15000));
 
     submitTxHashMutation.mutate({
       transferId: transfer.transferId,
       txHash: transactionHash,
     });
+
+    updateSelection({ orderStep: OrderStep.GotTransfer });
   };
 
   const handleStarknetPayFailed = (error: Error) => {

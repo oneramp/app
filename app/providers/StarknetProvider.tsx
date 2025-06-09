@@ -26,8 +26,8 @@ export default function StarknetProvider({
       new InjectedConnector({ options: { id: "braavos", name: "Braavos" } }),
       ArgentMobileConnector.init({
         options: {
-          dappName: "oneramp",
-          projectId: "5175fef48e45eaa35b29009c6a3b8f77",
+          dappName: "OneRamp",
+          projectId: "72d9f10ab6e67c3e8ed81cb9fc7d6c29",
           // chainId: "mainnet" as "mainnet" | "testnet", // mainnet
           url: window.location.hostname, // ✅ safe now
           icons: ["https://your-icon-url.com"],
