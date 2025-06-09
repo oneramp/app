@@ -1,12 +1,23 @@
 import { Input } from "@/components/ui/input";
 import { GLOBAL_MIN_MAX } from "@/data/countries";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useAmountStore } from "@/store/amount-store";
 
-const ValueInput = () => {
-  const { amount, setAmount } = useAmountStore();
+interface ValueInputProps {
+  maxBalance?: string;
+  isWalletConnected?: boolean;
+  isBalanceLoading?: boolean;
+}
+
+const ValueInput: React.FC<ValueInputProps> = ({ 
+  maxBalance = "0", 
+  isWalletConnected = false,
+  isBalanceLoading = false 
+}) => {
+  const { amount, setAmount, setIsValid } = useAmountStore();
   const [isInvalid, setIsInvalid] = useState(false);
+  const [balanceExceeded, setBalanceExceeded] = useState(false);
 
   const formatNumber = (num: string) => {
     // Remove any non-digit characters except decimal point and first decimal only
@@ -31,14 +42,27 @@ const ValueInput = () => {
   };
 
   const validateAmount = (amount: string) => {
+    if (!amount || amount === "") return true;
+    
     const numericValue = parseFloat(amount);
-    return (
-      !isNaN(numericValue) &&
+    
+    // Basic validation
+    const isValidNumber = !isNaN(numericValue) &&
       numericValue >= GLOBAL_MIN_MAX.min &&
       numericValue <= GLOBAL_MIN_MAX.max &&
       // Check if decimal places are valid (max 2)
-      (amount.includes(".") ? amount.split(".")[1].length <= 2 : true)
-    );
+      (amount.includes(".") ? amount.split(".")[1].length <= 2 : true);
+    
+    // Balance validation (only if wallet is connected)
+    if (isWalletConnected && isValidNumber) {
+      const maxBalanceNumber = parseFloat(maxBalance);
+      const exceedsBalance = numericValue > maxBalanceNumber;
+      setBalanceExceeded(exceedsBalance);
+      return isValidNumber && !exceedsBalance;
+    }
+    
+    setBalanceExceeded(false);
+    return isValidNumber;
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,9 +71,20 @@ const ValueInput = () => {
     // Allow typing decimal point and numbers
     if (rawValue === "" || rawValue === "." || /^\d*\.?\d*$/.test(rawValue)) {
       setAmount(rawValue);
-      setIsInvalid(!validateAmount(rawValue));
+      const isValidAmount = validateAmount(rawValue);
+      setIsInvalid(!isValidAmount);
+      setIsValid(isValidAmount);
     }
   };
+
+  // Re-validate when balance changes
+  useEffect(() => {
+    if (amount) {
+      const isValidAmount = validateAmount(amount);
+      setIsInvalid(!isValidAmount);
+      setIsValid(isValidAmount);
+    }
+  }, [maxBalance, isWalletConnected, amount]);
 
   // Calculate dynamic font size based on amount length
   const getFontSize = () => {
@@ -62,6 +97,13 @@ const ValueInput = () => {
     if (amount.length > 3) return "w-2/3";
     if (amount.length > 6) return "w-full";
     return "w-full";
+  };
+
+  const getTextColor = () => {
+    if (isBalanceLoading) return "text-yellow-400";
+    if (balanceExceeded) return "text-red-400";
+    if (isInvalid) return "text-red-500";
+    return "text-white";
   };
 
   return (
@@ -77,11 +119,17 @@ const ValueInput = () => {
           onChange={handleChange}
           className={cn(
             "w-full text-right pr-2 !leading-tight py-4 font-semibold outline-none bg-transparent border-none focus:ring-0 focus:border-0 focus-visible:ring-0 focus-visible:border-transparent focus:outline-none",
-            isInvalid ? "text-red-500" : "text-white",
+            getTextColor(),
             getFontSize(),
             "transition-all duration-200"
           )}
         />
+        {/* Error message for balance exceeded */}
+        {balanceExceeded && isWalletConnected && (
+          <div className="absolute -bottom-6 right-0 text-xs text-red-400">
+            Exceeds balance
+          </div>
+        )}
       </div>
     </div>
   );
