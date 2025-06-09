@@ -64,52 +64,51 @@ export const getTransferStatus = async (transferId: string) => {
 };
 
 export const submitTransactionHash = async (
-  payload: SubmitTransactionHashRequest
+  payload: SubmitTransactionHashRequest,
+  maxRetries: number = 3
 ) => {
-  try {
-    console.log("====================================");
-    console.log("payload", payload);
-    console.log("====================================");
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      if (!payload.transferId || !payload.txHash) {
+        return {
+          success: false,
+          message: "Missing required fields: transferId or txHash",
+        };
+      }
 
-    if (!payload.transferId || !payload.txHash) {
+      const response = await oneRampApi.post(`/tx`, payload);
+
+      return {
+        success: true,
+        data: response.data || null,
+      };
+    } catch (error) {
+      // const axiosError = error as AxiosError;
+
+      const axiosError = error as AxiosError<{
+        message?: string;
+        error?: string;
+      }>;
+
+      // If it's a 500 error and we have retries left, continue
+      if (axiosError.response?.status === 500 && attempt < maxRetries) {
+        console.log(`Attempt ${attempt} failed with 500, retrying...`);
+        // Optional: add delay between retries
+        await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
+        continue;
+      }
+
+      // Last attempt or non-500 error
       return {
         success: false,
-        message: "Missing required fields: transferId or txHash",
+        status: axiosError.response?.status || 500,
+        message:
+          axiosError.response?.data?.message ||
+          axiosError.response?.data?.error ||
+          "Failed to submit transaction hash",
+        // Add more context for debugging
+        details: process.env.NODE_ENV === "development" ? error : undefined,
       };
     }
-
-    const response = await oneRampApi.post(`/tx`, payload);
-
-    console.log("====================================");
-    console.log("response", response.data);
-    console.log("====================================");
-
-    // Return a simplified success response
-    return {
-      success: true,
-      data: response.data ? response.data : null,
-    };
-  } catch (error) {
-    console.log("====================================");
-    console.log("error", error);
-    console.log("====================================");
-
-    // Handle Axios error
-    const axiosError = error as AxiosError<{
-      message?: string;
-      error?: string;
-    }>;
-
-    // Return a simplified error response
-    return {
-      success: false,
-      status: axiosError.response?.status || 500,
-      message:
-        axiosError.response?.data?.message ||
-        axiosError.response?.data?.error ||
-        "Failed to submit transaction hash",
-      // Add more context for debugging
-      details: process.env.NODE_ENV === "development" ? error : undefined,
-    };
   }
 };
