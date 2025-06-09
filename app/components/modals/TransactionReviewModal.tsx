@@ -71,10 +71,12 @@ export function TransactionReviewModal() {
     mutationKey: ["submit-tx-hash"],
     mutationFn: submitTransactionHash,
     onSuccess: (response) => {
-      if (response.success) {
-        updateSelection({ orderStep: OrderStep.GotTransfer });
-        return;
-      }
+      updateSelection({ orderStep: OrderStep.GotTransfer });
+      // if (response.success) {
+      //   updateSelection({ orderStep: OrderStep.GotTransfer });
+      //   return;
+      // }
+      return response;
     },
     onError: (error: Error) => {
       console.error("Transaction submission error:", error);
