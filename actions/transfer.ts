@@ -81,7 +81,7 @@ export const submitTransactionHash = async (
     const response = await oneRampApi.post(`/tx`, payload);
 
     console.log("====================================");
-    console.log("response", response);
+    console.log("response", response.data);
     console.log("====================================");
 
     // Return a simplified success response
@@ -90,6 +90,10 @@ export const submitTransactionHash = async (
       data: response.data ? response.data : null,
     };
   } catch (error) {
+    console.log("====================================");
+    console.log("error", error);
+    console.log("====================================");
+
     // Handle Axios error
     const axiosError = error as AxiosError<{
       message?: string;
@@ -104,6 +108,8 @@ export const submitTransactionHash = async (
         axiosError.response?.data?.message ||
         axiosError.response?.data?.error ||
         "Failed to submit transaction hash",
+      // Add more context for debugging
+      details: process.env.NODE_ENV === "development" ? error : undefined,
     };
   }
 };
