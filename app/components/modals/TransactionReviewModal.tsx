@@ -200,7 +200,7 @@ export function TransactionReviewModal() {
     }
   };
 
-  const handleEVMPaySuccess = (txHash: string) => {
+  const handleEVMPaySuccess = async (txHash: string) => {
     if (
       !transfer?.transferId ||
       !txHash ||
@@ -212,10 +212,15 @@ export function TransactionReviewModal() {
 
     setTransactionHash(txHash);
 
+    // Wait for 10 seconds
+    await new Promise((resolve) => setTimeout(resolve, 10000));
+
     submitTxHashMutation.mutate({
       transferId: transfer.transferId,
       txHash: txHash,
     });
+
+    updateSelection({ orderStep: OrderStep.GotTransfer });
   };
 
   const handleEVMPayFailed = (error: Error) => {
