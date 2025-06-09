@@ -49,10 +49,12 @@ export function SwapPanel() {
   const { country, updateSelection } = useUserSelectionStore();
   const { setAmount } = useAmountStore();
 
-  // Token balance hook
-  const { formatted: tokenBalance, isLoading: balanceLoading } = useTokenBalance(
-    selectedCurrency.symbol
-  );
+  // Token balance hook - now fetches balances for all networks
+  const { 
+    formatted: tokenBalance, 
+    isLoading: balanceLoading,
+    allNetworkBalances 
+  } = useTokenBalance(selectedCurrency.symbol);
 
   // Check if current token is supported on the current network
   const isCurrentTokenSupported = currentNetwork?.chainId 
@@ -79,7 +81,14 @@ export function SwapPanel() {
   // Handle Max button click
   const handleMaxClick = () => {
     if (!isCurrentTokenSupported || (!evmConnected && !starknetConnected)) return;
-    setAmount(tokenBalance);
+    
+    // Use the balance for the current network
+    const currentChainId = currentNetwork?.chainId;
+    if (currentChainId && allNetworkBalances?.[currentChainId]) {
+      setAmount(allNetworkBalances[currentChainId].formatted);
+    } else {
+      setAmount(tokenBalance);
+    }
   };
 
   return (
@@ -199,10 +208,26 @@ export function SwapPanel() {
             From
           </span>
           <span className="text-neutral-400 text-xs md:text-sm">
-            Balance: {balanceLoading ? "..." : (isCurrentTokenSupported ? tokenBalance : "0")}{" "}
+            Balance: {(() => {
+              if (balanceLoading) return "...";
+              if (!isCurrentTokenSupported) return "0";
+              
+              // Show balance for current network
+              const currentChainId = currentNetwork?.chainId;
+              if (currentChainId && allNetworkBalances?.[currentChainId]) {
+                return allNetworkBalances[currentChainId].isLoading ? "..." : allNetworkBalances[currentChainId].formatted;
+              }
+              return tokenBalance;
+            })()}{" "}
             <span 
               className={`ml-1 cursor-pointer ${
-                isCurrentTokenSupported && (evmConnected || starknetConnected) && parseFloat(tokenBalance) > 0
+                isCurrentTokenSupported && (evmConnected || starknetConnected) && (() => {
+                  const currentChainId = currentNetwork?.chainId;
+                  const currentBalance = currentChainId && allNetworkBalances?.[currentChainId] 
+                    ? allNetworkBalances[currentChainId].formatted 
+                    : tokenBalance;
+                  return parseFloat(currentBalance) > 0;
+                })()
                   ? "text-red-400 hover:text-red-300" 
                   : "text-neutral-500 cursor-not-allowed"
               }`}
