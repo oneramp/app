@@ -72,6 +72,7 @@ export function TransactionReviewModal() {
     mutationFn: submitTransactionHash,
     onSuccess: (response) => {
       submitTxHashMutation.reset();
+      submitTransferIn.reset();
       updateSelection({ orderStep: OrderStep.GotTransfer });
       // if (response.success) {
       //   updateSelection({ orderStep: OrderStep.GotTransfer });
@@ -81,9 +82,17 @@ export function TransactionReviewModal() {
     },
     onError: (error: Error) => {
       submitTxHashMutation.reset();
+      submitTransferIn.reset();
       console.error("Transaction submission error:", error);
     },
   });
+
+  useEffect(() => {
+    // First reset the submitTxHashMutation when the component mounts
+    submitTxHashMutation.reset();
+    submitTransferIn.reset();
+    setLoading(false);
+  }, []);
 
   // Remove the mutation reset from effects
   useEffect(() => {
@@ -152,6 +161,7 @@ export function TransactionReviewModal() {
       starknetPay.resetState();
     }
     resetToDefault();
+    submitTransferIn.reset();
     router.refresh();
   };
 
@@ -198,6 +208,8 @@ export function TransactionReviewModal() {
       }
     } catch (error) {
       console.error("Error initiating blockchain transaction:", error);
+      setLoading(false);
+    } finally {
       setLoading(false);
     }
   };
@@ -247,8 +259,16 @@ export function TransactionReviewModal() {
 
     setTransactionHash(transactionHash);
 
+    console.log("====================================");
+    console.log("INITIATING STARKNET TX HASH");
+    console.log("====================================");
+
     // Wait for 10 seconds
-    await new Promise((resolve) => setTimeout(resolve, 15000));
+    await new Promise((resolve) => setTimeout(resolve, 10000));
+
+    console.log("====================================");
+    console.log("SUBMITTING STARKNET TX HASH");
+    console.log("====================================");
 
     submitTxHashMutation.mutate({
       transferId: transfer.transferId,
@@ -613,13 +633,14 @@ export function TransactionReviewModal() {
                         !transfer
                       }
                     >
-                      {isLoading ||
-                      submitTxHashMutation.isPending ||
-                      loading ? (
-                        <Loader className="animate-spin" />
-                      ) : (
-                        wrongChainState.buttonText
-                      )}
+                      {
+                        // isLoading ||  submitTxHashMutation.isPending ||
+                        loading ? (
+                          <Loader className="animate-spin" />
+                        ) : (
+                          wrongChainState.buttonText
+                        )
+                      }
                     </Button>
                   )}
                 </>
