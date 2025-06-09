@@ -11,6 +11,8 @@ import { WebWalletConnector } from "starknetkit/webwallet";
 import { Connector } from "@starknet-react/core";
 import { ArgentMobileConnector } from "starknetkit/argentMobile";
 
+const INFURA_API_KEY = process.env.NEXT_PUBLIC_INFURA_API_KEY
+
 export default function StarknetProvider({
   children,
 }: {
@@ -30,7 +32,7 @@ export default function StarknetProvider({
           url: window.location.hostname, // ✅ safe now
           icons: ["https://your-icon-url.com"],
           rpcUrl:
-            "https://starknet-mainnet.infura.io/v3/aa740f142a80486b94876ef7a659e9aa",
+            `https://starknet-mainnet.infura.io/v3/${INFURA_API_KEY}`,
         },
         inAppBrowserOptions: {},
       }) as Connector,
