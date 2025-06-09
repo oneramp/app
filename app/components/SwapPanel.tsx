@@ -3,7 +3,10 @@
 import { Button } from "@/components/ui/button";
 import { assets } from "@/data/currencies";
 import { SUPPORTED_NETWORKS_WITH_RPC_URLS } from "@/data/networks";
+import { isTokenSupported } from "@/data/token-config";
+import { useTokenBalance } from "@/hooks/useTokenBalance";
 import useWalletGetInfo from "@/hooks/useWalletGetInfo";
+import { useAmountStore } from "@/store/amount-store";
 import { useNetworkStore } from "@/store/network";
 import { useUserSelectionStore } from "@/store/user-selection";
 import { Asset, Network } from "@/types";
@@ -44,6 +47,17 @@ export function SwapPanel() {
   const starknetConnected = !!starknetAddress;
 
   const { country, updateSelection } = useUserSelectionStore();
+  const { setAmount } = useAmountStore();
+
+  // Token balance hook
+  const { formatted: tokenBalance, isLoading: balanceLoading } = useTokenBalance(
+    selectedCurrency.symbol
+  );
+
+  // Check if current token is supported on the current network
+  const isCurrentTokenSupported = currentNetwork?.chainId 
+    ? isTokenSupported(selectedCurrency.symbol, currentNetwork.chainId)
+    : false;
 
   // Check EVM wallet connection
 
@@ -60,6 +74,12 @@ export function SwapPanel() {
   const handleNetworkSelect = async (network: Network) => {
     // If appropriate wallet is connected, attempt to switch networks
     setCurrentNetwork(network);
+  };
+
+  // Handle Max button click
+  const handleMaxClick = () => {
+    if (!isCurrentTokenSupported || (!evmConnected && !starknetConnected)) return;
+    setAmount(tokenBalance);
   };
 
   return (
@@ -179,8 +199,17 @@ export function SwapPanel() {
             From
           </span>
           <span className="text-neutral-400 text-xs md:text-sm">
-            Balance: 0{" "}
-            <span className="text-red-400 ml-1 cursor-pointer">Max</span>
+            Balance: {balanceLoading ? "..." : (isCurrentTokenSupported ? tokenBalance : "0")}{" "}
+            <span 
+              className={`ml-1 cursor-pointer ${
+                isCurrentTokenSupported && (evmConnected || starknetConnected) && parseFloat(tokenBalance) > 0
+                  ? "text-red-400 hover:text-red-300" 
+                  : "text-neutral-500 cursor-not-allowed"
+              }`}
+              onClick={handleMaxClick}
+            >
+              Max
+            </span>
           </span>
         </div>
         <div className="flex items-center gap-2 md:gap-3">
