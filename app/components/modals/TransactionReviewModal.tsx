@@ -209,8 +209,6 @@ export function TransactionReviewModal() {
     } catch (error) {
       console.error("Error initiating blockchain transaction:", error);
       setLoading(false);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -235,6 +233,8 @@ export function TransactionReviewModal() {
     });
 
     updateSelection({ orderStep: OrderStep.GotTransfer });
+
+    setLoading(false);
   };
 
   const handleEVMPayFailed = (error: Error) => {
@@ -276,6 +276,8 @@ export function TransactionReviewModal() {
     });
 
     updateSelection({ orderStep: OrderStep.GotTransfer });
+
+    setLoading(false);
   };
 
   const handleStarknetPayFailed = (error: Error) => {
