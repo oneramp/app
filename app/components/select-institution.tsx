@@ -200,11 +200,11 @@ const SelectInstitution = ({ buy }: { buy?: boolean }) => {
       }
 
       if (userPayLoad.paymentMethod === "bank") {
-        // const { institution } = userPayLoad;
+        const { institution } = userPayLoad;
         const { fullKYC } = kycData || {};
 
         // if (!institution || !accountNumber || !country || !fullKYC) return;
-        if (!country || !fullKYC) return;
+        if (!country || !fullKYC || !institution) return;
 
         const isNigeriaOrSouthAfrican =
           country.countryCode === "NG" || country.countryCode === "ZA";
@@ -256,9 +256,9 @@ const SelectInstitution = ({ buy }: { buy?: boolean }) => {
         if (isNigeriaOrSouthAfrican) {
           payload = {
             bank: {
-              code: "",
-              accountNumber: "",
-              accountName: "",
+              code: institution.code,
+              accountNumber: accountNumber,
+              accountName: accountName,
             },
             operator: "bank",
             quoteId: data.quote.quoteId,

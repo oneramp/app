@@ -264,7 +264,9 @@ const OrderProcessing = () => {
                 <p>
                   Processing payment of{" "}
                   <span className="text-white">
-                    {quote?.amountPaid} {quote?.cryptoType} ({quote?.fiatAmount}{" "}
+                    {Number(quote?.amountPaid).toFixed(2).toLocaleString()}{" "}
+                    {quote?.cryptoType} (
+                    {Number(quote?.fiatAmount).toFixed(2).toLocaleString()}{" "}
                     {quote?.fiatType})
                   </span>{" "}
                   to

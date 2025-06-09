@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import Confetti from "react-confetti";
 import { useWindowSize } from "react-use";
 import AssetAvator from "./asset-avator";
+import { assets } from "@/data/currencies";
 
 const OrderSuccessful = () => {
   const [exploreUrl, setExploreUrl] = useState<string>("");
@@ -59,6 +60,8 @@ const OrderSuccessful = () => {
     resetQuote();
     resetTransfer();
     resetToDefault();
+
+    updateSelection({ asset: assets[0] });
 
     router.refresh();
   };
