@@ -71,6 +71,7 @@ export function TransactionReviewModal() {
     mutationKey: ["submit-tx-hash"],
     mutationFn: submitTransactionHash,
     onSuccess: (response) => {
+      submitTxHashMutation.reset();
       updateSelection({ orderStep: OrderStep.GotTransfer });
       // if (response.success) {
       //   updateSelection({ orderStep: OrderStep.GotTransfer });
@@ -79,6 +80,7 @@ export function TransactionReviewModal() {
       return response;
     },
     onError: (error: Error) => {
+      submitTxHashMutation.reset();
       console.error("Transaction submission error:", error);
     },
   });
