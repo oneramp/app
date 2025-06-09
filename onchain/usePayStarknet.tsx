@@ -4,12 +4,17 @@ import {
   useAccount,
   useContract,
   useSendTransaction,
+  useTransactionReceipt,
 } from "@starknet-react/core";
 import { type Abi, type Call } from "starknet";
 import { TransactionPayload } from "./useEVMPay";
 
 export interface StarknetPayHookReturn {
-  payWithStarknet: (transactionPayload: TransactionPayload) => Promise<void>;
+  payWithStarknet: (
+    transactionPayload: TransactionPayload,
+    handleSuccess: (data: { transaction_hash: string }) => void,
+    handleFailed: (error: Error) => void
+  ) => Promise<void>;
   error: Error | null;
   status: "idle" | "pending" | "success" | "error";
   data: { transaction_hash: string } | undefined;
@@ -24,16 +29,33 @@ const usePayStarknet = (tokenAddress: string): StarknetPayHookReturn => {
     abi: STRK_ABI as Abi,
   });
 
-  const { send, error, status, data, reset } = useSendTransaction({
+  const { sendAsync, error, status, data, reset } = useSendTransaction({
     calls: undefined,
   });
+
+  console.log("====================================");
+  console.log("data", data);
+  console.log("====================================");
+
+  const transactionReceiptStarknet = useTransactionReceipt({
+    hash: data?.transaction_hash,
+    enabled: !!data?.transaction_hash,
+  });
+
+  console.log("====================================");
+  console.log("transactionReceiptStarknet", transactionReceiptStarknet);
+  console.log("====================================");
 
   const resetState = () => {
     // Reset the transaction state
     reset?.();
   };
 
-  const payWithStarknet = async (transactionPayload: TransactionPayload) => {
+  const payWithStarknet = async (
+    transactionPayload: TransactionPayload,
+    handleSuccess: (data: { transaction_hash: string }) => void,
+    handleFailed: (error: Error) => void
+  ) => {
     try {
       // Reset state before new transaction
       resetState();
@@ -52,7 +74,19 @@ const usePayStarknet = (tokenAddress: string): StarknetPayHookReturn => {
         feltAmount,
       ]);
 
-      await send([transactionCall]);
+      await sendAsync([transactionCall])
+        .then((data) => {
+          console.log("Starknet transaction successful", data);
+          transactionReceiptStarknet.refetch();
+          handleSuccess(data);
+          return data;
+        })
+        .catch((error) => {
+          console.log("error", error);
+          handleFailed(error as unknown as Error);
+          return error;
+        });
+
       console.log(`Transaction for ${amount} tokens sent successfully`);
     } catch (error) {
       console.error("Starknet transaction failed:", error);

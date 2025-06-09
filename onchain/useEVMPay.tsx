@@ -13,7 +13,11 @@ export type TransactionPayload = {
 };
 
 export interface EVMPayHookReturn {
-  payWithEVM: (transactionPayload: TransactionPayload) => Promise<unknown>;
+  payWithEVM: (
+    transactionPayload: TransactionPayload,
+    handleSuccess: (data: string) => void,
+    handleFailed: (error: Error) => void
+  ) => Promise<unknown>;
   isLoading: boolean;
   isSuccess: boolean;
   transactionReceipt: TransactionReceipt | null;
@@ -31,7 +35,9 @@ export const TOKEN_ABI = [
   },
 ];
 
-const useEVMPay = (): EVMPayHookReturn => {
+const useEVMPay = (): // handleSuccess: () => void,
+// handleFailed: (error: Error) => void
+EVMPayHookReturn => {
   const [mockLoading, setMockLoading] = useState(false);
   const [mockSuccess, setMockSuccess] = useState(false);
   const [mockTransactionReceipt, setMockTransactionReceipt] =
@@ -56,18 +62,32 @@ const useEVMPay = (): EVMPayHookReturn => {
     resetWrite?.();
   };
 
-  const payWithEVM = async (transactionPayload: TransactionPayload) => {
+  const payWithEVM = async (
+    transactionPayload: TransactionPayload,
+    handleSuccess: (data: string) => void,
+    handleFailed: (error: Error) => void
+  ) => {
     // Reset state before new transaction
     resetState();
 
     const { recipient, amount, tokenAddress } = transactionPayload;
 
-    return writeContract({
-      address: tokenAddress as `0x${string}`,
-      abi: erc20Abi,
-      functionName: "transfer",
-      args: [recipient as `0x${string}`, amount as bigint],
-    });
+    return writeContract(
+      {
+        address: tokenAddress as `0x${string}`,
+        abi: erc20Abi,
+        functionName: "transfer",
+        args: [recipient as `0x${string}`, amount as bigint],
+      },
+      {
+        onSuccess: (data) => {
+          handleSuccess(data as unknown as string);
+        },
+        onError: (error) => {
+          handleFailed(error);
+        },
+      }
+    );
   };
 
   const mockPayWithEVM = async (transactionPayload: TransactionPayload) => {

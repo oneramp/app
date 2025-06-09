@@ -57,8 +57,7 @@ export function TransactionReviewModal() {
     buttonText: "Confirm payment",
   });
 
-  const { payWithEVM, isLoading, isSuccess, transactionReceipt, resetState } =
-    useEVMPay();
+  const { payWithEVM, isLoading, resetState } = useEVMPay();
 
   // Initialize Starknet pay
   const starknetPay = usePayStarknet(
@@ -141,48 +140,50 @@ export function TransactionReviewModal() {
     }
   }, [chainId, currentNetwork, address, isConnected]);
 
-  useEffect(() => {
-    if (
-      isSuccess &&
-      !isLoading &&
-      transactionReceipt?.transactionHash &&
-      transfer?.transferId &&
-      !wrongChainState.isWrongChain &&
-      currentNetwork?.type === ChainTypes.EVM
-    ) {
-      setTransactionHash(transactionReceipt.transactionHash);
-      submitTxHashMutation.mutate({
-        transferId: transfer.transferId,
-        txHash: transactionReceipt.transactionHash,
-      });
-      return;
-    }
-
-    if (
-      starknetPay.status === "success" &&
-      starknetPay.data?.transaction_hash &&
-      transfer?.transferId &&
-      !wrongChainState.isWrongChain &&
-      currentNetwork?.type === ChainTypes.Starknet
-    ) {
-      setTransactionHash(starknetPay.data.transaction_hash);
-      submitTxHashMutation.mutate({
-        transferId: transfer.transferId,
-        txHash: starknetPay.data.transaction_hash,
-      });
-      return;
-    }
-  }, [
-    isSuccess,
-    isLoading,
-    transactionReceipt,
-    starknetPay.status,
-    starknetPay.data,
-    transfer?.transferId,
-    wrongChainState.isWrongChain,
-    currentNetwork?.type,
-    setTransactionHash,
-  ]);
+  useEffect(
+    () => {
+      // if (
+      //   isSuccess &&
+      //   !isLoading &&
+      //   transactionReceipt?.transactionHash &&
+      //   transfer?.transferId &&
+      //   !wrongChainState.isWrongChain &&
+      //   currentNetwork?.type === ChainTypes.EVM
+      // ) {
+      //   setTransactionHash(transactionReceipt.transactionHash);
+      //   submitTxHashMutation.mutate({
+      //     transferId: transfer.transferId,
+      //     txHash: transactionReceipt.transactionHash,
+      //   });
+      //   return;
+      // }
+      // if (
+      //   starknetPay.status === "success" &&
+      //   starknetPay.data?.transaction_hash &&
+      //   transfer?.transferId &&
+      //   !wrongChainState.isWrongChain &&
+      //   currentNetwork?.type === ChainTypes.Starknet
+      // ) {
+      //   setTransactionHash(starknetPay.data.transaction_hash);
+      //   submitTxHashMutation.mutate({
+      //     transferId: transfer.transferId,
+      //     txHash: starknetPay.data.transaction_hash,
+      //   });
+      //   return;
+      // }
+    },
+    [
+      // isSuccess,
+      // isLoading,
+      // transactionReceipt,
+      // starknetPay.status,
+      // starknetPay.data,
+      // transfer?.transferId,
+      // wrongChainState.isWrongChain,
+      // currentNetwork?.type,
+      // setTransactionHash,
+    ]
+  );
 
   const handleBackClick = () => {
     setShowCancelModal(true);
@@ -242,15 +243,67 @@ export function TransactionReviewModal() {
         tokenAddress: contractAddress,
       };
       updateSelection({ appState: AppState.Processing });
-      starknetPay.payWithStarknet(strkPayload);
+      starknetPay.payWithStarknet(
+        strkPayload,
+        handleStarknetPaySuccess,
+        handleStarknetPayFailed
+      );
     } else {
       updateSelection({ appState: AppState.Processing });
-      payWithEVM(transactionPayload);
+      payWithEVM(transactionPayload, handleEVMPaySuccess, handleEVMPayFailed);
     }
 
     setTimeout(() => {
       setLoading(false);
     }, 7000);
+  };
+
+  const handleEVMPaySuccess = (txHash: string) => {
+    if (
+      txHash &&
+      transfer?.transferId &&
+      !wrongChainState.isWrongChain &&
+      currentNetwork?.type === ChainTypes.EVM
+    ) {
+      setTransactionHash(txHash);
+
+      submitTxHashMutation.mutate({
+        transferId: transfer.transferId,
+        txHash: txHash,
+      });
+      return;
+    }
+  };
+
+  const handleEVMPayFailed = (error: Error) => {
+    console.log("EVM Transaction failed", error.message);
+    // toast.error("Transaction failed");
+    return error;
+  };
+
+  const handleStarknetPaySuccess = (txHash: { transaction_hash: string }) => {
+    // console.log("Starknet transaction successful", txHash);
+    const transactionHash = txHash.transaction_hash;
+    if (
+      // starknetPay.status === "success" &&
+      // starknetPay.data?.transaction_hash &&
+      transactionHash &&
+      transfer?.transferId &&
+      !wrongChainState.isWrongChain &&
+      currentNetwork?.type === ChainTypes.Starknet
+    ) {
+      setTransactionHash(transactionHash);
+      submitTxHashMutation.mutate({
+        transferId: transfer.transferId,
+        txHash: transactionHash,
+      });
+      return;
+    }
+  };
+
+  const handleStarknetPayFailed = (error: Error) => {
+    console.log("Starknet Transaction failed", error.message);
+    return error;
   };
 
   const handleSubmitTransferIn = async () => {

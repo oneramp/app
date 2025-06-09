@@ -66,14 +66,25 @@ export const submitTransactionHash = async (
   payload: SubmitTransactionHashRequest
 ) => {
   try {
+    console.log("====================================");
+    console.log("payload", payload);
+    console.log("====================================");
+
     if (!payload.transferId || !payload.txHash) {
       throw new Error("Invalid payload", { cause: payload });
     }
 
     const response = await oneRampApi.post(`/tx`, payload);
 
+    console.log("====================================");
+    console.log("response", response.data);
+    console.log("====================================");
+
     return response.data;
   } catch (error) {
+    console.log("====================================");
+    console.log("Failed to submit transaction hash", error);
+    console.log("====================================");
     throw new Error("Failed to submit transaction hash", { cause: error });
   }
 };
