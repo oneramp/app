@@ -7,6 +7,7 @@ import {
   TransferMomoRequest,
 } from "@/types";
 import { v4 as uuidv4 } from "uuid";
+import { AxiosError } from "axios";
 
 export const createTransferIn = async (
   payload: TransferMomoRequest | TransferBankRequest
@@ -66,20 +67,43 @@ export const submitTransactionHash = async (
   payload: SubmitTransactionHashRequest
 ) => {
   try {
+    console.log("====================================");
+    console.log("payload", payload);
+    console.log("====================================");
+
     if (!payload.transferId || !payload.txHash) {
-      throw new Error("Invalid payload", { cause: payload });
+      return {
+        success: false,
+        message: "Missing required fields: transferId or txHash",
+      };
     }
 
     const response = await oneRampApi.post(`/tx`, payload);
 
-    return response.data;
+    console.log("====================================");
+    console.log("response", response);
+    console.log("====================================");
+
+    // Return a simplified success response
+    return {
+      success: true,
+      data: response.data ? response.data : null,
+    };
   } catch (error) {
-    // throw new Error("Failed to submit transaction hash", { cause: error });
-    // fail silently
+    // Handle Axios error
+    const axiosError = error as AxiosError<{
+      message?: string;
+      error?: string;
+    }>;
+
+    // Return a simplified error response
     return {
       success: false,
-      message: "Failed to submit transaction hash",
-      error: error,
+      status: axiosError.response?.status || 500,
+      message:
+        axiosError.response?.data?.message ||
+        axiosError.response?.data?.error ||
+        "Failed to submit transaction hash",
     };
   }
 };

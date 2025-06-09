@@ -68,29 +68,23 @@ export function TransactionReviewModal() {
 
   // Create the mutation with reset capability
   const submitTxHashMutation = useMutation({
-    mutationKey: ["submit-tx-hash"], // Remove quote dependency to avoid unwanted retries
+    mutationKey: ["submit-tx-hash"],
     mutationFn: submitTransactionHash,
-    onSuccess: () => {
-      updateSelection({ orderStep: OrderStep.GotTransfer });
-      // Reset states after successful submission
-      if (currentNetwork?.type === ChainTypes.EVM) {
-        resetState();
-      } else if (currentNetwork?.type === ChainTypes.Starknet) {
-        starknetPay.resetState();
+    onSuccess: (response) => {
+      if (response.success) {
+        updateSelection({ orderStep: OrderStep.GotTransfer });
+        return;
       }
     },
     onError: (error: Error) => {
-      console.log("error", error.message);
+      console.error("Transaction submission error:", error);
     },
-    retry: 3,
-    retryDelay: 10_000,
   });
 
-  // Reset states when component unmounts or when starting new transaction
+  // Remove the mutation reset from effects
   useEffect(() => {
     return () => {
-      // Cleanup function
-      submitTxHashMutation.reset();
+      // Only reset states, not the mutation
       if (currentNetwork?.type === ChainTypes.EVM) {
         resetState();
       } else if (currentNetwork?.type === ChainTypes.Starknet) {
@@ -99,10 +93,9 @@ export function TransactionReviewModal() {
     };
   }, []);
 
-  // Reset mutation when starting a new transaction
+  // Remove automatic mutation reset on quote change
   useEffect(() => {
     if (quote && currentOrderStep === OrderStep.GotQuote) {
-      submitTxHashMutation.reset();
       if (currentNetwork?.type === ChainTypes.EVM) {
         resetState();
       } else if (currentNetwork?.type === ChainTypes.Starknet) {
@@ -140,51 +133,6 @@ export function TransactionReviewModal() {
     }
   }, [chainId, currentNetwork, address, isConnected]);
 
-  useEffect(
-    () => {
-      // if (
-      //   isSuccess &&
-      //   !isLoading &&
-      //   transactionReceipt?.transactionHash &&
-      //   transfer?.transferId &&
-      //   !wrongChainState.isWrongChain &&
-      //   currentNetwork?.type === ChainTypes.EVM
-      // ) {
-      //   setTransactionHash(transactionReceipt.transactionHash);
-      //   submitTxHashMutation.mutate({
-      //     transferId: transfer.transferId,
-      //     txHash: transactionReceipt.transactionHash,
-      //   });
-      //   return;
-      // }
-      // if (
-      //   starknetPay.status === "success" &&
-      //   starknetPay.data?.transaction_hash &&
-      //   transfer?.transferId &&
-      //   !wrongChainState.isWrongChain &&
-      //   currentNetwork?.type === ChainTypes.Starknet
-      // ) {
-      //   setTransactionHash(starknetPay.data.transaction_hash);
-      //   submitTxHashMutation.mutate({
-      //     transferId: transfer.transferId,
-      //     txHash: starknetPay.data.transaction_hash,
-      //   });
-      //   return;
-      // }
-    },
-    [
-      // isSuccess,
-      // isLoading,
-      // transactionReceipt,
-      // starknetPay.status,
-      // starknetPay.data,
-      // transfer?.transferId,
-      // wrongChainState.isWrongChain,
-      // currentNetwork?.type,
-      // setTransactionHash,
-    ]
-  );
-
   const handleBackClick = () => {
     setShowCancelModal(true);
   };
@@ -206,103 +154,101 @@ export function TransactionReviewModal() {
   const makeBlockchainTransaction = async () => {
     if (!asset || !currentNetwork || !quote || !transfer) return;
 
-    // Reset states before starting new transaction
-    submitTxHashMutation.reset();
-    if (currentNetwork?.type === ChainTypes.EVM) {
-      resetState();
-    } else if (currentNetwork?.type === ChainTypes.Starknet) {
-      starknetPay.resetState();
-    }
-
     const networkName = currentNetwork.name;
-
     const contractAddress = asset.networks[networkName]?.tokenAddress;
 
     if (!contractAddress) {
+      console.log("No contract address found for network:", networkName);
       return;
     }
 
     setLoading(true);
 
-    const amountInWei = parseUnits(quote.amountPaid.toString(), 6);
+    try {
+      const amountInWei = parseUnits(quote.amountPaid.toString(), 6);
+      const recipient = transfer.transferAddress;
 
-    const recipient = transfer.transferAddress;
-
-    const transactionPayload = {
-      recipient,
-      amount: amountInWei,
-      tokenAddress: contractAddress,
-    };
-
-    const isStarknet = currentNetwork.type === ChainTypes.Starknet;
-
-    if (isStarknet) {
-      const strkPayload = {
+      const transactionPayload = {
         recipient,
-        amount: quote.amountPaid,
+        amount: amountInWei,
         tokenAddress: contractAddress,
       };
-      updateSelection({ appState: AppState.Processing });
-      starknetPay.payWithStarknet(
-        strkPayload,
-        handleStarknetPaySuccess,
-        handleStarknetPayFailed
-      );
-    } else {
-      updateSelection({ appState: AppState.Processing });
-      payWithEVM(transactionPayload, handleEVMPaySuccess, handleEVMPayFailed);
-    }
 
-    setTimeout(() => {
+      const isStarknet = currentNetwork.type === ChainTypes.Starknet;
+
+      if (isStarknet) {
+        const strkPayload = {
+          recipient,
+          amount: quote.amountPaid,
+          tokenAddress: contractAddress,
+        };
+        updateSelection({ appState: AppState.Processing });
+        starknetPay.payWithStarknet(
+          strkPayload,
+          handleStarknetPaySuccess,
+          handleStarknetPayFailed
+        );
+      } else {
+        updateSelection({ appState: AppState.Processing });
+        payWithEVM(transactionPayload, handleEVMPaySuccess, handleEVMPayFailed);
+      }
+    } catch (error) {
+      console.error("Error initiating blockchain transaction:", error);
       setLoading(false);
-    }, 7000);
+    }
   };
 
   const handleEVMPaySuccess = (txHash: string) => {
     if (
-      txHash &&
-      transfer?.transferId &&
-      !wrongChainState.isWrongChain &&
-      currentNetwork?.type === ChainTypes.EVM
+      !transfer?.transferId ||
+      !txHash ||
+      wrongChainState.isWrongChain ||
+      currentNetwork?.type !== ChainTypes.EVM
     ) {
-      setTransactionHash(txHash);
-
-      submitTxHashMutation.mutate({
-        transferId: transfer.transferId,
-        txHash: txHash,
-      });
       return;
     }
+
+    setTransactionHash(txHash);
+
+    submitTxHashMutation.mutate({
+      transferId: transfer.transferId,
+      txHash: txHash,
+    });
   };
 
   const handleEVMPayFailed = (error: Error) => {
-    console.log("EVM Transaction failed", error.message);
+    // console.log("EVM Transaction failed", error.message);
     // toast.error("Transaction failed");
     return error;
   };
 
-  const handleStarknetPaySuccess = (txHash: { transaction_hash: string }) => {
-    // console.log("Starknet transaction successful", txHash);
+  const handleStarknetPaySuccess = async (txHash: {
+    transaction_hash: string;
+  }) => {
     const transactionHash = txHash.transaction_hash;
+
     if (
-      // starknetPay.status === "success" &&
-      // starknetPay.data?.transaction_hash &&
-      transactionHash &&
-      transfer?.transferId &&
-      !wrongChainState.isWrongChain &&
-      currentNetwork?.type === ChainTypes.Starknet
+      !transfer?.transferId ||
+      !transactionHash ||
+      wrongChainState.isWrongChain ||
+      currentNetwork?.type !== ChainTypes.Starknet
     ) {
-      setTransactionHash(transactionHash);
-      submitTxHashMutation.mutate({
-        transferId: transfer.transferId,
-        txHash: transactionHash,
-      });
       return;
     }
+
+    setTransactionHash(transactionHash);
+
+    // Wait for 10 seconds
+    await new Promise((resolve) => setTimeout(resolve, 10000));
+
+    submitTxHashMutation.mutate({
+      transferId: transfer.transferId,
+      txHash: transactionHash,
+    });
   };
 
   const handleStarknetPayFailed = (error: Error) => {
-    console.log("Starknet Transaction failed", error.message);
+    // console.log("Starknet Transaction failed", error.message);
     return error;
   };
 
