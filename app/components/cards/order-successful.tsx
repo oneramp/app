@@ -139,8 +139,10 @@ const OrderSuccessful = () => {
             <p>
               Your transfer of{" "}
               <span className="text-white">
-                {quote?.amountPaid} {quote?.cryptoType} ({quote.fiatType}{" "}
-                {quote.fiatAmount})
+                {Number(quote?.amountPaid).toFixed(2).toLocaleString()}{" "}
+                {quote?.cryptoType} (
+                {Number(quote?.fiatAmount).toFixed(2).toLocaleString()}{" "}
+                {quote?.fiatType})
               </span>{" "}
               to Ok has been completed successfully.
             </p>

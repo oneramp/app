@@ -84,7 +84,7 @@ export function TransactionReviewModal() {
       console.log("error", error.message);
     },
     retry: 3,
-    retryDelay: 5000,
+    retryDelay: 10_000,
   });
 
   // Reset states when component unmounts or when starting new transaction
