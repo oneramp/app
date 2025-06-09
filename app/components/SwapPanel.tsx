@@ -47,7 +47,7 @@ export function SwapPanel() {
   const starknetConnected = !!starknetAddress;
 
   const { country, updateSelection } = useUserSelectionStore();
-  const { setAmount } = useAmountStore();
+  const { setAmount, isValid: isAmountValid } = useAmountStore();
 
   // Token balance hook - now fetches balances for all networks
   const { 
@@ -84,10 +84,18 @@ export function SwapPanel() {
     
     // Use the balance for the current network
     const currentChainId = currentNetwork?.chainId;
+    let maxAmount = "0";
+    
     if (currentChainId && allNetworkBalances?.[currentChainId]) {
-      setAmount(allNetworkBalances[currentChainId].formatted);
+      maxAmount = allNetworkBalances[currentChainId].formatted;
     } else {
-      setAmount(tokenBalance);
+      maxAmount = tokenBalance;
+    }
+    
+    // Ensure we don't set an amount greater than the balance
+    const maxBalanceNumber = parseFloat(maxAmount);
+    if (maxBalanceNumber > 0) {
+      setAmount(maxAmount);
     }
   };
 
@@ -246,7 +254,20 @@ export function SwapPanel() {
               buttonClassName="bg-black border-none px-2 md:px-4 rounded-full min-w-[100px] md:min-w-[120px]"
             />
           </div>
-          <ValueInput />
+          <ValueInput 
+            maxBalance={(() => {
+              const currentChainId = currentNetwork?.chainId;
+              if (currentChainId && allNetworkBalances?.[currentChainId]) {
+                return allNetworkBalances[currentChainId].formatted;
+              }
+              return tokenBalance;
+            })()}
+            isWalletConnected={evmConnected || starknetConnected}
+            isBalanceLoading={balanceLoading || ((() => {
+              const currentChainId = currentNetwork?.chainId;
+              return !!(currentChainId && allNetworkBalances?.[currentChainId]?.isLoading);
+            })())}
+          />
         </div>
       </div>
 
@@ -300,7 +321,7 @@ export function SwapPanel() {
         </div>
       ) : (
         <div className="px-3 md:px-4 mt-4">
-          <SubmitButton disabled>SWAP</SubmitButton>
+          <SubmitButton disabled={!isAmountValid}>SWAP</SubmitButton>
         </div>
       )}
 
