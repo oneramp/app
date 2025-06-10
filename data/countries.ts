@@ -116,8 +116,8 @@ export const countries: Country[] = [
     phoneCode: "+234",
     exchangeRate: 1_588.69,
     institutions: countryInstitutions.Nigeria,
-    fiatMinMax: { min: 1_400.69, max: 480_000 },
-    cryptoMinMax: { min: 1, max: 2_500 },
+    fiatMinMax: { min: 2_600, max: 480_000 },
+    cryptoMinMax: { min: 2, max: 2_500 },
     accountNumberLength: {
       bankLength: 10,
       mobileLength: 9,

@@ -115,10 +115,10 @@ export function BuyPanel() {
         </div>
         <Button
           variant="default"
-          className="bg-white hover:bg-gray-100 text-black px-4 md:px-6 py-2 rounded-full text-sm md:text-base font-medium flex items-center gap-2"
+          className="bg-white  hover:bg-gray-100 text-black px-4 md:px-6 py-2 rounded-full text-sm md:text-base font-medium flex items-center gap-2"
           onClick={() => setShowTokenModal(true)}
         >
-          {asset ? (
+          {asset && currentNetwork ? (
             <>
               <Image
                 src={asset.logo}
@@ -135,7 +135,7 @@ export function BuyPanel() {
               )}
             </>
           ) : (
-            <span>Select a token</span>
+            <span className="pl-4">Select a token</span>
           )}
           <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
             <path

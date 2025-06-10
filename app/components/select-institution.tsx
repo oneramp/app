@@ -333,27 +333,20 @@ const SelectInstitution = ({ buy }: { buy?: boolean }) => {
 
     // Update button text based on conditions
     if (!isConnected) {
-      console.log("isConnected", isConnected);
       setButtonText("Connect Wallet");
     } else if (!hasRequiredWallet()) {
-      console.log("hasRequiredWallet", hasRequiredWallet());
       setButtonText(
         currentNetwork?.type === "starknet"
           ? "Connect Starknet Wallet"
           : "Connect EVM Wallet"
       );
-      // }
-      //  else if (!accountNumber) {
-      //   setButtonText("Enter account number");
     } else if (!institution) {
-      console.log("institution", institution);
       if (!buy) {
         setButtonText("Select institution");
       } else {
         setButtonText("Buy");
       }
     } else if (!isAmountValid) {
-      console.log("isAmountValid", isAmountValid);
       setButtonText("Invalid amount");
       // setButtonText("Please fix form errors");
     } else {
@@ -615,10 +608,12 @@ const SelectInstitution = ({ buy }: { buy?: boolean }) => {
           disabled={
             createMutation.isPending ||
             userPayLoad.appState === AppState.Processing ||
-            Object.keys(errors).length > 0
+            Object.keys(errors).length > 0 ||
+            !isAmountValid ||
+            !currentNetwork
           }
           className={`w-full text-white text-base font-bold h-14 mt-2 rounded-2xl ${
-            buttonDisabled
+            buttonDisabled || !isAmountValid || !currentNetwork
               ? "bg-[#232323] hover:bg-[#2a2a2a] cursor-not-allowed"
               : "bg-[#2563eb] hover:bg-[#1d4ed8]"
           }`}

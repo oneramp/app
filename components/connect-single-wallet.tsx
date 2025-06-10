@@ -23,6 +23,7 @@ import { ChainTypes } from "@/types";
 import { useMutation } from "@tanstack/react-query";
 import { getKYC } from "@/actions/kyc";
 import { useKYCStore } from "@/store/kyc-store";
+import { useUserSelectionStore } from "@/store/user-selection";
 
 export const ConnectSingleWallet = ({
   large,
@@ -50,6 +51,7 @@ export const ConnectSingleWallet = ({
   });
 
   const { disconnect: disconnectStarknet } = useDisconnect();
+  const { updateSelection } = useUserSelectionStore();
 
   const { setKycData } = useKYCStore();
 
@@ -149,6 +151,7 @@ export const ConnectSingleWallet = ({
         // Only clear network state after both disconnections complete
         setCurrentNetwork(null);
         clearConnectedNetworks();
+        updateSelection({ address: undefined, pastedAddress: undefined });
       } catch (error) {
         console.error("Error during wallet disconnection:", error);
       }
@@ -164,6 +167,7 @@ export const ConnectSingleWallet = ({
             removeConnectedNetwork(network);
           }
         });
+        updateSelection({ address: undefined, pastedAddress: undefined });
       } catch (error) {
         console.error("Failed to disconnect EVM wallet:", error);
       }

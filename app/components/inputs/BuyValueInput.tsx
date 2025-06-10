@@ -1,12 +1,15 @@
 import { Input } from "@/components/ui/input";
 import { GLOBAL_MIN_MAX } from "@/data/countries";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useAmountStore } from "@/store/amount-store";
+import { useUserSelectionStore } from "@/store/user-selection";
 
 const BuyValueInput = () => {
-  const { amount, setAmount } = useAmountStore();
+  const { amount, setAmount, setIsValid, setMessage, message } =
+    useAmountStore();
   const [isInvalid, setIsInvalid] = useState(false);
+  const { country } = useUserSelectionStore();
 
   const formatNumber = (num: string) => {
     // Remove any non-digit characters except decimal point and first decimal only
@@ -31,14 +34,35 @@ const BuyValueInput = () => {
   };
 
   const validateAmount = (amount: string) => {
+    if (!amount || amount === "") return true;
+    setMessage("");
+
     const numericValue = parseFloat(amount);
-    return (
+
+    // Basic validation
+    const isValidNumber =
       !isNaN(numericValue) &&
       numericValue >= GLOBAL_MIN_MAX.min &&
       numericValue <= GLOBAL_MIN_MAX.max &&
       // Check if decimal places are valid (max 2)
-      (amount.includes(".") ? amount.split(".")[1].length <= 2 : true)
-    );
+      (amount.includes(".") ? amount.split(".")[1].length <= 2 : true);
+
+    if (country && isValidNumber) {
+      const countryMinMax = country.cryptoMinMax;
+      const exceedsMin = numericValue < countryMinMax.min;
+      const exceedsMax = numericValue > countryMinMax.max;
+
+      if (exceedsMin || exceedsMax) {
+        setMessage(
+          exceedsMin
+            ? `Minimum is ${countryMinMax.min} ${country.currency}`
+            : `Maximum is ${countryMinMax.max} ${country.currency}`
+        );
+        return false;
+      }
+    }
+
+    return isValidNumber;
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,9 +71,20 @@ const BuyValueInput = () => {
     // Allow typing decimal point and numbers
     if (rawValue === "" || rawValue === "." || /^\d*\.?\d*$/.test(rawValue)) {
       setAmount(rawValue);
-      setIsInvalid(!validateAmount(rawValue));
+      const isValidAmount = validateAmount(rawValue);
+      setIsInvalid(!isValidAmount);
+      setIsValid(isValidAmount);
     }
   };
+
+  // Re-validate when country changes
+  useEffect(() => {
+    if (amount) {
+      const isValidAmount = validateAmount(amount);
+      setIsInvalid(!isValidAmount);
+      setIsValid(isValidAmount);
+    }
+  }, [country, amount]);
 
   // Calculate dynamic font size based on amount length
   const getFontSize = () => {
@@ -63,6 +98,11 @@ const BuyValueInput = () => {
     return "w-1/2";
   };
 
+  const getTextColor = () => {
+    if (isInvalid) return "text-red-500";
+    return "text-white";
+  };
+
   return (
     <div
       className={cn("relative flex items-center justify-center", getWidth())}
@@ -74,7 +114,7 @@ const BuyValueInput = () => {
             getFontSize()
           )}
         >
-          <span className="text-white font-semibold">$</span>
+          <span className={cn("font-semibold", getTextColor())}>$</span>
         </div>
         <Input
           type="text"
@@ -84,11 +124,17 @@ const BuyValueInput = () => {
           onChange={handleChange}
           className={cn(
             "w-full pl-11 text-left pr-2 py-6 font-semibold outline-none bg-transparent border-none focus:ring-0 focus:border-0 focus-visible:ring-0 focus-visible:border-transparent focus:outline-none leading-none",
-            isInvalid ? "text-red-500" : "text-white",
+            getTextColor(),
             getFontSize(),
             "transition-all duration-200"
           )}
         />
+        {/* Error message */}
+        {isInvalid && message && (
+          <div className="absolute -bottom-4 left-0 right-0 text-xs text-red-400">
+            {message}
+          </div>
+        )}
       </div>
     </div>
   );

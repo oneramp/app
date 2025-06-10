@@ -3,6 +3,7 @@ import { GLOBAL_MIN_MAX } from "@/data/countries";
 import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useAmountStore } from "@/store/amount-store";
+import { useUserSelectionStore } from "@/store/user-selection";
 
 interface ValueInputProps {
   maxBalance?: string;
@@ -10,14 +11,16 @@ interface ValueInputProps {
   isBalanceLoading?: boolean;
 }
 
-const ValueInput: React.FC<ValueInputProps> = ({ 
-  maxBalance = "0", 
+const ValueInput: React.FC<ValueInputProps> = ({
+  maxBalance = "0",
   isWalletConnected = false,
-  isBalanceLoading = false 
+  isBalanceLoading = false,
 }) => {
-  const { amount, setAmount, setIsValid } = useAmountStore();
+  const { amount, setAmount, setIsValid, setMessage, message } =
+    useAmountStore();
   const [isInvalid, setIsInvalid] = useState(false);
   const [balanceExceeded, setBalanceExceeded] = useState(false);
+  const { country } = useUserSelectionStore();
 
   const formatNumber = (num: string) => {
     // Remove any non-digit characters except decimal point and first decimal only
@@ -43,24 +46,40 @@ const ValueInput: React.FC<ValueInputProps> = ({
 
   const validateAmount = (amount: string) => {
     if (!amount || amount === "") return true;
-    
+    setMessage("");
+
     const numericValue = parseFloat(amount);
-    
+
     // Basic validation
-    const isValidNumber = !isNaN(numericValue) &&
+    const isValidNumber =
+      !isNaN(numericValue) &&
       numericValue >= GLOBAL_MIN_MAX.min &&
       numericValue <= GLOBAL_MIN_MAX.max &&
       // Check if decimal places are valid (max 2)
       (amount.includes(".") ? amount.split(".")[1].length <= 2 : true);
-    
+
     // Balance validation (only if wallet is connected)
     if (isWalletConnected && isValidNumber) {
       const maxBalanceNumber = parseFloat(maxBalance);
       const exceedsBalance = numericValue > maxBalanceNumber;
       setBalanceExceeded(exceedsBalance);
+
+      if (country) {
+        const countryMinMax = country.cryptoMinMax;
+        const exceedsMin = numericValue < countryMinMax.min;
+        const exceedsMax = numericValue > countryMinMax.max;
+        setBalanceExceeded(exceedsMin || exceedsMax);
+        setMessage(
+          exceedsMin
+            ? `Minimum is ${countryMinMax.min} ${country.currency}`
+            : `Maximum is ${countryMinMax.max} ${country.currency}`
+        );
+        return isValidNumber && !exceedsBalance && !exceedsMin && !exceedsMax;
+      }
+
       return isValidNumber && !exceedsBalance;
     }
-    
+
     setBalanceExceeded(false);
     return isValidNumber;
   };
@@ -107,9 +126,7 @@ const ValueInput: React.FC<ValueInputProps> = ({
   };
 
   return (
-    <div
-      className={cn("relative flex items-center justify-end", getWidth())}
-    >
+    <div className={cn("relative flex items-center justify-end", getWidth())}>
       <div className="w-full relative">
         <Input
           type="text"
@@ -126,8 +143,8 @@ const ValueInput: React.FC<ValueInputProps> = ({
         />
         {/* Error message for balance exceeded */}
         {balanceExceeded && isWalletConnected && (
-          <div className="absolute -bottom-6 right-0 text-xs text-red-400">
-            Exceeds balance
+          <div className="absolute -bottom-4 right-0 text-xs text-red-400">
+            {message || "Exceeds balance"}
           </div>
         )}
       </div>

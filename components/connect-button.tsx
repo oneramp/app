@@ -148,7 +148,7 @@ export const ConnectButton = ({ large }: { large?: boolean }) => {
         // Only clear network state after both disconnections complete
         setCurrentNetwork(null);
         clearConnectedNetworks();
-        updateSelection({ address: undefined });
+        updateSelection({ address: undefined, pastedAddress: undefined });
       } catch (error) {
         console.error("Error during wallet disconnection:", error);
       }
@@ -164,7 +164,7 @@ export const ConnectButton = ({ large }: { large?: boolean }) => {
             removeConnectedNetwork(network);
           }
         });
-        updateSelection({ address: undefined });
+        updateSelection({ address: undefined, pastedAddress: undefined });
       } catch (error) {
         console.error("Failed to disconnect EVM wallet:", error);
       }
@@ -179,7 +179,7 @@ export const ConnectButton = ({ large }: { large?: boolean }) => {
             removeConnectedNetwork(network);
           }
         });
-        updateSelection({ address: undefined });
+        updateSelection({ address: undefined, pastedAddress: undefined });
       } catch (error) {
         console.error("Failed to disconnect Starknet wallet:", error);
       }
