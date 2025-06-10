@@ -43,7 +43,8 @@ const CopyButton = ({ value }: { value: string }) => {
 };
 
 const OrderProcessing = () => {
-  const { updateSelection, paymentMethod } = useUserSelectionStore();
+  const { updateSelection, paymentMethod, resetToDefault } =
+    useUserSelectionStore();
   const { transfer, resetTransfer } = useTransferStore();
   const [showCancelModal, setShowCancelModal] = useState(false);
   const { quote, resetQuote } = useQuoteStore();
@@ -74,13 +75,15 @@ const OrderProcessing = () => {
     setShowCancelModal(false);
     resetQuote();
     resetTransfer();
-    updateSelection({
-      orderStep: OrderStep.Initial,
-      accountNumber: undefined,
-      institution: undefined,
-      paymentMethod: "momo",
-      pastedAddress: undefined,
-    });
+    // updateSelection({
+    //   orderStep: OrderStep.Initial,
+    //   accountNumber: undefined,
+    //   institution: undefined,
+    //   paymentMethod: "momo",
+    //   pastedAddress: undefined,
+    //   country: undefined,
+    // });
+    resetToDefault();
     router.refresh();
   };
 
@@ -251,14 +254,25 @@ const OrderProcessing = () => {
               </div>
             </div>
           )}
-          <div className="flex  ">
-            <Button
-              variant="ghost"
-              onClick={() => setShowCancelModal(true)}
-              className="text-red-500 hover:text-red-400 hover:bg-red-500/10"
-            >
-              Cancel
-            </Button>
+          <div className="flex flex-row gap-x-2  ">
+            {quote?.transferType === TransferType.TransferIn ? (
+              <Button
+                variant="ghost"
+                onClick={() => setShowCancelModal(true)}
+                className="text-red-500 hover:text-red-400 hover:bg-red-500/10"
+              >
+                Cancel
+              </Button>
+            ) : (
+              <Button
+                variant="ghost"
+                // onClick={() => setShowCancelModal(true)}
+                onClick={handleCancelConfirm}
+                className="text-green-500 hover:text-green-400 hover:bg-green-500/10"
+              >
+                Done
+              </Button>
+            )}
           </div>
         </div>
       </div>

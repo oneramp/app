@@ -526,7 +526,7 @@ export function TransactionReviewModal() {
               <div className="flex justify-between items-center">
                 <span className="text-neutral-400 text-lg">Total value</span>
                 <span className="text-white text-lg font-medium">
-                  {quote.fiatAmount} {quote.fiatType}
+                  {Number(quote.fiatAmount).toFixed(2)} {quote.fiatType}
                 </span>
               </div>
 
