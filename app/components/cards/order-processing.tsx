@@ -3,12 +3,13 @@
 import { getTransferStatus } from "@/actions/transfer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { useQuoteStore } from "@/store/quote-store";
 import { useTransferStore } from "@/store/transfer-store";
 import { useUserSelectionStore } from "@/store/user-selection";
 import { OrderStep, TransferStatusEnum, TransferType } from "@/types";
 import { useQuery } from "@tanstack/react-query";
-import { Check, Copy, Loader } from "lucide-react";
+import { Check, Copy, ExternalLink, Landmark, Loader } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { CancelModal } from "../modals/cancel-modal";
@@ -59,7 +60,7 @@ const OrderProcessing = () => {
       return getTransferStatus(transfer.transferId);
     },
     enabled: !!transfer?.transferId,
-    // refetchInterval: 5000, // Poll every 5 seconds
+    refetchInterval: 5000, // Poll every 5 seconds
   });
 
   useEffect(() => {
@@ -67,7 +68,7 @@ const OrderProcessing = () => {
       transferStatus?.status === TransferStatusEnum.TransferComplete &&
       !isLoading
     ) {
-      // updateSelection({ orderStep: OrderStep.PaymentCompleted });
+      updateSelection({ orderStep: OrderStep.PaymentCompleted });
     }
   }, [transferStatus?.status, isLoading]);
 
@@ -163,30 +164,64 @@ const OrderProcessing = () => {
                 </p>
               </div>
 
-              <div className="flex flex-col space-y-3 bg-[#232323] rounded-xl p-4">
-                <div className="flex w-full items-center justify-between py-3 border-b border-neutral-700">
-                  <p className="text-neutral-400">Account Name</p>
-                  <div className="flex items-center gap-2">
-                    <p className="text-white font-medium">
-                      {transfer?.userActionDetails?.accountName}
-                    </p>
-                    <CopyButton
-                      value={transfer?.userActionDetails?.accountName || ""}
-                    />
+              {paymentLink && (
+                <div
+                  onClick={() => {
+                    window.open(paymentLink, "_blank");
+                  }}
+                  className="flex hover:bg-[#2a2a2a] border-[1px] border-neutral-700 transition-colors hover:cursor-pointer h-20 gap-3 bg-[#232323] items-center justify-between  flex-row rounded-xl p-4"
+                >
+                  <div className="size-12 bg-black rounded-md flex items-center justify-center">
+                    <Landmark className="size-7 text-white" />
                   </div>
-                </div>
+                  <div className="flex flex-1 w-full h-full flex-col">
+                    <h1 className="text-white font-medium">
+                      Pay with {transfer?.userActionDetails?.institutionName}
+                    </h1>
+                    <p className="text-[#666666] text-sm">
+                      Use this link to complete your payment with your bank.
+                    </p>
+                  </div>
 
-                <div className="flex w-full items-center justify-between py-3 border-b border-neutral-700">
-                  <p className="text-neutral-400">Account Number</p>
-                  <div className="flex items-center gap-2">
-                    <p className="text-white font-bold">
-                      {transfer?.userActionDetails?.accountNumber}
-                    </p>
-                    <CopyButton
-                      value={transfer?.userActionDetails?.accountNumber || ""}
-                    />
+                  <div className="size-12 rounded-md  flex justify-end">
+                    <ExternalLink className="size-6 text-white" />
                   </div>
                 </div>
+              )}
+
+              <div
+                className={cn(
+                  "flex flex-col space-y-3 bg-[#232323]  rounded-xl p-4",
+                  paymentLink && "bg-transparent"
+                )}
+              >
+                {!paymentLink && (
+                  <div className="flex w-full items-center justify-between py-3 border-b border-neutral-700">
+                    <p className="text-neutral-400">Account Name</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-white font-medium">
+                        {transfer?.userActionDetails?.accountName}
+                      </p>
+                      <CopyButton
+                        value={transfer?.userActionDetails?.accountName || ""}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {transfer?.userActionDetails?.accountNumber && (
+                  <div className="flex w-full items-center justify-between py-3 border-b border-neutral-700">
+                    <p className="text-neutral-400">Account Number</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-white font-bold">
+                        {transfer?.userActionDetails?.accountNumber}
+                      </p>
+                      <CopyButton
+                        value={transfer?.userActionDetails?.accountNumber || ""}
+                      />
+                    </div>
+                  </div>
+                )}
 
                 <div className="flex w-full items-center justify-between py-3 border-b border-neutral-700">
                   <p className="text-neutral-400">Amount</p>
