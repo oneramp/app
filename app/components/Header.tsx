@@ -153,7 +153,7 @@ export function Header({ logoOnly }: { logoOnly?: boolean }) {
 
   return (
     <nav className="w-full  ">
-      <div className="max-w-[1200px] mx-auto flex justify-between items-center px-6">
+      <div className="max-w-[1200px] mx-auto flex justify-between items-center">
         {/* Logo */}
         {logoOnly ? (
           <div className=" items-center hidden md:flex">
