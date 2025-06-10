@@ -8,18 +8,14 @@ export default function Home() {
   return (
     <div className="min-h-screen w-full">
       <div className="h-full min-h-screen">
-        <div className="grid grid-cols-1 md:grid-cols-3 h-full min-h-screen">
+        <div className="flex flex-col md:grid md:grid-cols-3 h-full min-h-screen">
           {/* Left section - Logo */}
           <div className="hidden md:flex p-4">
             <Header logoOnly />
           </div>
 
           {/* Mobile header - Only shown on mobile */}
-          <div className="flex md:hidden w-full p-4">
-            <Header logoOnly />
-          </div>
-
-          <div className="w-full flex justify-between items-center px-6 md:hidden">
+          <div className="w-full flex justify-between items-center px-6 py-2 h-14 md:hidden">
             <Image
               src="/logos/oneramp-long.png"
               alt="OneRamp"
@@ -34,7 +30,7 @@ export default function Home() {
           </div>
 
           {/* Center section - Main content */}
-          <div className="flex flex-col items-center justify-start md:justify-center w-full py-2 md:py-4">
+          <div className="flex flex-col items-center justify-start w-full pt-6 pb-2 md:pt-16">
             <StateContextProvider />
             <SwapBuyTabs />
           </div>
