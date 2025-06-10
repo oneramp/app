@@ -47,7 +47,11 @@ const AccountDetails = ({ accountNumber }: { accountNumber: string }) => {
   });
 
   useEffect(() => {
-    if (isLoading && kycData && kycData?.message?.link) {
+    // if (isLoading && kycData && kycData?.message?.link) {
+    //   setAppState(AppState.Processing);
+    // }
+
+    if (isLoading) {
       setAppState(AppState.Processing);
     }
 
@@ -66,10 +70,6 @@ const AccountDetails = ({ accountNumber }: { accountNumber: string }) => {
       <div className="text-red-500 text-xs">Error fetching account details</div>
     );
   }
-
-  // console.log("====================================");
-  // console.log("kycData", kycData);
-  // console.log("====================================");
 
   return (
     <div className="mb-2 flex flex-col gap-4">

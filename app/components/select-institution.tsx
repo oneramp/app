@@ -327,7 +327,8 @@ const SelectInstitution = ({ buy }: { buy?: boolean }) => {
       !hasRequiredWallet() ||
       !accountNumber ||
       !country ||
-      !isAmountValid;
+      !isAmountValid ||
+      userPayLoad.appState === AppState.Processing;
     // || Object.keys(errors).length > 0;
     setButtonDisabled(isDisabled);
 
