@@ -25,6 +25,7 @@ import { useEffect, useState } from "react";
 import { parseUnits } from "viem";
 import AssetAvator from "../cards/asset-avator";
 import { CancelModal } from "./cancel-modal";
+import { assets } from "@/data/currencies";
 
 interface WrongChainState {
   isWrongChain: boolean;
@@ -86,6 +87,18 @@ export function TransactionReviewModal() {
       console.error("Transaction submission error:", error);
     },
   });
+
+  useEffect(() => {
+    // If there's no asset, and there's a quote, then use the asset from the quote to set the asset in the user selection store
+    if (!asset && quote) {
+      const getAsset = assets.find(
+        (asset) => asset.symbol === quote.cryptoType
+      );
+      if (getAsset) {
+        updateSelection({ asset: getAsset });
+      }
+    }
+  }, [asset, quote]);
 
   useEffect(() => {
     // First reset the submitTxHashMutation when the component mounts

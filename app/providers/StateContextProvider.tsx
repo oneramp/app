@@ -13,23 +13,34 @@ import { useKYCStore } from "@/store/kyc-store";
 
 const StateContextProvider = () => {
   const { orderStep } = useUserSelectionStore();
-
   const { address } = useWalletGetInfo();
-  const { setKycData } = useKYCStore();
+  const { setKycData, clearKycData } = useKYCStore();
 
+  // Reset KYC data when address changes
+  useEffect(() => {
+    if (!address) {
+      clearKycData();
+    }
+  }, [address, clearKycData]);
+
+  // Fetch KYC data only when we have an address
   const getKYCQuery = useQuery({
-    queryKey: ["kyc"],
-    queryFn: async () => await getKYC(address as string),
+    queryKey: ["kyc", address], // Add address to query key to refetch on address change
+    queryFn: async () => {
+      if (!address) return null;
+      return await getKYC(address);
+    },
     enabled: !!address,
-    // refetchInterval: 10000,
     refetchOnWindowFocus: true,
   });
 
+  // Update KYC data only when we have valid data
   useEffect(() => {
-    if (getKYCQuery.data) {
-      setKycData(getKYCQuery.data);
+    const kycData = getKYCQuery.data;
+    if (kycData) {
+      setKycData(kycData);
     }
-  }, [getKYCQuery.data]);
+  }, [getKYCQuery.data, setKycData]);
 
   if (orderStep === OrderStep.Initial) {
     return null;

@@ -132,10 +132,10 @@ const OrderProcessing = () => {
         <div className="flex flex-col gap-4">
           <Badge
             variant="outline"
-            className="text-green-500 p-2 border-none bg-neutral-800  rounded-full px-3 flex flex-row items-center justify-center gap-2"
+            className="text-yellow-500 p-2 border-none bg-neutral-800  rounded-full px-3 flex flex-row items-center justify-center gap-2"
           >
             <Loader className="size-10 animate-spin" />
-            <h2 className="text-sm">Fulfilled</h2>
+            <h2 className="text-sm">Processing</h2>
           </Badge>
 
           {paymentMethod === "bank" &&

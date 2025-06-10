@@ -14,7 +14,7 @@ export const createTransferIn = async (
 ) => {
   try {
     if (!payload.operator || !payload.quoteId) {
-      return new Error("Invalid payload", { cause: payload });
+      throw new Error("Invalid payload", { cause: payload });
     }
 
     const idompetancyKey = uuidv4();
@@ -34,7 +34,7 @@ export const createTransferOut = async (
 ) => {
   try {
     if (!payload.operator || !payload.quoteId) {
-      return new Error("Invalid payload", { cause: payload });
+      throw new Error("Invalid payload", { cause: payload });
     }
 
     const idompetancyKey = uuidv4();

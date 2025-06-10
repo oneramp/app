@@ -67,6 +67,10 @@ const AccountDetails = ({ accountNumber }: { accountNumber: string }) => {
     );
   }
 
+  // console.log("====================================");
+  // console.log("kycData", kycData);
+  // console.log("====================================");
+
   return (
     <div className="mb-2 flex flex-col gap-4">
       <KYCVerificationModal
