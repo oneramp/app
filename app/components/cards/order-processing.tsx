@@ -255,7 +255,7 @@ const OrderProcessing = () => {
             </div>
           )}
           <div className="flex flex-row gap-x-2  ">
-            {quote?.transferType === TransferType.TransferIn ? (
+            {/* {quote?.transferType === TransferType.TransferIn ? (
               <Button
                 variant="ghost"
                 onClick={() => setShowCancelModal(true)}
@@ -264,6 +264,7 @@ const OrderProcessing = () => {
                 Cancel
               </Button>
             ) : (
+              // <></>
               <Button
                 variant="ghost"
                 // onClick={() => setShowCancelModal(true)}
@@ -272,7 +273,15 @@ const OrderProcessing = () => {
               >
                 Done
               </Button>
-            )}
+            )} */}
+            <Button
+              variant="ghost"
+              // onClick={() => setShowCancelModal(true)}
+              onClick={handleCancelConfirm}
+              className="text-green-500 hover:text-green-400 hover:bg-green-500/10"
+            >
+              Done
+            </Button>
           </div>
         </div>
       </div>
