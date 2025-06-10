@@ -198,21 +198,21 @@ export const countries: Country[] = [
       mobileLength: 10,
     },
   },
-  // {
-  //   name: "South Africa",
-  //   logo: "/logos/southafrica.png",
-  //   currency: "ZAR",
-  //   countryCode: "ZA",
-  //   phoneCode: "+27",
-  //   exchangeRate: 18.57,
-  //   institutions: countryInstitutions.SouthAfrica,
-  //   fiatMinMax: { min: 18.35, max: 35_000 },
-  //   cryptoMinMax: { min: 5, max: 2_500 },
-  //   accountNumberLength: {
-  //     bankLength: 13,
-  //     mobileLength: 10,
-  //   },
-  // },
+  {
+    name: "South Africa",
+    logo: "/logos/southafrica.png",
+    currency: "ZAR",
+    countryCode: "ZA",
+    phoneCode: "+27",
+    exchangeRate: 18.57,
+    institutions: countryInstitutions.SouthAfrica,
+    fiatMinMax: { min: 300, max: 35_000 },
+    cryptoMinMax: { min: 15, max: 2_500 },
+    accountNumberLength: {
+      bankLength: 13,
+      mobileLength: 10,
+    },
+  },
 ];
 
 export const GLOBAL_MIN_MAX = {

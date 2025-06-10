@@ -59,7 +59,7 @@ const OrderProcessing = () => {
       return getTransferStatus(transfer.transferId);
     },
     enabled: !!transfer?.transferId,
-    refetchInterval: 5000, // Poll every 5 seconds
+    // refetchInterval: 5000, // Poll every 5 seconds
   });
 
   useEffect(() => {
@@ -67,7 +67,7 @@ const OrderProcessing = () => {
       transferStatus?.status === TransferStatusEnum.TransferComplete &&
       !isLoading
     ) {
-      updateSelection({ orderStep: OrderStep.PaymentCompleted });
+      // updateSelection({ orderStep: OrderStep.PaymentCompleted });
     }
   }, [transferStatus?.status, isLoading]);
 
@@ -86,6 +86,12 @@ const OrderProcessing = () => {
     resetToDefault();
     router.refresh();
   };
+
+  const paymentLink = transfer?.userActionDetails?.paymentLink;
+
+  console.log("====================================");
+  console.log("paymentLink", paymentLink);
+  console.log("====================================");
 
   return (
     <div className="fixed inset-0 z-50 flex-col md:flex-row flex py-20  justify-center bg-[#181818] gap-x-16">

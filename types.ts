@@ -137,6 +137,7 @@ export interface Transfer {
     transactionReference: string;
     userActionType: string;
     institutionName: string;
+    paymentLink?: string;
   };
   transactionHash?: string;
 }
