@@ -248,12 +248,12 @@ export function KYCVerificationModal({
             id="terms"
             checked={accepted}
             onCheckedChange={(checked) => setAccepted(checked as boolean)}
-            className="mt-1"
+            className="mt-1 !text-white"
           />
           <label htmlFor="terms" className="text-neutral-400 text-sm">
-            By clicking &quot;Accept&quot; below, you are agreeing to
-            the KYC Policy and hereby request an identity verification check for
-            your wallet address.
+            By clicking &quot;Accept&quot; below, you are agreeing to the KYC
+            Policy and hereby request an identity verification check for your
+            wallet address.
           </label>
         </div>
 
@@ -261,7 +261,7 @@ export function KYCVerificationModal({
           <Button
             variant="ghost"
             onClick={onClose}
-            className="flex-1 py-6 text-neutral-400 hover:text-white hover:bg-neutral-800"
+            className="flex-1 py-6 !text-neutral-400 hover:text-white hover:bg-neutral-800"
           >
             No, thanks
           </Button>
