@@ -22,7 +22,7 @@ export function NetworkSelector({
   canSwitch,
   buttonClassName = "",
   iconSize = 28,
-  disabled = false,
+  disabled = true,
 }: NetworkSelectorProps) {
   const [showNetworkModal, setShowNetworkModal] = useState(false);
 
@@ -51,7 +51,7 @@ export function NetworkSelector({
           className="rounded-full"
         />
         <span className="text-white font-medium">{selectedNetwork.name}</span>
-        <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+        {/* <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
           <path
             d="M7 10l5 5 5-5"
             stroke="#fff"
@@ -59,7 +59,7 @@ export function NetworkSelector({
             strokeLinecap="round"
             strokeLinejoin="round"
           />
-        </svg>
+        </svg> */}
       </Button>
 
       <NetworkSelectModal

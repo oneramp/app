@@ -1,10 +1,23 @@
+"use client";
+
 import { ModalConnectButton } from "@/components/modal-connect-button";
 import Image from "next/image";
 import { Header } from "./components/Header";
 import { SwapBuyTabs } from "./components/SwapBuyTabs";
 import StateContextProvider from "./providers/StateContextProvider";
+import { useMiniKit } from "@coinbase/onchainkit/minikit";
+import { useEffect } from "react";
 
 export default function Home() {
+  const { setFrameReady, isFrameReady } = useMiniKit();
+
+  // The setFrameReady() function is called when your mini-app is ready to be shown
+  useEffect(() => {
+    if (!isFrameReady) {
+      setFrameReady();
+    }
+  }, [setFrameReady, isFrameReady]);
+
   return (
     <div className="min-h-screen w-full">
       <div className="h-full min-h-screen">

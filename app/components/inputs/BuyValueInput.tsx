@@ -86,13 +86,6 @@ const BuyValueInput = () => {
     }
   }, [country, amount]);
 
-  // Calculate dynamic font size based on amount length
-  const getFontSize = () => {
-    if (amount.length > 12) return "text-[1.25rem] md:text-[1.5rem]";
-    if (amount.length > 9) return "text-[1.5rem] md:text-[1.75rem]";
-    return "text-[2rem] md:text-[3rem]";
-  };
-
   const getWidth = () => {
     if (amount.length > 3) return "w-full";
     return "w-1/2";
@@ -105,13 +98,15 @@ const BuyValueInput = () => {
 
   return (
     <div
-      className={cn("relative flex items-center justify-center", getWidth())}
+      className={cn(
+        "relative flex items-center my-4 justify-center",
+        getWidth()
+      )}
     >
-      <div className="w-full relative">
+      <div className="w-full relative flex flex-row">
         <div
           className={cn(
-            "absolute pointer-events-none flex items-center h-full pl-3",
-            getFontSize()
+            "pointer-events-none flex items-center h-full  text-4xl"
           )}
         >
           <span className={cn("font-semibold", getTextColor())}>$</span>
@@ -123,9 +118,8 @@ const BuyValueInput = () => {
           value={formatNumber(amount)}
           onChange={handleChange}
           className={cn(
-            "w-full pl-11 text-left pr-2 py-6 font-semibold outline-none bg-transparent border-none focus:ring-0 focus:border-0 focus-visible:ring-0 focus-visible:border-transparent focus:outline-none leading-none",
+            "w-full bg-transparent text-left  text-5xl  font-semibold outline-none border-none focus:ring-0 focus:border-0 focus-visible:ring-0 focus-visible:border-transparent focus:outline-none leading-none",
             getTextColor(),
-            getFontSize(),
             "transition-all duration-200"
           )}
         />

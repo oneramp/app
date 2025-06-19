@@ -105,13 +105,6 @@ const ValueInput: React.FC<ValueInputProps> = ({
     }
   }, [maxBalance, isWalletConnected, amount]);
 
-  // Calculate dynamic font size based on amount length
-  const getFontSize = () => {
-    if (amount.length > 12) return "text-[1.25rem] md:text-[1.5rem]";
-    if (amount.length > 9) return "text-[1.5rem] md:text-[1.75rem]";
-    return "text-[2rem] md:text-[2.5rem]";
-  };
-
   const getWidth = () => {
     if (amount.length > 3) return "w-2/3";
     if (amount.length > 6) return "w-full";
@@ -135,9 +128,8 @@ const ValueInput: React.FC<ValueInputProps> = ({
           value={formatNumber(amount)}
           onChange={handleChange}
           className={cn(
-            "w-full text-right pr-2 !leading-tight py-4 font-semibold outline-none bg-transparent border-none focus:ring-0 focus:border-0 focus-visible:ring-0 focus-visible:border-transparent focus:outline-none",
+            "w-full text-right pr-2 !leading-tight py-4 font-semibold text-4xl md:text-5xl outline-none bg-transparent border-none focus:ring-0 focus:border-0 focus-visible:ring-0 focus-visible:border-transparent focus:outline-none",
             getTextColor(),
-            getFontSize(),
             "transition-all duration-200"
           )}
         />

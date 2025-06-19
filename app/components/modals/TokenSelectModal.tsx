@@ -6,6 +6,7 @@ import { useState } from "react";
 import AssetCard from "../cards/asset-card";
 import { useNetworkStore } from "@/store/network";
 import { useUserSelectionStore } from "@/store/user-selection";
+import { X } from "lucide-react";
 
 interface TokenSelectModalProps {
   open: boolean;
@@ -13,7 +14,7 @@ interface TokenSelectModalProps {
 }
 
 export function TokenSelectModal({ open, onClose }: TokenSelectModalProps) {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery] = useState("");
   const [selectedNetwork, setSelectedNetwork] = useState("All Networks");
   const [showNetworkDropdown, setShowNetworkDropdown] = useState(false);
 
@@ -50,10 +51,11 @@ export function TokenSelectModal({ open, onClose }: TokenSelectModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="bg-[#232323] w-[95%] max-w-md shadow-2xl h-screen flex flex-col">
+      <div className="bg-[#232323] w-full max-w-md shadow-2xl h-screen flex flex-col">
         {/* Header */}
-        <div className="flex items-center p-5 border-b border-[#3a4155]">
-          <button
+        <div className="flex items-center py-4 border-b border-[#3a4155]">
+          <Button
+            variant="ghost"
             className="text-neutral-400 hover:text-white mr-4"
             onClick={onClose}
           >
@@ -66,21 +68,28 @@ export function TokenSelectModal({ open, onClose }: TokenSelectModalProps) {
                 strokeLinejoin="round"
               />
             </svg>
-          </button>
+          </Button>
           <h3 className="text-xl text-white font-medium flex-1 text-center">
             Select A Token
           </h3>
+
+          <Button
+            variant="ghost"
+            className="text-neutral-400 hover:text-white mr-4"
+            onClick={onClose}
+          >
+            <X className="text-white" />
+          </Button>
         </div>
 
         {/* Search and Filter Area */}
-        <div className="p-4 flex gap-4">
-          {/* Search Input */}
-          <div className="relative flex-1">
-            <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+        <div className="p-4 flex gap-3 flex-col sm:flex-row">
+          {/* <div className="relative flex-1">
+            <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
               <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
                 <path
                   d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  stroke="#999"
+                  stroke="#888"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -92,15 +101,15 @@ export function TokenSelectModal({ open, onClose }: TokenSelectModalProps) {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Type a currency"
-              className="w-full bg-[#1f2533] text-white py-3 pl-10 pr-4 rounded-xl border border-[#3a4155] focus:outline-none"
+              className="w-full bg-[#23232a] text-white placeholder:text-[#aaa] py-4 pl-12 pr-4 rounded-full border border-[#333] shadow-sm focus:outline-none focus:border-[#bcbcff] focus:ring-2 focus:ring-[#bcbcff]/20 transition-all text-lg"
             />
-          </div>
+          </div> */}
 
           {/* Network Filter Dropdown */}
-          <div className="relative">
-            <button
+          <div className="relative flex-1 min-w-[160px]">
+            {/* <button
               onClick={() => setShowNetworkDropdown(!showNetworkDropdown)}
-              className="bg-[#1f2533] text-white py-3 px-4 rounded-xl border border-[#3a4155] flex items-center gap-2 min-w-[160px]"
+              className="w-full bg-[#23232a] text-white py-4 px-6 rounded-full border border-[#333] flex items-center gap-2 justify-between shadow-sm focus:outline-none focus:border-[#bcbcff] focus:ring-2 focus:ring-[#bcbcff]/20 transition-all text-lg"
             >
               <span>{selectedNetwork}</span>
               <svg
@@ -120,11 +129,11 @@ export function TokenSelectModal({ open, onClose }: TokenSelectModalProps) {
                   strokeLinejoin="round"
                 />
               </svg>
-            </button>
+            </button> */}
 
             {/* Network Dropdown Menu */}
             {showNetworkDropdown && (
-              <div className="absolute right-0 mt-2 bg-[#1f2533] border border-[#3a4155] rounded-xl w-full z-10 shadow-lg">
+              <div className="absolute right-0 mt-2 bg-[#23232a] border border-[#333] rounded-xl w-full z-10 shadow-lg">
                 <Button
                   key="all-networks"
                   className={`w-full text-left px-4 py-2 text-white hover:bg-[#3a4155] ${

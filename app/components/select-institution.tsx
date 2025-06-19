@@ -485,9 +485,9 @@ const SelectInstitution = ({ buy }: { buy?: boolean }) => {
                 setValue("accountNumber", "");
                 updateSelection({ paymentMethod: undefined });
               }}
-              className="bg-transparent border w-1/3 h-full border-[#444] text-neutral-400 rounded-full p-3 cursor-pointer flex items-center justify-center"
+              className="bg-transparent border w-1/3 h-full border-neutral-600 text-neutral-400 rounded-full p-3 cursor-pointer flex items-center justify-center"
             >
-              <span className="line-clamp-1">
+              <span className="line-clamp-1 text-white">
                 {institution?.name || "Select institution"}
               </span>
               <svg width="16" height="16" fill="none" viewBox="0 0 24 24">

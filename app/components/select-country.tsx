@@ -94,9 +94,7 @@ const SelectCountry = () => {
         <div className="flex-1 text-right">
           <span
             className={cn(
-              "text-3xl font-semibold",
-              "text-neutral-300",
-              isAmountValid ? "" : ""
+              "text-2xl md:text-4xl font-semibold text-neutral-300"
             )}
           >
             {calculatedAmount

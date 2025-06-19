@@ -211,7 +211,7 @@ export function SwapPanel() {
       </div>
 
       {/* From Panel */}
-      <div className="mx-3 md:mx-4 mt-2 bg-[#232323] rounded-2xl p-4 md:p-5 flex flex-col gap-2 relative">
+      <div className="mx-3 md:mx-4 mt-2 mb-2 bg-[#232323] rounded-2xl p-4 md:p-5 flex flex-col gap-2 relative">
         <div className="flex items-center justify-between mb-2">
           <span className="text-neutral-200 text-base md:text-lg font-medium">
             From
@@ -284,26 +284,21 @@ export function SwapPanel() {
         </div>
       </div>
 
-      {/* Arrow in the middle */}
-      <div
-        className="flex justify-center relative z-20 mt-1"
-        style={{ height: 0 }}
-      >
-        <div className="absolute left-1/2 -translate-x-1/2 -top-6">
-          <div
-            className="bg-[#181818] border-4 border-[#232323] rounded-xl p-2 md:p-3 shadow-lg flex items-center justify-center"
-            style={{ width: 48, height: 48 }}
-          >
-            <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
-              <path
-                d="M12 5v14m0 0l-5-5m5 5l5-5"
-                stroke="#fff"
-                strokeWidth="2"
-                strokeLinecap="square"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </div>
+      {/* Arrow in the middle, visually bridging the two panels */}
+      <div className="flex justify-center -my-6 z-20">
+        <div
+          className="bg-[#181818] border-4 border-[#232323] rounded-xl p-2 md:p-3 shadow-lg flex items-center justify-center"
+          style={{ width: 48, height: 48 }}
+        >
+          <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
+            <path
+              d="M12 5v14m0 0l-5-5m5 5l5-5"
+              stroke="#fff"
+              strokeWidth="2"
+              strokeLinecap="square"
+              strokeLinejoin="round"
+            />
+          </svg>
         </div>
       </div>
 
