@@ -25,14 +25,14 @@ export function MainTabsSwitch() {
         <TabsTrigger
           value="Swap"
           onClick={washTheseFields}
-          className="data-[state=active]:bg-neutral-800 text-sm data-[state=active]:text-white data-[state=active]:font-bold text-neutral-400 rounded-full transition-all"
+          className="data-[state=active]:!bg-neutral-800 text-sm data-[state=active]:!text-white data-[state=active]:font-bold text-neutral-400 rounded-full transition-all"
         >
           Swap
         </TabsTrigger>
         <TabsTrigger
           value="Buy"
           onClick={washTheseFields}
-          className="data-[state=active]:bg-neutral-800 text-sm data-[state=active]:text-white data-[state=active]:font-bold text-neutral-400 rounded-full transition-all"
+          className="data-[state=active]:!bg-neutral-800 text-sm data-[state=active]:!text-white data-[state=active]:font-bold text-neutral-400 rounded-full transition-all"
         >
           Buy
         </TabsTrigger>

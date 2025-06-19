@@ -287,7 +287,7 @@ export function SwapPanel() {
       {/* Arrow in the middle, visually bridging the two panels */}
       <div className="flex justify-center -my-6 z-20">
         <div
-          className="bg-[#181818] border-4 border-[#232323] rounded-xl p-2 md:p-3 shadow-lg flex items-center justify-center"
+          className="bg-[#181818] border-4 !border-[#232323] rounded-xl p-2 md:p-3 shadow-lg flex items-center justify-center"
           style={{ width: 48, height: 48 }}
         >
           <svg width="24" height="24" fill="none" viewBox="0 0 24 24">

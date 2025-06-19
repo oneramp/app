@@ -112,10 +112,10 @@ const ValueInput: React.FC<ValueInputProps> = ({
   };
 
   const getTextColor = () => {
-    if (isBalanceLoading) return "text-yellow-400";
-    if (balanceExceeded) return "text-red-400";
-    if (isInvalid) return "text-red-500";
-    return "text-white";
+    if (isBalanceLoading) return "!text-yellow-400";
+    if (balanceExceeded) return "!text-red-400";
+    if (isInvalid) return "!text-red-500";
+    return "!text-white";
   };
 
   return (
@@ -128,7 +128,7 @@ const ValueInput: React.FC<ValueInputProps> = ({
           value={formatNumber(amount)}
           onChange={handleChange}
           className={cn(
-            "w-full text-right pr-2 !leading-tight py-4 font-semibold text-4xl md:text-5xl outline-none bg-transparent border-none focus:ring-0 focus:border-0 focus-visible:ring-0 focus-visible:border-transparent focus:outline-none",
+            "w-full text-right pr-2 !leading-tight py-4  font-semibold !text-4xl outline-none bg-transparent border-none focus:ring-0 focus:border-0 focus-visible:ring-0 focus-visible:border-transparent focus:outline-none",
             getTextColor(),
             "transition-all duration-200"
           )}

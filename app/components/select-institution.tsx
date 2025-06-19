@@ -485,7 +485,7 @@ const SelectInstitution = ({ buy }: { buy?: boolean }) => {
                 setValue("accountNumber", "");
                 updateSelection({ paymentMethod: undefined });
               }}
-              className="bg-transparent border w-1/3 h-full border-neutral-600 text-neutral-400 rounded-full p-3 cursor-pointer flex items-center justify-center"
+              className="bg-transparent border w-1/3 h-full !border-neutral-600 text-neutral-400 rounded-full p-3 cursor-pointer flex items-center justify-center"
             >
               <span className="line-clamp-1 text-white">
                 {institution?.name || "Select institution"}
@@ -532,7 +532,7 @@ const SelectInstitution = ({ buy }: { buy?: boolean }) => {
                     },
                   },
                 })}
-                className={`bg-transparent border border-[#444] text-lg text-white font-medium rounded-full h-full pl-6 w-full focus:outline-none ${
+                className={`bg-transparent border !border-neutral-600 text-lg text-white font-medium rounded-full h-full pl-6 w-full focus:outline-none ${
                   touchedFields.accountNumber && errors.accountNumber
                     ? "border-red-500 focus:border-red-500"
                     : "focus:border-purple-400"
@@ -589,7 +589,7 @@ const SelectInstitution = ({ buy }: { buy?: boolean }) => {
                   message: "Invalid wallet address format",
                 },
               })}
-              className={`bg-transparent text-white w-full focus:outline-none p-3 outline-none border-none ${
+              className={`bg-transparent text-white w-full focus:outline-none p-3 outline-none !border-none ${
                 errors.walletAddress ? "border-red-500" : ""
               }`}
             />
@@ -613,10 +613,10 @@ const SelectInstitution = ({ buy }: { buy?: boolean }) => {
             !isAmountValid ||
             !currentNetwork
           }
-          className={`w-full text-white text-base font-bold h-14 mt-2 rounded-2xl ${
+          className={`w-full  text-white text-base font-bold h-14 mt-2 rounded-2xl ${
             buttonDisabled || !isAmountValid || !currentNetwork
-              ? "bg-[#232323] hover:bg-[#2a2a2a] cursor-not-allowed"
-              : "bg-[#2563eb] hover:bg-[#1d4ed8]"
+              ? "!bg-[#232323] !hover:bg-[#2a2a2a] cursor-not-allowed"
+              : "!bg-[#2563eb] !hover:bg-[#1d4ed8]"
           }`}
         >
           {createMutation.isPending ? (
@@ -641,8 +641,8 @@ const SelectInstitution = ({ buy }: { buy?: boolean }) => {
             }
             className={`w-full text-white text-base font-bold h-14 mt-2 rounded-2xl ${
               buttonDisabled
-                ? "bg-[#232323] hover:bg-[#2a2a2a] cursor-not-allowed"
-                : "bg-[#2563eb] hover:bg-[#1d4ed8]"
+                ? "!bg-[#232323] !hover:bg-[#2a2a2a] cursor-not-allowed"
+                : "!bg-[#2563eb] !hover:bg-[#1d4ed8]"
             }`}
           >
             {createMutation.isPending ? (
