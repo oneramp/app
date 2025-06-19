@@ -5,7 +5,6 @@ import { VerifyAccountDetailsRequest } from "@/types";
 
 export async function getInstitutions(country: string, method = "buy") {
   try {
-    console.log("getInstitutions", country, method);
     if (!country) {
       throw new Error("Country is required");
     }
