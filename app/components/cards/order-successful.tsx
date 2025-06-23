@@ -199,7 +199,10 @@ const OrderSuccessful = () => {
               </div>
             )}
           </div>
-          <Button onClick={handleBackClick} className="w-full">
+          <Button
+            onClick={handleBackClick}
+            className="w-full !text-green-500 hover:!text-green-400 hover:!bg-green-500/10 !bg-transparent"
+          >
             Go to home
           </Button>
         </div>
