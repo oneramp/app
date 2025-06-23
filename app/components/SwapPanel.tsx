@@ -100,7 +100,7 @@ export function SwapPanel() {
         <div className="flex items-center gap-3">
           <span className="text-xl md:text-2xl font-bold text-white">Swap</span>
           <div className="relative">
-            <Button
+            {/* <Button
               variant="default"
               className="flex items-center gap-2 bg-[#232323] border-none px-3 md:px-4 py-2 rounded-full min-w-[80px] md:min-w-[90px]"
               onClick={() => setShowDropdown((v) => !v)}
@@ -125,7 +125,20 @@ export function SwapPanel() {
                   strokeLinejoin="round"
                 />
               </svg>
-            </Button>
+            </Button> */}
+
+            <div className="flex items-center gap-2 bg-[#232323] border-none px-3 md:px-4 py-2 rounded-full min-w-[80px] md:min-w-[90px]">
+              <Image
+                src={selectedCurrency.logo}
+                alt={selectedCurrency.symbol}
+                width={20}
+                height={20}
+                className="rounded-full"
+              />
+              <span className="text-white text-sm md:text-base font-medium pr-4">
+                {selectedCurrency.symbol}
+              </span>
+            </div>
             <div
               className={`absolute left-0 mt-2 w-full bg-[#232323] rounded-2xl shadow-lg z-30 border border-[#6b6b6b] origin-top transition-all duration-200 ease-out transform ${
                 showDropdown

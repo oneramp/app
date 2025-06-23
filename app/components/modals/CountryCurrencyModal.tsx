@@ -29,21 +29,6 @@ export function CountryCurrencyModal({
         <div className="flex flex-col h-full w-full">
           <div className="flex items-center justify-between px-6 py-5 border-b border-[#232323]">
             <h2 className="text-2xl font-bold">Select Country</h2>
-            <button
-              onClick={onClose}
-              className="p-3 hover:bg-[#23232f] rounded-full transition-colors"
-              aria-label="Close"
-            >
-              <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
-                <path
-                  d="M18 6L6 18M6 6l12 12"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
           </div>
           <div className="flex-1 overflow-y-auto px-4 py-6 flex flex-col gap-4">
             {countries.map((country) => (
