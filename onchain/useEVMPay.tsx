@@ -44,7 +44,12 @@ EVMPayHookReturn => {
   const [mockTransactionReceipt, setMockTransactionReceipt] =
     useState<TransactionReceipt | null>(null);
 
-  const { writeContract, data: hash, reset: resetWrite } = useWriteContract();
+  const {
+    writeContract,
+    data: hash,
+    reset: resetWrite,
+    isError: isWriteError,
+  } = useWriteContract();
   const {
     isLoading,
     isSuccess,
@@ -110,7 +115,7 @@ EVMPayHookReturn => {
     payWithEVM: MOCK_TRANSACTIONS ? mockPayWithEVM : payWithEVM,
     isLoading: MOCK_TRANSACTIONS ? mockLoading : isLoading,
     isSuccess: MOCK_TRANSACTIONS ? mockSuccess : isSuccess,
-    isError: MOCK_TRANSACTIONS ? false : isError,
+    isError: MOCK_TRANSACTIONS ? false : isError || isWriteError,
     transactionReceipt: MOCK_TRANSACTIONS
       ? mockTransactionReceipt
       : transactionReceipt || null,
