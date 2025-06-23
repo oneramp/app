@@ -101,6 +101,12 @@ export function TransactionReviewModal() {
   }, [asset, quote]);
 
   useEffect(() => {
+    if (isError) {
+      setLoading(false);
+    }
+  }, [isError]);
+
+  useEffect(() => {
     // First reset the submitTxHashMutation when the component mounts
     submitTxHashMutation.reset();
     submitTransferIn.reset();
@@ -512,6 +518,7 @@ export function TransactionReviewModal() {
               Verify transaction details before you send
             </p>
 
+            {/* <h1 className="!text-red-500">{isError ? "Error" : "No error"}</h1> */}
             <div className="space-y-5">
               {/* Amount */}
               <div className="flex justify-between items-center">
