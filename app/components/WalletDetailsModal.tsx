@@ -5,11 +5,9 @@ import { Button } from "@/components/ui/button";
 import { StarknetkitConnector, useStarknetkitConnectModal } from "starknetkit";
 import { useConnect, Connector } from "@starknet-react/core";
 
-
 interface WalletDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  buttonPosition?: { top: number; right: number };
   evmAddress?: string;
   evmConnected: boolean;
   starknetAddress?: string;
@@ -21,7 +19,6 @@ interface WalletDetailsModalProps {
 export function WalletDetailsModal({
   isOpen,
   onClose,
-  buttonPosition,
   evmAddress,
   evmConnected,
   starknetAddress,
@@ -30,7 +27,7 @@ export function WalletDetailsModal({
 }: WalletDetailsModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
 
-  // Starknet connection function 
+  // Starknet connection function
   const { connect, connectors } = useConnect();
   const { starknetkitConnectModal } = useStarknetkitConnectModal({
     connectors: connectors as StarknetkitConnector[],
@@ -98,23 +95,12 @@ export function WalletDetailsModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 pointer-events-none"
+      className="fixed inset-0 z-50 pointer-events-none flex items-center justify-center p-4 md:p-6"
       aria-hidden={!isOpen}
     >
       <div
         ref={modalRef}
-        className="absolute pointer-events-auto rounded-xl bg-[#1c1c1c] shadow-xl border border-[#333] w-[320px] overflow-hidden"
-        style={
-          buttonPosition
-            ? {
-                top: `${buttonPosition.top + 10}px`,
-                right: `${buttonPosition.right}px`,
-              }
-            : {
-                top: "70px",
-                right: "20px",
-              }
-        }
+        className="pointer-events-auto rounded-xl bg-[#1c1c1c] shadow-xl border border-[#333] w-full max-w-[320px] max-h-[90vh] md:max-h-[80vh] overflow-y-auto"
       >
         <div className="p-4 border-b border-[#333]">
           <div className="flex justify-between items-center">

@@ -199,7 +199,8 @@ export const ConnectButton = ({ large }: { large?: boolean }) => {
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="!fixed !inset-0 !top-0 !left-0 !right-0 !bottom-0 !w-screen !h-screen !max-w-none !max-h-none !rounded-none !m-0 !border-none !shadow-none !p-0 flex flex-col bg-[#181818] z-[9999]">
+
+      <DialogContent className="fixed inset-0 z-50 w-screen h-screen max-w-none max-h-none p-0 bg-[#181818] text-white flex flex-col translate-x-0 translate-y-0 top-0 left-0">
         <div className="h-14 mb-4 px-3 flex items-center justify-between">
           <h1 className="text-white text-xl font-semibold">My Wallets</h1>
           <DialogClose asChild>
@@ -215,11 +216,11 @@ export const ConnectButton = ({ large }: { large?: boolean }) => {
             </button>
           </DialogClose>
         </div>
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 flex-1">
           {isConnected && hasAnyEvmNetwork ? (
             <ConnectedWalletCard
-              disconnect={() => handleDisconnectCurrentWallet(ChainTypes.EVM)}
-              network={ChainTypes.EVM}
+            // disconnect={() => handleDisconnectCurrentWallet(ChainTypes.EVM)}
+            // network={ChainTypes.EVM}
             />
           ) : (
             <Button
@@ -248,10 +249,10 @@ export const ConnectButton = ({ large }: { large?: boolean }) => {
           )}
           {isConnected && hasAnyStarknetNetwork ? (
             <ConnectedWalletCard
-              disconnect={() =>
-                handleDisconnectCurrentWallet(ChainTypes.Starknet)
-              }
-              network={ChainTypes.Starknet}
+            // disconnect={() =>
+            //   handleDisconnectCurrentWallet(ChainTypes.Starknet)
+            // }
+            // network={ChainTypes.Starknet}
             />
           ) : (
             <Button

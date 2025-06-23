@@ -8,26 +8,26 @@ import { cn } from "@/lib/utils";
 import { useNetworkStore } from "@/store/network";
 import {
   useAppKit,
-  useDisconnect as useDisconnectEVM,
+  // useDisconnect as useDisconnectEVM,
 } from "@reown/appkit/react";
-import { Connector, useConnect, useDisconnect } from "@starknet-react/core";
+import { Connector, useConnect } from "@starknet-react/core";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { StarknetkitConnector, useStarknetkitConnectModal } from "starknetkit";
 import ConnectedWalletCard from "./connected-wallet-card";
-import { ChainTypes, OrderStep } from "@/types";
+import { ChainTypes } from "@/types";
 import { useMutation } from "@tanstack/react-query";
 import { getKYC } from "@/actions/kyc";
 import { useKYCStore } from "@/store/kyc-store";
 import { useUserSelectionStore } from "@/store/user-selection";
-import { useQuoteStore } from "@/store/quote-store";
-import { useTransferStore } from "@/store/transfer-store";
+// import { useQuoteStore } from "@/store/quote-store";
+// import { useTransferStore } from "@/store/transfer-store";
 
 export const ModalConnectButton = ({ large }: { large?: boolean }) => {
   const { address, isConnected } = useWalletGetInfo();
   const { open } = useAppKit();
-  const { resetQuote } = useQuoteStore();
-  const { resetTransfer } = useTransferStore();
+  // const { resetQuote } = useQuoteStore();
+  // const { resetTransfer } = useTransferStore();
   const [modalOpen, setModalOpen] = useState(false);
   const { updateSelection } = useUserSelectionStore();
 
@@ -35,17 +35,17 @@ export const ModalConnectButton = ({ large }: { large?: boolean }) => {
     setCurrentNetwork,
     addConnectedNetwork,
     connectedNetworks,
-    removeConnectedNetwork,
-    clearConnectedNetworks,
+    // removeConnectedNetwork,
+    // clearConnectedNetworks,
   } = useNetworkStore();
-  const disconnectEvm = useDisconnectEVM();
+  // const disconnectEvm = useDisconnectEVM();
 
   const { connect, connectors } = useConnect();
   const { starknetkitConnectModal } = useStarknetkitConnectModal({
     connectors: connectors as StarknetkitConnector[],
   });
 
-  const { disconnect: disconnectStarknet } = useDisconnect();
+  // const { disconnect: disconnectStarknet } = useDisconnect();
 
   const { setKycData } = useKYCStore();
 
@@ -131,93 +131,93 @@ export const ModalConnectButton = ({ large }: { large?: boolean }) => {
     }
   };
 
-  const handleDisconnectCurrentWallet = async (type?: ChainTypes) => {
-    // const chainType = currentNetwork?.type || type;
-    const chainType = type;
+  // const handleDisconnectCurrentWallet = async (type?: ChainTypes) => {
+  //   // const chainType = currentNetwork?.type || type;
+  //   const chainType = type;
 
-    if (!chainType) {
-      try {
-        // Disconnect all wallets concurrently and wait for both to complete
-        await Promise.all([
-          Promise.resolve(disconnectEvm.disconnect()).catch((error: Error) => {
-            console.error("Failed to disconnect EVM wallet:", error);
-          }),
-          Promise.resolve(disconnectStarknet()).catch((error: Error) => {
-            console.error("Failed to disconnect Starknet wallet:", error);
-          }),
-        ]);
+  //   if (!chainType) {
+  //     try {
+  //       // Disconnect all wallets concurrently and wait for both to complete
+  //       await Promise.all([
+  //         Promise.resolve(disconnectEvm.disconnect()).catch((error: Error) => {
+  //           console.error("Failed to disconnect EVM wallet:", error);
+  //         }),
+  //         Promise.resolve(disconnectStarknet()).catch((error: Error) => {
+  //           console.error("Failed to disconnect Starknet wallet:", error);
+  //         }),
+  //       ]);
 
-        // Only clear network state after both disconnections complete
-        setCurrentNetwork(null);
-        clearConnectedNetworks();
-        // updateSelection({ address: undefined });
-        handleCancelConfirm();
-      } catch (error) {
-        console.error("Error during wallet disconnection:", error);
-      } finally {
-        handleCancelConfirm();
-      }
-      return;
-    }
+  //       // Only clear network state after both disconnections complete
+  //       setCurrentNetwork(null);
+  //       clearConnectedNetworks();
+  //       // updateSelection({ address: undefined });
+  //       handleCancelConfirm();
+  //     } catch (error) {
+  //       console.error("Error during wallet disconnection:", error);
+  //     } finally {
+  //       handleCancelConfirm();
+  //     }
+  //     return;
+  //   }
 
-    if (chainType === "evm") {
-      try {
-        await disconnectEvm.disconnect();
-        // Remove all EVM chains from connectedNetworks
-        connectedNetworks.forEach((network) => {
-          if (network.type === ChainTypes.EVM) {
-            removeConnectedNetwork(network);
-          }
-        });
-        // updateSelection({ address: undefined });
-        handleCancelConfirm();
-      } catch (error) {
-        console.error("Failed to disconnect EVM wallet:", error);
-      } finally {
-        handleCancelConfirm();
-      }
-    }
+  //   if (chainType === "evm") {
+  //     try {
+  //       await disconnectEvm.disconnect();
+  //       // Remove all EVM chains from connectedNetworks
+  //       connectedNetworks.forEach((network) => {
+  //         if (network.type === ChainTypes.EVM) {
+  //           removeConnectedNetwork(network);
+  //         }
+  //       });
+  //       // updateSelection({ address: undefined });
+  //       handleCancelConfirm();
+  //     } catch (error) {
+  //       console.error("Failed to disconnect EVM wallet:", error);
+  //     } finally {
+  //       handleCancelConfirm();
+  //     }
+  //   }
 
-    if (chainType === "starknet") {
-      try {
-        await disconnectStarknet();
-        // Remove all Starknet chains from connectedNetworks
-        connectedNetworks.forEach((network) => {
-          if (network.type === ChainTypes.Starknet) {
-            removeConnectedNetwork(network);
-          }
-        });
-        // updateSelection({ address: undefined });
-        handleCancelConfirm();
-      } catch (error) {
-        console.error("Failed to disconnect Starknet wallet:", error);
-      } finally {
-        handleCancelConfirm();
-      }
-    }
-  };
+  //   if (chainType === "starknet") {
+  //     try {
+  //       await disconnectStarknet();
+  //       // Remove all Starknet chains from connectedNetworks
+  //       connectedNetworks.forEach((network) => {
+  //         if (network.type === ChainTypes.Starknet) {
+  //           removeConnectedNetwork(network);
+  //         }
+  //       });
+  //       // updateSelection({ address: undefined });
+  //       handleCancelConfirm();
+  //     } catch (error) {
+  //       console.error("Failed to disconnect Starknet wallet:", error);
+  //     } finally {
+  //       handleCancelConfirm();
+  //     }
+  //   }
+  // };
 
-  const handleCancelConfirm = () => {
-    // setShowCancelModal(false);
-    resetQuote();
-    resetTransfer();
-    updateSelection({
-      address: undefined,
-      orderStep: OrderStep.Initial,
-      accountNumber: undefined,
-      accountName: undefined,
-      institution: undefined,
-      pastedAddress: undefined,
-    });
-  };
+  // const handleCancelConfirm = () => {
+  //   // setShowCancelModal(false);
+  //   resetQuote();
+  //   resetTransfer();
+  //   updateSelection({
+  //     address: undefined,
+  //     orderStep: OrderStep.Initial,
+  //     accountNumber: undefined,
+  //     accountName: undefined,
+  //     institution: undefined,
+  //     pastedAddress: undefined,
+  //   });
+  // };
 
   const hasAnyEvmNetwork = connectedNetworks.some(
     (network) => network.type === ChainTypes.EVM
   );
 
-  const hasAnyStarknetNetwork = connectedNetworks.some(
-    (network) => network.type === ChainTypes.Starknet
-  );
+  // const hasAnyStarknetNetwork = connectedNetworks.some(
+  //   (network) => network.type === ChainTypes.Starknet
+  // );
 
   return (
     <>
@@ -244,42 +244,29 @@ export const ModalConnectButton = ({ large }: { large?: boolean }) => {
       )}
 
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="sm:max-w-[420px] max-w-[95%] h-1/2 p-0 bg-[#181818] border border-[#232323] md:rounded-3xl rounded-t-3xl rounded-b-none overflow-hidden fixed md:bottom-0 bottom-auto translate-y-0">
-          <div className=" px-5 flex items-center justify-between  ">
+        <DialogContent className="fixed inset-0 z-50 w-screen h-screen max-w-none max-h-none p-0 bg-[#181818] text-white flex flex-col translate-x-0 translate-y-0 top-0 left-0">
+          <div className="h-14 mb-4 px-5 flex items-center justify-between">
             <h1 className="text-white text-xl font-semibold">My Wallets</h1>
-            <button
-              className="absolute top-2 right-4 text-neutral-400 hover:text-white p-2 rounded-xl hover:bg-[#232323] transition-colors"
-              onClick={() => setModalOpen(false)}
-            >
-              <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
-                <path
-                  d="M18 6L6 18M6 6l12 12"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </button>
           </div>
 
           <div className="flex flex-col gap-4 px-4">
             <>
               {isConnected && hasAnyEvmNetwork ? (
                 <ConnectedWalletCard
-                  disconnect={() =>
-                    handleDisconnectCurrentWallet(ChainTypes.EVM)
-                  }
-                  network={ChainTypes.EVM}
+                // disconnect={() =>
+                //   handleDisconnectCurrentWallet(ChainTypes.EVM)
+                // }
+                // network={ChainTypes.EVM}
                 />
               ) : (
                 <Button
                   onClick={() => handleWalletTypeSelect("evm")}
                   variant="outline"
-                  className="flex justify-start items-center gap-4 w-full h-16 border-[#232323] hover:bg-[#2a2a2a] rounded-2xl transition-all hover:scale-[1.02] border hover:border-[#353535] group"
+                  className="flex justify-start items-center gap-4 w-full h-16 hover:bg-[#2a2a2a] rounded-2xl transition-all hover:scale-[1.02] border hover:border-[#353535] group"
                 >
                   <div className="p-2 bg-[#353535] rounded-lg group-hover:bg-[#454545] transition-colors">
                     <Image
-                      src="/logos/ethereum.png"
+                      src="/logos/base.png"
                       alt="EVM"
                       width={24}
                       height={24}
@@ -288,7 +275,7 @@ export const ModalConnectButton = ({ large }: { large?: boolean }) => {
                   </div>
                   <div className="flex flex-col items-start flex-1">
                     <span className="text-white font-medium text-base">
-                      EVM Wallet
+                      Base Wallet
                     </span>
                   </div>
                   <Button className="bg-white text-black rounded-md hover:bg-neutral-200 text-sm">
@@ -298,7 +285,7 @@ export const ModalConnectButton = ({ large }: { large?: boolean }) => {
               )}
             </>
 
-            <>
+            {/* <>
               {isConnected && hasAnyStarknetNetwork ? (
                 <ConnectedWalletCard
                   disconnect={() =>
@@ -333,10 +320,10 @@ export const ModalConnectButton = ({ large }: { large?: boolean }) => {
                   </Button>
                 </Button>
               )}
-            </>
+            </> */}
           </div>
 
-          {isConnected && (
+          {/* {isConnected && (
             <div className="px-4 pb-4">
               <Button
                 className="w-full mt-5 rounded-lg text-base h-12 font-medium bg-[#9E2121] hover:bg-red-800"
@@ -345,7 +332,7 @@ export const ModalConnectButton = ({ large }: { large?: boolean }) => {
                 Disconnect All
               </Button>
             </div>
-          )}
+          )} */}
         </DialogContent>
       </Dialog>
     </>

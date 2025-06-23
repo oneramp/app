@@ -35,10 +35,6 @@ export function Header({ logoOnly }: { logoOnly?: boolean }) {
 
   // const [setShowWalletModal] = useState(false);
   const [showWalletDetails, setShowWalletDetails] = useState(false);
-  const [buttonPosition] = useState<
-    { top: number; right: number } | undefined
-  >();
-  // const buttonRef = useRef<HTMLButtonElement>(null);
 
   // // Network state from Zustand
   const { currentNetwork, setCurrentNetwork, supportedNetworks } =
@@ -214,7 +210,6 @@ export function Header({ logoOnly }: { logoOnly?: boolean }) {
         <WalletDetailsModal
           isOpen={showWalletDetails}
           onClose={() => setShowWalletDetails(false)}
-          buttonPosition={buttonPosition}
           evmAddress={evmAddress}
           evmConnected={evmConnected}
           starknetAddress={starknetWalletAddress}

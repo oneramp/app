@@ -247,10 +247,10 @@ export const ConnectSingleWallet = ({
               <>
                 {isConnected && hasAnyEvmNetwork ? (
                   <ConnectedWalletCard
-                    disconnect={() =>
-                      handleDisconnectCurrentWallet(ChainTypes.EVM)
-                    }
-                    network={ChainTypes.EVM}
+                  // disconnect={() =>
+                  //   handleDisconnectCurrentWallet(ChainTypes.EVM)
+                  // }
+                  // network={ChainTypes.EVM}
                   />
                 ) : (
                   <Button
@@ -285,10 +285,10 @@ export const ConnectSingleWallet = ({
             <>
               {isConnected && hasAnyStarknetNetwork ? (
                 <ConnectedWalletCard
-                  disconnect={() =>
-                    handleDisconnectCurrentWallet(ChainTypes.Starknet)
-                  }
-                  network={ChainTypes.Starknet}
+                // disconnect={() =>
+                //   handleDisconnectCurrentWallet(ChainTypes.Starknet)
+                // }
+                // network={ChainTypes.Starknet}
                 />
               ) : (
                 <Button
