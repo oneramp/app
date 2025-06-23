@@ -118,12 +118,12 @@ const OrderProcessing = () => {
               <div className="hidden md:block size-2.5 rounded-full bg-[#2ecc71] z-10"></div>
               <Button
                 disabled
-                onClick={() => {
-                  updateSelection({ orderStep: OrderStep.PaymentCompleted });
-                }}
+                // onClick={() => {
+                //   updateSelection({ orderStep: OrderStep.PaymentCompleted });
+                // }}
                 // onClick={handleTryAgain}
                 // disabled={submitTxHashMutation.isPending}
-                className=" p-3 bg-[#232323] rounded-xl hover:bg-[#2a2a2a] text-white font-medium text-sm transition-colors w-fit"
+                className=" p-3 rbg-[#232323] rounded-xl hover:!bg-[#2a2a2a] text-white font-medium text-sm transition-colors w-fit"
               >
                 {/* {submitTxHashMutation.isPending || isLoading ? (
                   <Loader className="animate-spin" />
@@ -319,7 +319,7 @@ const OrderProcessing = () => {
               variant="ghost"
               // onClick={() => setShowCancelModal(true)}
               onClick={handleCancelConfirm}
-              className="text-green-500 hover:text-green-400 hover:bg-green-500/10"
+              className="!text-green-500 hover:!text-green-400 hover:!bg-green-500/10"
             >
               Done
             </Button>

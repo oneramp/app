@@ -176,7 +176,7 @@ export const ConnectButton = ({ large }: { large?: boolean }) => {
 
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-      <DialogTrigger asChild>
+      <DialogTrigger disabled={true} asChild>
         {isConnected ? (
           <Button
             className={cn(
