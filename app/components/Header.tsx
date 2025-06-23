@@ -20,7 +20,6 @@ interface AppKit {
 declare global {
   interface Window {
     appKit?: AppKit;
-    ethereum?: Record<string, unknown>;
   }
 }
 

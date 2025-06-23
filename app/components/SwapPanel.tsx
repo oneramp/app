@@ -21,13 +21,6 @@ import { NetworkSelector } from "./NetworkSelector";
 import SelectCountry from "./select-country";
 import SelectInstitution from "./select-institution";
 
-declare global {
-  interface Window {
-    // appKit?: AppKit;
-    ethereum?: Record<string, unknown>;
-  }
-}
-
 const networks: Network[] = SUPPORTED_NETWORKS_WITH_RPC_URLS;
 
 export function SwapPanel() {
