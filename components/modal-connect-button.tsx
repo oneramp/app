@@ -221,7 +221,7 @@ export const ModalConnectButton = ({ large }: { large?: boolean }) => {
     <>
       {isConnected ? (
         <Button
-          // disabled={true}
+          disabled={true}
           className={cn(
             "rounded-full px-6 py-1.5 text-sm font-semibold transition-colors bg-neutral-800 hover:bg-neutral-700 text-white",
             large && "w-full h-14 rounded-lg text-lg "
