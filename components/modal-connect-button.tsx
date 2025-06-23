@@ -221,7 +221,7 @@ export const ModalConnectButton = ({ large }: { large?: boolean }) => {
     <>
       {isConnected ? (
         <Button
-          disabled={true}
+          // disabled={true}
           className={cn(
             "rounded-full px-6 py-1.5 text-sm font-semibold transition-colors bg-neutral-800 hover:bg-neutral-700 text-white",
             large && "w-full h-14 rounded-lg text-lg "
@@ -244,7 +244,7 @@ export const ModalConnectButton = ({ large }: { large?: boolean }) => {
       )}
 
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="fixed inset-0 z-50 w-screen h-screen max-w-none max-h-none p-0 bg-[#181818] text-white flex flex-col translate-x-0 translate-y-0 top-0 left-0">
+        <DialogContent className="fixed border-none inset-0 z-50 w-screen h-screen max-w-none max-h-none p-0 bg-[#181818] text-white flex flex-col translate-x-0 translate-y-0 top-0 left-0">
           <div className="h-14 mb-4 px-5 flex items-center justify-between">
             <h1 className="text-white text-xl font-semibold">My Wallets</h1>
           </div>
@@ -261,8 +261,8 @@ export const ModalConnectButton = ({ large }: { large?: boolean }) => {
               ) : (
                 <Button
                   onClick={() => handleWalletTypeSelect("evm")}
-                  variant="outline"
-                  className="flex justify-start items-center gap-4 w-full h-16 hover:bg-[#2a2a2a] rounded-2xl transition-all hover:scale-[1.02] border hover:border-[#353535] group"
+                  // variant="outline"
+                  className="flex justify-start items-center gap-4 w-full h-16 hover:!bg-[#2a2a2a] rounded-2xl transition-all hover:scale-[1.02] bg-transparent group"
                 >
                   <div className="p-2 bg-[#353535] rounded-lg group-hover:bg-[#454545] transition-colors">
                     <Image
