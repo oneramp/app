@@ -22,6 +22,7 @@ export interface EVMPayHookReturn {
   isSuccess: boolean;
   transactionReceipt: TransactionReceipt | null;
   resetState: () => void;
+  isError: boolean;
 }
 
 export const TOKEN_ABI = [
@@ -48,6 +49,7 @@ EVMPayHookReturn => {
     isLoading,
     isSuccess,
     data: transactionReceipt,
+    isError,
   } = useWaitForTransactionReceipt({
     hash,
   });
@@ -108,6 +110,7 @@ EVMPayHookReturn => {
     payWithEVM: MOCK_TRANSACTIONS ? mockPayWithEVM : payWithEVM,
     isLoading: MOCK_TRANSACTIONS ? mockLoading : isLoading,
     isSuccess: MOCK_TRANSACTIONS ? mockSuccess : isSuccess,
+    isError: MOCK_TRANSACTIONS ? false : isError,
     transactionReceipt: MOCK_TRANSACTIONS
       ? mockTransactionReceipt
       : transactionReceipt || null,

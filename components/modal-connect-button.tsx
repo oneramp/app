@@ -20,8 +20,6 @@ import { useMutation } from "@tanstack/react-query";
 import { getKYC } from "@/actions/kyc";
 import { useKYCStore } from "@/store/kyc-store";
 import { useUserSelectionStore } from "@/store/user-selection";
-// import { useQuoteStore } from "@/store/quote-store";
-// import { useTransferStore } from "@/store/transfer-store";
 
 export const ModalConnectButton = ({ large }: { large?: boolean }) => {
   const { address, isConnected } = useWalletGetInfo();
@@ -235,12 +233,13 @@ export const ModalConnectButton = ({ large }: { large?: boolean }) => {
         <Button
           onClick={() => setModalOpen(true)}
           className={cn(
-            "rounded-full px-6 py-1.5 my-4 text-sm font-semibold transition-colors bg-[#2563eb] hover:bg-[#1d4ed8] text-white",
+            "rounded-full px-6 py-1.5 my-4 text-sm font-semibold transition-colors !bg-[#2563eb] hover:!bg-[#1d4ed8] text-white",
             large && "w-full flex-1 p-6 text-lg rounded-xl "
           )}
         >
           Connect Wallet
         </Button>
+        // <CoinbaseWallet />
       )}
 
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>

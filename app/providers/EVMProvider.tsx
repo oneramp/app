@@ -1,13 +1,16 @@
 "use client";
 
-import { wagmiAdapter, projectId, networks } from "@/config";
+import { wagmiAdapter, projectId, networks, config } from "@/config";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createAppKit } from "@reown/appkit/react";
 import React, { type ReactNode } from "react";
-import { cookieToInitialState, WagmiProvider, type Config } from "wagmi";
+import { cookieToInitialState, WagmiProvider } from "wagmi";
 
 // Set up queryClient
 const queryClient = new QueryClient();
+
+const COIN_BASE_SMART_ID =
+  "fd20dc426fb37566d803205b19bbc1d4096b248ac04548e3cfb6b3a38bd033aa";
 
 // Set up metadata
 const metadata = {
@@ -24,9 +27,18 @@ export const modal = createAppKit({
   projectId,
   networks,
   metadata,
+  coinbasePreference: "smartWalletOnly",
+  featuredWalletIds: [COIN_BASE_SMART_ID],
   features: {
-    analytics: true, // Optional - defaults to your Cloud configuration
+    email: false,
+    socials: false,
+    analytics: true, // Keep analytics if desired
+    onramp: false, // Keep onramp if desired
+    swaps: false, // Keep swaps if desired
+    connectMethodsOrder: ["wallet"],
+    connectorTypeOrder: ["featured", "recent", "walletConnect"],
   },
+  allWallets: "HIDE",
   themeVariables: {
     "--w3m-accent": "#000000",
   },
@@ -40,13 +52,17 @@ function EVMProvider({
   cookies: string | null;
 }) {
   const initialState = cookieToInitialState(
-    wagmiAdapter.wagmiConfig as Config,
+    wagmiAdapter.wagmiConfig as unknown as Parameters<
+      typeof cookieToInitialState
+    >[0],
     cookies
   );
 
   return (
     <WagmiProvider
-      config={wagmiAdapter.wagmiConfig as Config}
+      config={
+        config as unknown as Parameters<typeof WagmiProvider>[0]["config"]
+      }
       initialState={initialState}
     >
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>

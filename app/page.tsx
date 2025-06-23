@@ -28,11 +28,11 @@ export default function Home() {
           </div>
 
           {/* Mobile header - Only shown on mobile */}
-          <div className="w-full flex justify-between items-center px-6 py-2 h-14 md:hidden">
+          <div className="w-full flex justify-between items-center px-4 py-2 h-14 md:hidden">
             <Image
-              src="/logos/oneramp-long.png"
+              src="/large.png"
               alt="OneRamp"
-              width={32}
+              width={80}
               height={32}
               priority
               className="rounded-full"

@@ -1,14 +1,9 @@
-import { cookieStorage, createStorage } from "wagmi";
+import { cookieStorage, createStorage, type Storage } from "wagmi";
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
-import {
-  mainnet,
-  arbitrum,
-  base,
-  celo,
-  optimism,
-  polygon,
-} from "@reown/appkit/networks";
+import { base } from "@reown/appkit/networks";
 import type { AppKitNetwork } from "@reown/appkit/networks";
+import { http } from "wagmi";
+import { coinbaseWallet, injected } from "wagmi/connectors";
 
 // Get projectId from https://cloud.reown.com
 export const projectId =
@@ -19,19 +14,30 @@ if (!projectId) {
   throw new Error("Project ID is not defined");
 }
 
-export const networks = [mainnet, arbitrum, base, celo, optimism, polygon] as [
-  AppKitNetwork,
-  ...AppKitNetwork[]
-];
+export const networks = [base] as [AppKitNetwork, ...AppKitNetwork[]];
 
 //Set up the Wagmi Adapter (Config)
 export const wagmiAdapter = new WagmiAdapter({
+  networks,
   storage: createStorage({
     storage: cookieStorage,
-  }),
+  }) as unknown as Storage,
   ssr: true,
   projectId,
-  networks,
+  // multiInjectedProviderDiscovery: false,
+  connectors: [
+    coinbaseWallet({
+      preference: "smartWalletOnly",
+    }),
+    injected({}),
+  ],
+  chains: [base],
+  transports: {
+    [base.id]: http(),
+  },
 });
 
-export const config = wagmiAdapter.wagmiConfig;
+export const config = {
+  ...wagmiAdapter.wagmiConfig,
+  autoConnect: true,
+};

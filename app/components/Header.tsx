@@ -155,7 +155,7 @@ export function Header({ logoOnly }: { logoOnly?: boolean }) {
           <div className=" items-center hidden md:flex">
             <div className="block md:hidden ">
               <Image
-                src="/logos/oneramp.png"
+                src="/large.png"
                 alt="OneRamp"
                 width={32}
                 height={32}
@@ -165,7 +165,7 @@ export function Header({ logoOnly }: { logoOnly?: boolean }) {
             </div>
             <div className="hidden md:block ">
               <Image
-                src="/logos/oneramp-long.png"
+                src="/large.png"
                 alt="OneRamp"
                 width={100}
                 height={32}

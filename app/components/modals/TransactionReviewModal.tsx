@@ -58,7 +58,7 @@ export function TransactionReviewModal() {
     buttonText: "Confirm payment",
   });
 
-  const { payWithEVM, isLoading, resetState } = useEVMPay();
+  const { payWithEVM, isLoading, resetState, isError } = useEVMPay();
 
   // Initialize Starknet pay
   const starknetPay = usePayStarknet(
@@ -595,7 +595,7 @@ export function TransactionReviewModal() {
                   <circle cx="12" cy="16" r="1" fill="#666" />
                 </svg>
               </div>
-              <p className="text-neutral-400 text-sm">
+              <p className="text-neutral-400 text-xs">
                 Ensure the details above are correct. Failed transaction due to
                 wrong details may attract a refund fee
               </p>
@@ -616,7 +616,7 @@ export function TransactionReviewModal() {
 
               {quote && quote.transferType === TransferType.TransferIn ? (
                 <Button
-                  className="flex-1 bg-[#7B68EE] hover:bg-[#6A5ACD] text-white p-6 text-lg rounded-xl"
+                  className="flex-1 !bg-[#7B68EE] hover:!bg-[#6A5ACD] text-white p-6 text-lg rounded-xl"
                   onClick={() => submitTransferIn.mutate()}
                   // disabled={submitTransferIn.isPending}
                 >
@@ -638,19 +638,19 @@ export function TransactionReviewModal() {
                     />
                   ) : (
                     <Button
-                      className="flex-1 bg-[#7B68EE] hover:bg-[#6A5ACD] text-white p-6 text-lg rounded-xl"
+                      className="flex-1 !bg-[#7B68EE] hover:!bg-[#6A5ACD] text-white p-6 text-lg rounded-xl"
                       onClick={makeBlockchainTransaction}
                       disabled={
                         isLoading ||
                         submitTxHashMutation.isPending ||
                         loading ||
                         wrongChainState.isWrongChain ||
-                        !transfer
+                        (!transfer && !isError)
                       }
                     >
                       {
                         // isLoading ||  submitTxHashMutation.isPending ||
-                        loading ? (
+                        loading && !isError ? (
                           <Loader className="animate-spin" />
                         ) : (
                           wrongChainState.buttonText

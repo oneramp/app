@@ -199,46 +199,9 @@ const OrderSuccessful = () => {
               </div>
             )}
           </div>
-
-          {/* Social Share */}
-          <div className="mt-4">
-            <p className="text-sm text-[#666666] mb-3">Help spread the word</p>
-            <div className="bg-[#232323] p-4 rounded-lg mb-4">
-              <p className="text-sm text-[#666666]">
-                <span className="text-[#FFD700]">♥</span> Yay! I just swapped{" "}
-                {quote?.cryptoType} for {quote.fiatType} in 167 seconds on
-                pay.oneramp.io
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <a
-                href="https://x.com/0xOneramp"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 px-4 py-2 bg-[#232323] hover:bg-[#2a2a2a] text-white text-sm rounded-md transition-colors"
-              >
-                <svg
-                  className="w-4 h-4"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                >
-                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                </svg>
-                X (Twitter)
-              </a>
-              {/* <button className="flex items-center gap-2 px-4 py-2 bg-[#232323] hover:bg-[#2a2a2a] text-white text-sm rounded-md transition-colors">
-                <svg
-                  className="w-4 h-4"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                >
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
-                  <path d="M8 16l8-8M16 16L8 8" />
-                </svg>
-                Warpcast
-              </button> */}
-            </div>
-          </div>
+          <Button onClick={handleBackClick} className="w-full">
+            Go to home
+          </Button>
         </div>
       </div>
     </div>
