@@ -2,8 +2,8 @@ import { cookieStorage, createStorage, type Storage } from "wagmi";
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import { base } from "@reown/appkit/networks";
 import type { AppKitNetwork } from "@reown/appkit/networks";
-import { http } from "wagmi";
-import { coinbaseWallet, injected } from "wagmi/connectors";
+// import { http } from "wagmi";
+// import { coinbaseWallet, injected } from "wagmi/connectors";
 
 // Get projectId from https://cloud.reown.com
 export const projectId =
@@ -25,16 +25,16 @@ export const wagmiAdapter = new WagmiAdapter({
   ssr: true,
   projectId,
   // multiInjectedProviderDiscovery: false,
-  connectors: [
-    coinbaseWallet({
-      preference: "smartWalletOnly",
-    }),
-    injected({}),
-  ],
-  chains: [base],
-  transports: {
-    [base.id]: http(),
-  },
+  // connectors: [
+  //   coinbaseWallet({
+  //     preference: "smartWalletOnly",
+  //   }),
+  //   injected({}),
+  // ],
+  // chains: [base],
+  // transports: {
+  //   [base.id]: http(),
+  // },
 });
 
 export const config = {
