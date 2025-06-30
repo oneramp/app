@@ -1,23 +1,26 @@
 import React from "react";
-import { FiCheck, FiLink, FiArrowRight, FiFileText } from "react-icons/fi";
-import { TransferType, Quote } from "@/types";
+import { FiLink, FiArrowRight, FiFileText } from "react-icons/fi";
+import { Loader } from "lucide-react";
+import { TransferType, Quote, Transfer } from "@/types";
 import AssetAvator from "./asset-avator";
 import { Button } from "@/components/ui/button";
 import CountryAvator from "./country-avator";
 
-interface SuccessCardProps {
+interface ProcessingCardProps {
   transactionHash?: string;
   exploreUrl?: string;
   quote: Quote;
-  onNewPayment: () => void;
+  transfer?: Transfer;
+  onCancel: () => void;
   onGetReceipt: () => void;
 }
 
-const SuccessCard: React.FC<SuccessCardProps> = ({
+const ProcessingCard: React.FC<ProcessingCardProps> = ({
   transactionHash,
   exploreUrl,
   quote,
-  onNewPayment,
+  transfer,
+  onCancel,
   onGetReceipt,
 }) => {
   const currentDate =
@@ -26,17 +29,17 @@ const SuccessCard: React.FC<SuccessCardProps> = ({
     new Date().toLocaleTimeString("en-GB");
 
   return (
-    <div className="min-h-screen w-full mt-10 md:mt-0 md:w-1/3 text-white flex items-center justify-center">
+    <div className="min-h-screen text-white flex items-center w-1/3 justify-center">
       <div className="w-full h-full max-w-lg">
         {/* Main Card */}
         <div className="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-gray-800">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                <FiCheck size={16} color="#ffffff" />
+              <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
+                <Loader size={16} className="animate-spin text-white" />
               </div>
-              <h2 className="text-xl font-medium text-white">Completed</h2>
+              <h2 className="text-xl font-medium text-white">Processing</h2>
             </div>
             <button
               onClick={onGetReceipt}
@@ -50,7 +53,7 @@ const SuccessCard: React.FC<SuccessCardProps> = ({
           <div className="p-6">
             <div className="flex items-center gap-4 mb-8">
               {/* Source Card - Changes based on Transfer Type */}
-              <div className="flex-1 bg-gray-800 rounded-xl p-6 w-full h-44 flex flex-col items-center justify-center">
+              <div className="flex-1 bg-gray-800 rounded-xl p-6 h-44 flex flex-col items-center justify-center">
                 <div className="mb-4 flex items-center justify-center relative size-24">
                   {quote.transferType === TransferType.TransferIn ? (
                     <CountryAvator country={quote.country} iconOnly />
@@ -69,7 +72,7 @@ const SuccessCard: React.FC<SuccessCardProps> = ({
                       : quote.network.charAt(0).toUpperCase() +
                         quote.network.slice(1)}
                   </h1>
-                  <h2 className="text-gray-300 font-mono text-base font-semibold">
+                  <h2 className="text-gray-300 font-mono text-sm">
                     {quote.transferType === TransferType.TransferIn
                       ? `${Number(quote.fiatAmount).toFixed(2)} ${
                           quote.fiatType
@@ -82,12 +85,12 @@ const SuccessCard: React.FC<SuccessCardProps> = ({
               </div>
 
               {/* Arrow */}
-              <div className="bg-gray-800 rounded-full p-3 text-gray-400">
+              <div className="bg-gray-800 rounded-full p-3 text-yellow-500">
                 <FiArrowRight size={20} />
               </div>
 
               {/* Destination Card - Changes based on Transfer Type */}
-              <div className="flex-1 bg-gray-800 rounded-xl p-6 w-full h-44 flex flex-col items-center justify-center">
+              <div className="flex-1 bg-gray-800 rounded-xl p-6 h-44 flex flex-col items-center justify-center">
                 <div className="mb-4 flex items-center justify-center relative size-24">
                   {quote.transferType === TransferType.TransferIn ? (
                     <AssetAvator
@@ -106,7 +109,7 @@ const SuccessCard: React.FC<SuccessCardProps> = ({
                         quote.network.slice(1)
                       : quote.fiatType}
                   </h1>
-                  <h2 className="text-gray-300 font-mono text-base font-semibold text-center">
+                  <h2 className="text-gray-300 font-mono text-sm">
                     {quote.transferType === TransferType.TransferIn
                       ? `${Number(quote.amountPaid).toFixed(3)} ${
                           quote.cryptoType
@@ -122,31 +125,34 @@ const SuccessCard: React.FC<SuccessCardProps> = ({
             {/* Transaction Details */}
             <div className="space-y-4">
               {/* Source TX */}
-              <div className="flex items-center justify-between">
-                <span className="text-gray-400">Source TX</span>
-                <div className="flex items-center gap-2">
-                  <span className="text-white font-mono text-sm">
-                    {transactionHash
-                      ? `${transactionHash.slice(
-                          0,
-                          6
-                        )}...${transactionHash.slice(-6)}`
-                      : `${quote.address.slice(0, 6)}...${quote.address.slice(
-                          -6
-                        )}`}
-                  </span>
-                  <FiCheck size={16} color="#10b981" />
+              {transactionHash && (
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-400">Source TX</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-white font-mono text-sm">
+                      {transactionHash
+                        ? `${transactionHash.slice(
+                            0,
+                            6
+                          )}...${transactionHash.slice(-6)}`
+                        : `${quote.address.slice(0, 6)}...${quote.address.slice(
+                            -6
+                          )}`}
+                    </span>
+                    <div className="w-4 h-4 bg-yellow-500 rounded-full flex items-center justify-center">
+                      <Loader size={12} className="animate-spin text-white" />
+                    </div>
+                  </div>
                 </div>
-              </div>
+              )}
 
-              {/* Destination TX */}
+              {/* Order ID */}
               <div className="flex items-center justify-between">
                 <span className="text-gray-400">Order ID</span>
                 <div className="flex items-center gap-2">
                   <span className="text-white font-mono text-sm">
                     {quote.quoteId.slice(0, 6)}...{quote.quoteId.slice(-6)}
                   </span>
-                  <FiCheck size={16} color="#10b981" />
                 </div>
               </div>
 
@@ -163,11 +169,32 @@ const SuccessCard: React.FC<SuccessCardProps> = ({
 
               {/* Timestamp */}
               <div className="flex items-center justify-between">
-                <span className="text-gray-400">Timestamp</span>
+                <span className="text-gray-400">Started at</span>
                 <span className="text-white text-sm">{currentDate}</span>
               </div>
 
-              {/* Explorer Link */}
+              {/* Status */}
+              <div className="flex items-center justify-between">
+                <span className="text-gray-400">Status</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-yellow-500 text-sm font-medium">
+                    Processing
+                  </span>
+                  <Loader size={14} className="animate-spin text-yellow-500" />
+                </div>
+              </div>
+
+              {/* Institution (if available) */}
+              {transfer?.userActionDetails?.institutionName && (
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-400">Institution</span>
+                  <span className="text-white text-sm">
+                    {transfer.userActionDetails.institutionName}
+                  </span>
+                </div>
+              )}
+
+              {/* Explorer Link (if processing TransferOut) */}
               {quote.transferType === TransferType.TransferOut &&
                 exploreUrl && (
                   <div className="flex items-center justify-between">
@@ -188,12 +215,11 @@ const SuccessCard: React.FC<SuccessCardProps> = ({
             {/* Action Button */}
             <div className="mt-8">
               <Button
-                onClick={onNewPayment}
-                className="w-full bg-blue-500 hover:bg-blue-600 text-white text-lg font-semibold h-14 rounded-xl transition-colors"
+                onClick={onCancel}
+                variant="outline"
+                className="w-full bg-transparent border-red-500 text-red-500 hover:bg-red-500 hover:text-white text-lg font-medium h-14 rounded-xl transition-colors"
               >
-                {quote.transferType === TransferType.TransferIn
-                  ? "New Payment"
-                  : "Swap Again"}
+                Cancel Transaction
               </Button>
             </div>
           </div>
@@ -203,4 +229,4 @@ const SuccessCard: React.FC<SuccessCardProps> = ({
   );
 };
 
-export default SuccessCard;
+export default ProcessingCard;
