@@ -29,7 +29,7 @@ const ProcessingCard: React.FC<ProcessingCardProps> = ({
     new Date().toLocaleTimeString("en-GB");
 
   return (
-    <div className="min-h-screen text-white flex items-center w-1/3 justify-center">
+    <div className="min-h-screen text-white flex items-center w-full md:w-1/3 justify-center">
       <div className="w-full h-full max-w-lg">
         {/* Main Card */}
         <div className="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden">
