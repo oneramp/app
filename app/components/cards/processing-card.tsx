@@ -3,7 +3,6 @@ import { FiLink, FiArrowRight, FiFileText } from "react-icons/fi";
 import { Loader } from "lucide-react";
 import { TransferType, Quote, Transfer } from "@/types";
 import AssetAvator from "./asset-avator";
-import { Button } from "@/components/ui/button";
 import CountryAvator from "./country-avator";
 
 interface ProcessingCardProps {
@@ -20,7 +19,6 @@ const ProcessingCard: React.FC<ProcessingCardProps> = ({
   exploreUrl,
   quote,
   transfer,
-  onCancel,
   onGetReceipt,
 }) => {
   const currentDate =
@@ -214,13 +212,13 @@ const ProcessingCard: React.FC<ProcessingCardProps> = ({
 
             {/* Action Button */}
             <div className="mt-8">
-              <Button
+              {/* <Button
                 onClick={onCancel}
                 variant="outline"
                 className="w-full bg-transparent border-red-500 text-red-500 hover:bg-red-500 hover:text-white text-lg font-medium h-14 rounded-xl transition-colors"
               >
                 Cancel Transaction
-              </Button>
+              </Button> */}
             </div>
           </div>
         </div>
