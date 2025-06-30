@@ -5,6 +5,7 @@ import { TransferType, Quote, Transfer } from "@/types";
 import AssetAvator from "./asset-avator";
 // import { Button } from "@/components/ui/button";
 import CountryAvator from "./country-avator";
+import { Button } from "@/components/ui/button";
 
 interface ProcessingCardProps {
   transactionHash?: string;
@@ -20,7 +21,7 @@ const ProcessingCard: React.FC<ProcessingCardProps> = ({
   exploreUrl,
   quote,
   transfer,
-  // onCancel,
+  onCancel,
   onGetReceipt,
 }) => {
   const currentDate =
@@ -210,6 +211,17 @@ const ProcessingCard: React.FC<ProcessingCardProps> = ({
                     </a>
                   </div>
                 )}
+
+              <div className="flex items-center justify-between">
+                <span className="text-gray-400">Action</span>
+                <Button
+                  onClick={onCancel}
+                  variant="ghost"
+                  className="bg-transparent px-0 border-red-500 text-red-500 hover:bg-red-500 hover:text-white text-sm font-medium h-14 rounded-xl transition-colors"
+                >
+                  Go Back
+                </Button>
+              </div>
             </div>
 
             {/* Action Button */}
