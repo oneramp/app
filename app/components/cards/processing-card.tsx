@@ -215,25 +215,18 @@ const ProcessingCard: React.FC<ProcessingCardProps> = ({
                 )}
 
               <div className="flex items-center justify-between">
-              <Button
-                onClick={()=>(onCancel())}
-                className="w-full bg-blue-500 hover:bg-blue-600 text-white text-lg font-semibold h-14 rounded-xl transition-colors"
-              >
-                  Swap Again
-              </Button>
+                <span className="text-gray-400">Action</span>
+                <Button
+                  onClick={onCancel}
+                  variant="ghost"
+                  className="bg-transparent px-0 border-red-500 text-red-500 hover:bg-red-500 hover:text-white text-sm font-medium h-14 rounded-xl transition-colors"
+                >
+                  Go Back
+                </Button>
               </div>
             </div>
 
-            {/* Action Button */}
-            <div className="mt-8">
-              {/* <Button
-                onClick={onCancel}
-                variant="outline"
-                className="w-full bg-transparent border-red-500 text-red-500 hover:bg-red-500 hover:text-white text-lg font-medium h-14 rounded-xl transition-colors"
-              >
-                Cancel Transaction
-              </Button> */}
-            </div>
+
           </div>
         </div>
       </div>

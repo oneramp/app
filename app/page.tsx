@@ -25,7 +25,7 @@ export default function Home() {
               className="rounded-full"
             />
             <div className="flex flex-1" />
-            {/* <ConnectButton /> */}
+
             <ModalConnectButton />
           </div>
 
@@ -43,7 +43,7 @@ export default function Home() {
                 <Header />
               </div>
 
-              {/* <ActionButtonList /> */}
+
             </div>
           </div>
         </div>
