@@ -11,7 +11,8 @@ import { useEffect } from "react";
 import ProcessingCard from "./processing-card";
 
 const OrderProcessing = () => {
-  const { resetToDefault, updateSelection } = useUserSelectionStore();
+  const { resetToDefault, updateSelection, paymentMethod } =
+    useUserSelectionStore();
   const { transfer, resetTransfer } = useTransferStore();
   const { quote, resetQuote } = useQuoteStore();
   const router = useRouter();
@@ -52,6 +53,10 @@ const OrderProcessing = () => {
   const exploreUrl = transfer?.transactionHash
     ? `https://explorer.example.com/tx/${transfer.transactionHash}`
     : undefined;
+
+  console.log("====================================");
+  console.log("paymentMethod", paymentMethod);
+  console.log("====================================");
 
   return (
     <div className="fixed inset-0 z-50 flex-col md:flex-row flex py-20  justify-center bg-[#181818] gap-x-16">
