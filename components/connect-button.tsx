@@ -200,7 +200,7 @@ export const ConnectButton = ({ large }: { large?: boolean }) => {
         {isConnected ? (
           <Button
             className={cn(
-              "rounded-full px-6 py-1.5 text-sm font-semibold transition-colors bg-neutral-800 hover:bg-neutral-700 text-white",
+              "rounded-full px-3 md:px-6 py-1 md:py-1.5 text-xs md:text-sm font-semibold transition-colors bg-neutral-800 hover:bg-neutral-700 text-white",
               large && "w-full h-14 rounded-lg text-lg "
             )}
             // onClick={() => handleDisconnectCurrentWallet()}
@@ -212,7 +212,7 @@ export const ConnectButton = ({ large }: { large?: boolean }) => {
             // onClick={() => setShowWalletTypeModal(true)}
             // onClick={() => handleWalletTypeSelect()}
             className={cn(
-              "rounded-full px-6 py-1.5 w-full text-sm font-semibold transition-colors bg-[#2563eb] hover:bg-[#1d4ed8] text-white",
+              "rounded-full px-3 md:px-6 py-1 md:py-1.5 w-full text-xs md:text-sm font-semibold transition-colors bg-[#2563eb] hover:bg-[#1d4ed8] text-white",
               large && "w-full flex-1 p-6 text-lg rounded-xl "
             )}
           >

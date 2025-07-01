@@ -19,8 +19,8 @@ export default function Home() {
             <Image
               src="/logos/oneramp-long.png"
               alt="OneRamp"
-              width={32}
-              height={32}
+              width={100}
+              height={50}
               priority
               className="rounded-full"
             />

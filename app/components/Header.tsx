@@ -153,26 +153,16 @@ export function Header({ logoOnly }: { logoOnly?: boolean }) {
 
   return (
     <nav className="w-full  ">
-      <div className="max-w-[1200px] mx-auto flex justify-between items-center">
+      <div className="max-w-[1200px] mx-auto flex justify-between items-center px-4 md:px-6">
         {/* Logo */}
         {logoOnly ? (
           <div className=" items-center hidden md:flex">
-            <div className="block md:hidden ">
-              <Image
-                src="/logos/oneramp.png"
-                alt="OneRamp"
-                width={32}
-                height={32}
-                priority
-                className="rounded-full"
-              />
-            </div>
             <div className="hidden md:block ">
               <Image
                 src="/logos/oneramp-long.png"
                 alt="OneRamp"
-                width={100}
-                height={32}
+                width={150}
+                height={100}
                 priority
               />
             </div>
@@ -200,14 +190,6 @@ export function Header({ logoOnly }: { logoOnly?: boolean }) {
           </>
         )}
       </div>
-
-      {/* Wallet Connection Modal */}
-      {/* <WalletConnectionModal
-        isOpen={showWalletModal}
-        onClose={() => setShowWalletModal(false)}
-        buttonPosition={buttonPosition}
-        onConnect={handleWalletConnect}
-      /> */}
 
       {/* Wallet Details Modal */}
       {anyWalletConnected && (
