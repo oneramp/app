@@ -25,6 +25,7 @@ const SuccessCard: React.FC<SuccessCardProps> = ({
     " " +
     new Date().toLocaleTimeString("en-GB");
 
+  const totalAmount = Number(quote.fiatAmount) + Number(quote.feeInFiat);
   return (
     <div className="min-h-screen w-full mt-10 md:mt-0 md:w-1/3 text-white flex items-center justify-center">
       <div className="w-full h-full max-w-lg">
@@ -71,9 +72,7 @@ const SuccessCard: React.FC<SuccessCardProps> = ({
                   </h1>
                   <h2 className="text-gray-300 font-mono text-base font-semibold">
                     {quote.transferType === TransferType.TransferIn
-                      ? `${Number(quote.fiatAmount).toFixed(2)} ${
-                          quote.fiatType
-                        }`
+                      ? `${totalAmount.toFixed(2)} ${quote.fiatType}`
                       : `${Number(quote.amountPaid).toFixed(3)} ${
                           quote.cryptoType
                         }`}
@@ -111,9 +110,7 @@ const SuccessCard: React.FC<SuccessCardProps> = ({
                       ? `${Number(quote.amountPaid).toFixed(3)} ${
                           quote.cryptoType
                         }`
-                      : `${Number(quote.fiatAmount).toFixed(2)} ${
-                          quote.fiatType
-                        }`}
+                      : `${totalAmount.toFixed(2)} ${quote.fiatType}`}
                   </h2>
                 </div>
               </div>
