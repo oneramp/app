@@ -53,8 +53,6 @@ const OrderProcessing = () => {
     ? `https://explorer.example.com/tx/${transfer.transactionHash}`
     : undefined;
 
-
-
   return (
     <div className="fixed inset-0 z-50 flex-col md:flex-row flex py-20  justify-center bg-black gap-x-16">
       {/* Left side - Timeline */}
@@ -68,8 +66,6 @@ const OrderProcessing = () => {
           onGetReceipt={handleGetReceipt}
         />
       )}
-
-
     </div>
   );
 };

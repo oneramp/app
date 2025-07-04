@@ -500,6 +500,8 @@ export function TransactionReviewModal() {
   if (currentOrderStep !== OrderStep.GotQuote) return null;
   if (!quote) return null;
 
+  const totalAmount = Number(quote.fiatAmount) + Number(quote.feeInFiat);
+
   return (
     <>
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black">
@@ -526,7 +528,7 @@ export function TransactionReviewModal() {
               <div className="flex justify-between items-center">
                 <span className="text-neutral-400 text-lg">Total value</span>
                 <span className="text-white text-lg font-medium">
-                  {Number(quote.fiatAmount).toFixed(2)} {quote.fiatType}
+                  {totalAmount.toFixed(2)} {quote.fiatType}
                 </span>
               </div>
 

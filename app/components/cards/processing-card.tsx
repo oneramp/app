@@ -29,13 +29,15 @@ const ProcessingCard: React.FC<ProcessingCardProps> = ({
     " " +
     new Date().toLocaleTimeString("en-GB");
 
+  const totalAmount = Number(quote.fiatAmount) + Number(quote.feeInFiat);
+
   return (
     <div className="min-h-screen text-white flex items-center w-full md:w-1/3 justify-center bg-black">
       <div className="w-full h-full max-w-lg">
         {/* Main Card */}
         <div className="bg-[#181818] rounded-2xl border border-[#232323] overflow-hidden">
           {/* Header */}
-                      <div className="flex items-center justify-between p-6 border-b border-[#232323]">
+          <div className="flex items-center justify-between p-6 border-b border-[#232323]">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
                 <Loader size={16} className="animate-spin text-white" />
@@ -75,9 +77,7 @@ const ProcessingCard: React.FC<ProcessingCardProps> = ({
                   </h1>
                   <h2 className="text-gray-300 font-mono text-sm">
                     {quote.transferType === TransferType.TransferIn
-                      ? `${Number(quote.fiatAmount).toFixed(2)} ${
-                          quote.fiatType
-                        }`
+                      ? `${totalAmount.toFixed(2)} ${quote.fiatType}`
                       : `${Number(quote.amountPaid).toFixed(3)} ${
                           quote.cryptoType
                         }`}
@@ -117,9 +117,7 @@ const ProcessingCard: React.FC<ProcessingCardProps> = ({
                       ? `${Number(quote.amountPaid).toFixed(3)} ${
                           quote.cryptoType
                         }`
-                      : `${Number(quote.fiatAmount).toFixed(2)} ${
-                          quote.fiatType
-                        }`}
+                      : `${totalAmount.toFixed(2)} ${quote.fiatType}`}
                   </h2>
                 </div>
               </div>
@@ -225,8 +223,6 @@ const ProcessingCard: React.FC<ProcessingCardProps> = ({
                 </Button>
               </div>
             </div>
-
-
           </div>
         </div>
       </div>

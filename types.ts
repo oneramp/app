@@ -120,6 +120,7 @@ export interface Quote {
   fee: string;
   guaranteedUntil: string;
   transferType: TransferType;
+  feeInFiat: string;
   quoteId: string;
   network: string;
   used: boolean;
