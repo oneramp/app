@@ -28,6 +28,8 @@ const ProcessingCard: React.FC<ProcessingCardProps> = ({
     " " +
     new Date().toLocaleTimeString("en-GB");
 
+  const totalAmount = Number(quote.fiatAmount) + Number(quote.feeInFiat);
+
   return (
     <div className="min-h-screen text-white flex items-center w-full md:w-1/3 justify-center bg-black">
       <div className="w-full h-full max-w-lg">
@@ -74,9 +76,7 @@ const ProcessingCard: React.FC<ProcessingCardProps> = ({
                   </h1>
                   <h2 className="text-gray-300 font-mono text-sm">
                     {quote.transferType === TransferType.TransferIn
-                      ? `${Number(quote.fiatAmount).toFixed(2)} ${
-                          quote.fiatType
-                        }`
+                      ? `${totalAmount.toFixed(2)} ${quote.fiatType}`
                       : `${Number(quote.amountPaid).toFixed(3)} ${
                           quote.cryptoType
                         }`}
@@ -116,9 +116,7 @@ const ProcessingCard: React.FC<ProcessingCardProps> = ({
                       ? `${Number(quote.amountPaid).toFixed(3)} ${
                           quote.cryptoType
                         }`
-                      : `${Number(quote.fiatAmount).toFixed(2)} ${
-                          quote.fiatType
-                        }`}
+                      : `${totalAmount.toFixed(2)} ${quote.fiatType}`}
                   </h2>
                 </div>
               </div>

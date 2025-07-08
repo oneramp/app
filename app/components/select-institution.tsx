@@ -475,7 +475,7 @@ const SelectInstitution = ({ buy }: { buy?: boolean }) => {
             <span className="text-white text-lg font-medium">Recipient</span>
           </div>
 
-          <div className="flex gap-3 items-center h-14">
+          <div className="flex gap-3 items-center  flex-col">
             {/* Institution Selector */}
             <Button
               type="button"
@@ -485,7 +485,7 @@ const SelectInstitution = ({ buy }: { buy?: boolean }) => {
                 setValue("accountNumber", "");
                 updateSelection({ paymentMethod: undefined });
               }}
-              className="bg-transparent border w-1/3 h-full !border-neutral-600 text-neutral-400 rounded-full p-3 cursor-pointer flex items-center justify-center"
+              className="bg-transparent border w-full h-full !border-neutral-600 text-neutral-400 rounded-full p-3 cursor-pointer flex items-center justify-center"
             >
               <span className="line-clamp-1 text-white">
                 {institution?.name || "Select institution"}
@@ -502,7 +502,7 @@ const SelectInstitution = ({ buy }: { buy?: boolean }) => {
             </Button>
 
             {/* Account Number */}
-            <div className="flex-1 h-full">
+            <div className="flex-1 h-full w-full">
               <Input
                 type="number"
                 placeholder="Account number"
@@ -532,7 +532,7 @@ const SelectInstitution = ({ buy }: { buy?: boolean }) => {
                     },
                   },
                 })}
-                className={`bg-transparent border !border-neutral-600 text-lg text-white font-medium rounded-full h-full pl-6 w-full focus:outline-none ${
+                className={`bg-transparent border !border-neutral-600 text-lg text-white font-medium rounded-full h-14 pl-6 w-full focus:outline-none ${
                   touchedFields.accountNumber && errors.accountNumber
                     ? "border-red-500 focus:border-red-500"
                     : "focus:border-purple-400"
