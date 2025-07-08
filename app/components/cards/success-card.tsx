@@ -54,7 +54,7 @@ const SuccessCard: React.FC<SuccessCardProps> = ({
 
           {/* Transaction Flow */}
           <div className="p-6">
-            <div className="flex items-center gap-2 mb-8">
+            <div className="relative flex items-center gap-2 mb-8">
               {/* Source Card - Changes based on Transfer Type */}
               <div className="flex-1 bg-[#232323] rounded-xl p-6 w-full h-44 flex flex-col items-center justify-center">
                 <div className="mb-4 flex items-center justify-center relative size-24">
@@ -84,12 +84,14 @@ const SuccessCard: React.FC<SuccessCardProps> = ({
                   </h2>
                 </div>
               </div>
-              {/* Arrow */}
-              <div className="flex-shrink-0 flex items-center justify-center">
+
+              {/* Arrow positioned in the middle */}
+              <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
                 <div className="bg-[#181818] border-4 border-[#232323] rounded-xl p-2 md:p-3 shadow-lg text-green-500">
                   <FiArrowRight size={20} />
                 </div>
               </div>
+
               {/* Destination Card - Changes based on Transfer Type */}
               <div className="flex-1 bg-[#232323] rounded-xl p-6 w-full h-44 flex flex-col items-center justify-center">
                 <div className="mb-4 flex items-center justify-center relative size-24">
