@@ -40,10 +40,10 @@ export function InstitutionModal({
   if (!data) return null;
 
   return (
-    <div className="fixed inset-0 z-50 w-screen h-screen bg-[#181818] text-white flex flex-col">
+    <div className="fixed inset-0 z-50 w-screen h-screen bg-[#181818] text-white flex flex-col animate-slide-in-top">
       {/* Sticky header with close button and title */}
       <div className="flex items-center justify-between px-6 py-5 border-b border-[#232323] bg-[#181818] sticky top-0 z-10">
-        <div className="text-2xl font-bold">Select institution</div>
+        <div className="text-xl font-bold">Select institution</div>
         <button
           className="p-3 hover:bg-[#23232f] rounded-full transition-colors"
           onClick={onClose}
