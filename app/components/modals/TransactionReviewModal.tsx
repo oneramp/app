@@ -510,7 +510,7 @@ export function TransactionReviewModal() {
 
   return (
     <>
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black">
+      <div className="fixed inset-0 z-50 flex items-start justify-center bg-black pt-16">
         <div className="bg-[#181818] rounded-2xl max-w-md w-[90%] shadow-xl p-6">
           <div className="flex flex-col gap-4">
             <h1 className="text-2xl font-bold text-white">
