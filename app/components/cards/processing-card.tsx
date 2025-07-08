@@ -1,5 +1,5 @@
 import React from "react";
-import { FiLink, FiArrowRight, FiFileText } from "react-icons/fi";
+import { FiLink, FiFileText } from "react-icons/fi";
 import { Loader } from "lucide-react";
 import { TransferType, Quote, Transfer } from "@/types";
 import AssetAvator from "./asset-avator";
@@ -90,11 +90,11 @@ const ProcessingCard: React.FC<ProcessingCardProps> = ({
               </div>
 
               {/* Arrow positioned in the middle */}
-              <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+              {/* <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
                 <div className="bg-[#181818] border-4 border-[#232323] rounded-xl p-2 md:p-3 shadow-lg text-yellow-500">
                   <FiArrowRight size={20} />
                 </div>
-              </div>
+              </div> */}
 
               {/* Destination Card - Changes based on Transfer Type */}
               <div className="flex-1 bg-[#232323] rounded-xl p-6 h-44 flex flex-col items-center justify-center">
