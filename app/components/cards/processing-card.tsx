@@ -36,10 +36,10 @@ const ProcessingCard: React.FC<ProcessingCardProps> = ({
   }
 
   return (
-    <div className="min-h-screen text-white flex items-center w-full md:w-1/3 justify-center bg-black">
+    <div className="min-h-screen text-white flex items-center w-full md:w-1/3 justify-center bg-black pt-16">
       <div className="w-full h-full max-w-lg">
         {/* Main Card */}
-        <div className="bg-[#181818] rounded-2xl border border-[#232323] overflow-hidden">
+        <div className="bg-[#181818] rounded-2xl overflow-hidden">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-[#232323]">
             <div className="flex items-center gap-3">
@@ -58,7 +58,7 @@ const ProcessingCard: React.FC<ProcessingCardProps> = ({
 
           {/* Transaction Flow */}
           <div className="p-6">
-            <div className="flex items-center gap-2 mb-8">
+            <div className="flex items-center justify-center gap-2 mb-8">
               {/* Source Card - Changes based on Transfer Type */}
               <div className="flex-1 bg-[#232323] rounded-xl p-6 h-44 flex flex-col items-center justify-center">
                 <div className="mb-4 flex items-center justify-center relative size-24">

@@ -32,10 +32,10 @@ const SuccessCard: React.FC<SuccessCardProps> = ({
     totalAmount = Number(quote.fiatAmount) + Number(quote.feeInFiat);
   }
   return (
-    <div className="min-h-screen w-full mt-10 md:mt-0 md:w-1/3 text-white flex items-center justify-center bg-black">
+    <div className="min-h-screen w-full mt-10 md:mt-0 md:w-1/3 text-white flex items-center justify-center bg-black pt-16">
       <div className="w-full h-full max-w-lg">
         {/* Main Card */}
-        <div className="bg-[#181818] rounded-2xl border border-[#232323] overflow-hidden">
+        <div className="bg-[#181818] rounded-2xl overflow-hidden">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-[#232323]">
             <div className="flex items-center gap-3">
