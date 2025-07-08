@@ -28,7 +28,12 @@ const ProcessingCard: React.FC<ProcessingCardProps> = ({
     " " +
     new Date().toLocaleTimeString("en-GB");
 
-  const totalAmount = Number(quote.fiatAmount) + Number(quote.feeInFiat);
+  let totalAmount = 0;
+  if (quote.country === "KE" || quote.country === "UG") {
+    totalAmount = Number(quote.fiatAmount);
+  } else {
+    totalAmount = Number(quote.fiatAmount) + Number(quote.feeInFiat);
+  }
 
   return (
     <div className="min-h-screen text-white flex items-center w-full md:w-1/3 justify-center">

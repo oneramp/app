@@ -25,7 +25,12 @@ const SuccessCard: React.FC<SuccessCardProps> = ({
     " " +
     new Date().toLocaleTimeString("en-GB");
 
-  const totalAmount = Number(quote.fiatAmount) + Number(quote.feeInFiat);
+  let totalAmount = 0;
+  if (quote.country === "KE" || quote.country === "UG") {
+    totalAmount = Number(quote.fiatAmount);
+  } else {
+    totalAmount = Number(quote.fiatAmount) + Number(quote.feeInFiat);
+  }
   return (
     <div className="min-h-screen w-full mt-10 md:mt-0 md:w-1/3 text-white flex items-center justify-center">
       <div className="w-full h-full max-w-lg">
