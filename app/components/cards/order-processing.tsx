@@ -59,7 +59,7 @@ const OrderProcessing = () => {
   console.log("====================================");
 
   return (
-    <div className="fixed inset-0 z-50 flex-col md:flex-row flex py-20  justify-center bg-[#181818] gap-x-16">
+    <div className="fixed inset-0 z-50 flex-col md:flex-row flex py-20  justify-center bg-black gap-x-16">
       {/* Left side - Timeline */}
       {quote && (
         <ProcessingCard

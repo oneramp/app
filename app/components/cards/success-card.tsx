@@ -32,12 +32,12 @@ const SuccessCard: React.FC<SuccessCardProps> = ({
     totalAmount = Number(quote.fiatAmount) + Number(quote.feeInFiat);
   }
   return (
-    <div className="min-h-screen w-full mt-10 md:mt-0 md:w-1/3 text-white flex items-center justify-center">
+    <div className="min-h-screen w-full mt-10 md:mt-0 md:w-1/3 text-white flex items-center justify-center bg-black">
       <div className="w-full h-full max-w-lg">
         {/* Main Card */}
-        <div className="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden">
+        <div className="bg-[#181818] rounded-2xl border border-[#232323] overflow-hidden">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-800">
+          <div className="flex items-center justify-between p-6 border-b border-[#232323]">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
                 <FiCheck size={16} color="#ffffff" />
@@ -54,9 +54,9 @@ const SuccessCard: React.FC<SuccessCardProps> = ({
 
           {/* Transaction Flow */}
           <div className="p-6">
-            <div className="flex items-center gap-4 mb-8">
+          <div className="relative flex items-center gap-2 mb-8">
               {/* Source Card - Changes based on Transfer Type */}
-              <div className="flex-1 bg-gray-800 rounded-xl p-6 w-full h-44 flex flex-col items-center justify-center">
+              <div className="flex-1 bg-[#232323] rounded-xl p-6 w-full h-44 flex flex-col items-center justify-center">
                 <div className="mb-4 flex items-center justify-center relative size-24">
                   {quote.transferType === TransferType.TransferIn ? (
                     <CountryAvator country={quote.country} iconOnly />
@@ -86,12 +86,14 @@ const SuccessCard: React.FC<SuccessCardProps> = ({
               </div>
 
               {/* Arrow */}
-              <div className="bg-gray-800 rounded-full p-3 text-gray-400">
-                <FiArrowRight size={20} />
+              <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+                <div className="bg-[#181818] border-4 border-[#232323] rounded-xl p-2 md:p-3 shadow-lg text-green-500">
+                  <FiArrowRight size={20} />
+                </div>
               </div>
 
               {/* Destination Card - Changes based on Transfer Type */}
-              <div className="flex-1 bg-gray-800 rounded-xl p-6 w-full h-44 flex flex-col items-center justify-center">
+              <div className="flex-1 bg-[#232323] rounded-xl p-6 w-full h-44 flex flex-col items-center justify-center">
                 <div className="mb-4 flex items-center justify-center relative size-24">
                   {quote.transferType === TransferType.TransferIn ? (
                     <AssetAvator
@@ -153,7 +155,7 @@ const SuccessCard: React.FC<SuccessCardProps> = ({
               </div>
 
               {/* Divider */}
-              <div className="border-t border-gray-700 my-4"></div>
+              <div className="border-t border-[#232323] my-4"></div>
 
               {/* Recipient Address */}
               <div className="flex items-center justify-between">
