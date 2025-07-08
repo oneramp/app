@@ -29,12 +29,12 @@ const ProcessingCard: React.FC<ProcessingCardProps> = ({
     new Date().toLocaleTimeString("en-GB");
 
   return (
-    <div className="min-h-screen text-white flex items-center w-full md:w-1/3 justify-center">
+    <div className="min-h-screen text-white flex items-center w-full md:w-1/3 justify-center bg-black">
       <div className="w-full h-full max-w-lg">
         {/* Main Card */}
-        <div className="bg-gray-900 md:rounded-2xl md:border md:border-gray-800 overflow-hidden">
+        <div className="bg-[#181818] rounded-2xl border border-[#232323] overflow-hidden">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-800">
+          <div className="flex items-center justify-between p-6 border-b border-[#232323]">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
                 <Loader size={16} className="animate-spin text-white" />
@@ -51,9 +51,9 @@ const ProcessingCard: React.FC<ProcessingCardProps> = ({
 
           {/* Transaction Flow */}
           <div className="p-6">
-            <div className="flex items-center gap-4 mb-8">
+          <div className="relative flex items-center gap-2 mb-8">
               {/* Source Card - Changes based on Transfer Type */}
-              <div className="flex-1 bg-gray-800 rounded-xl p-6 h-44 flex flex-col items-center justify-center">
+              <div className="flex-1 bg-[#232323] rounded-xl p-6 h-44 flex flex-col items-center justify-center">
                 <div className="mb-4 flex items-center justify-center relative size-24">
                   {quote.transferType === TransferType.TransferIn ? (
                     <CountryAvator country={quote.country} iconOnly />
@@ -85,12 +85,14 @@ const ProcessingCard: React.FC<ProcessingCardProps> = ({
               </div>
 
               {/* Arrow */}
-              <div className="bg-gray-800 rounded-full p-3 text-yellow-500">
-                <FiArrowRight size={20} />
+              <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+                <div className="bg-[#181818] border-4 border-[#232323] rounded-xl p-2 md:p-3 shadow-lg text-yellow-500">
+                  <FiArrowRight size={20} />
+                </div>
               </div>
 
               {/* Destination Card - Changes based on Transfer Type */}
-              <div className="flex-1 bg-gray-800 rounded-xl p-6 h-44 flex flex-col items-center justify-center">
+              <div className="flex-1 bg-[#232323] rounded-xl p-6 h-44 flex flex-col items-center justify-center">
                 <div className="mb-4 flex items-center justify-center relative size-24">
                   {quote.transferType === TransferType.TransferIn ? (
                     <AssetAvator
@@ -157,7 +159,7 @@ const ProcessingCard: React.FC<ProcessingCardProps> = ({
               </div>
 
               {/* Divider */}
-              <div className="border-t border-gray-700 my-4"></div>
+              <div className="border-t border-[#232323] my-4"></div>
 
               {/* Recipient Address */}
               <div className="flex items-center justify-between">
@@ -212,14 +214,12 @@ const ProcessingCard: React.FC<ProcessingCardProps> = ({
                 )}
 
               <div className="flex items-center justify-between">
-                <span className="text-gray-400">Action</span>
-                <Button
-                  onClick={onCancel}
-                  variant="ghost"
-                  className="bg-transparent px-0 border-red-500 text-red-500 hover:bg-red-500 hover:text-white text-sm font-medium h-14 rounded-xl transition-colors"
-                >
-                  Go Back
-                </Button>
+              <Button
+                onClick={()=>(onCancel())}
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white text-lg font-semibold h-14 rounded-xl transition-colors"
+              >
+                  Swap Again
+              </Button>
               </div>
             </div>
 
