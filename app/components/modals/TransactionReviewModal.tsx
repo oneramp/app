@@ -506,7 +506,12 @@ export function TransactionReviewModal() {
   if (currentOrderStep !== OrderStep.GotQuote) return null;
   if (!quote) return null;
 
-  const totalAmount = Number(quote.fiatAmount) + Number(quote.feeInFiat);
+  let totalAmount = 0;
+  if (quote.country === "KE" || quote.country === "UG") {
+    totalAmount = Number(quote.fiatAmount);
+  } else {
+    totalAmount = Number(quote.fiatAmount) + Number(quote.feeInFiat);
+  }
 
   return (
     <>
