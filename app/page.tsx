@@ -6,10 +6,23 @@ import { Header } from "./components/Header";
 import { SwapBuyTabs } from "./components/SwapBuyTabs";
 import StateContextProvider from "./providers/StateContextProvider";
 import { useMiniKit } from "@coinbase/onchainkit/minikit";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import sdk from "@farcaster/frame-sdk";
 
 export default function Home() {
+  const [isSDKLoaded, setIsSDKLoaded] = useState(false);
   const { setFrameReady, isFrameReady } = useMiniKit();
+
+  useEffect(() => {
+    const load = async () => {
+      await sdk.actions.ready();
+      setIsSDKLoaded(true);
+    };
+
+    if (sdk && !isSDKLoaded) {
+      load();
+    }
+  }, [isSDKLoaded]);
 
   // The setFrameReady() function is called when your mini-app is ready to be shown
   useEffect(() => {

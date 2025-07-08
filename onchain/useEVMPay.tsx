@@ -1,14 +1,14 @@
 import { mockOnChainTransaction } from "@/actions/mocker";
 import { MOCK_TRANSACTIONS } from "@/constants";
 import { useState } from "react";
-import { erc20Abi, TransactionReceipt } from "viem";
+import { erc20Abi, TransactionReceipt, parseUnits } from "viem";
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 
 // Starknet imports
 
 export type TransactionPayload = {
   recipient: string;
-  amount: bigint | string | number;
+  amount: string | number;
   tokenAddress: string;
 };
 
@@ -78,13 +78,16 @@ EVMPayHookReturn => {
     resetState();
 
     const { recipient, amount, tokenAddress } = transactionPayload;
+    // Convert amount to the correct format for the contract call
+    // For USDC/USDT, we use 6 decimals
+    const amountInWei = parseUnits(amount.toString(), 6);
 
     return writeContract(
       {
         address: tokenAddress as `0x${string}`,
         abi: erc20Abi,
         functionName: "transfer",
-        args: [recipient as `0x${string}`, amount as bigint],
+        args: [recipient as `0x${string}`, amountInWei],
       },
       {
         onSuccess: (data) => {

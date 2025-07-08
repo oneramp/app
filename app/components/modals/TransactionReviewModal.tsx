@@ -22,7 +22,6 @@ import { Loader } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { parseUnits } from "viem";
 import AssetAvator from "../cards/asset-avator";
 import { CancelModal } from "./cancel-modal";
 import { assets } from "@/data/currencies";
@@ -198,12 +197,11 @@ export function TransactionReviewModal() {
     setLoading(true);
 
     try {
-      const amountInWei = parseUnits(quote.amountPaid.toString(), 6);
       const recipient = transfer.transferAddress;
 
       const transactionPayload = {
         recipient,
-        amount: amountInWei,
+        amount: quote.amountPaid.toString(),
         tokenAddress: contractAddress,
       };
 
@@ -506,7 +504,12 @@ export function TransactionReviewModal() {
   if (currentOrderStep !== OrderStep.GotQuote) return null;
   if (!quote) return null;
 
-  const totalAmount = Number(quote.fiatAmount) + Number(quote.feeInFiat);
+  let totalAmount = 0;
+  if (quote.country === "KE" || quote.country === "UG") {
+    totalAmount = Number(quote.fiatAmount);
+  } else {
+    totalAmount = Number(quote.fiatAmount) + Number(quote.feeInFiat);
+  }
 
   return (
     <>
