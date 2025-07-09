@@ -42,8 +42,6 @@ export default function Home() {
               <div className="flex flex-1">
                 <Header />
               </div>
-
-
             </div>
           </div>
         </div>

@@ -7,6 +7,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useBalance, useToken } from "wagmi";
 import { WalletDetailsModal } from "./WalletDetailsModal";
+import TransactionsModal from "@/components/modals/transactions-modal";
 
 interface AppKitAccount {
   address?: string;
@@ -186,6 +187,7 @@ export function Header({ logoOnly }: { logoOnly?: boolean }) {
               )}
 
               <ConnectButton />
+              <TransactionsModal />
             </div>
           </>
         )}
