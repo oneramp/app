@@ -296,3 +296,48 @@ export interface SubmitTransactionHashRequest {
   transferId: string;
   txHash: string;
 }
+
+// | "INITIATED"
+//       | "IN-PROGRESS"
+//       | "DONE"
+//       | "FAILED"
+//       | "REFUNDED"
+//       | "IS-REFUNDING"
+//       | "INITIATED"
+//       | "IN-PROGRESS"
+//       | "DONE"
+//       | "FAILED"
+//       | "REFUNDED"
+//       | "IS-REFUNDING"
+
+export enum TransactionStatus {
+  INITIATED = "INITIATED",
+  IN_PROGRESS = "IN-PROGRESS",
+  DONE = "DONE",
+  FAILED = "FAILED",
+  REFUNDED = "REFUNDED",
+  IS_REFUNDING = "IS-REFUNDING",
+}
+
+export interface Transaction {
+  _id: string;
+  amount: number;
+  recieves: number;
+  quoteId: string;
+  orderno: string;
+  orderType: string;
+  transactionId: string;
+  transferId: string;
+  asset: string;
+  address: string;
+  phone: string;
+  network: string;
+  currency: string;
+  paidIn: string;
+  chain: string;
+  amountPaid: number;
+  operator: string;
+  status: TransactionStatus;
+  createdAt: string;
+  txId: string;
+}

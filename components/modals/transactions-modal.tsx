@@ -13,20 +13,25 @@ import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent } from "../ui/dialog";
 import Image from "next/image";
+import { useQuery } from "@tanstack/react-query";
+import { getTransactions } from "@/actions/transfer";
+import { Transaction, TransactionStatus } from "@/types";
+import useWalletGetInfo from "@/hooks/useWalletGetInfo";
 
-// Transaction status types
-type TransactionStatus = "processing" | "completed" | "failed" | "pending";
+// Transaction status types for UI
+type UITransactionStatus = "processing" | "completed" | "failed" | "pending";
 
-// Transaction interface
-interface Transaction {
+// Transaction interface for UI
+interface UITransaction {
   id: string;
-  type: "buy" | "sell";
-  status: TransactionStatus;
+  orderType: string;
+  status: UITransactionStatus;
   amount: string;
   currency: string;
   cryptoAmount: string;
   cryptoCurrency: string;
   network: string;
+  chain: string;
   timestamp: string;
   transactionHash?: string;
   recipientAddress: string;
@@ -35,81 +40,46 @@ interface Transaction {
   progress?: number;
 }
 
-// Hardcoded transaction data
-const mockTransactions: Transaction[] = [
-  {
-    id: "tx_001",
-    type: "buy",
-    status: "processing",
-    amount: "50,000",
-    currency: "NGN",
-    cryptoAmount: "25.5",
-    cryptoCurrency: "USDC",
-    network: "Base",
-    timestamp: "2024-01-15T10:30:00Z",
-    transactionHash: "0x1234567890abcdef1234567890abcdef12345678",
-    recipientAddress: "0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6",
-    fee: "1,500",
-    estimatedTime: "2-5 minutes",
-    progress: 65,
-  },
-  {
-    id: "tx_002",
-    type: "sell",
-    status: "completed",
-    amount: "75,000",
-    currency: "NGN",
-    cryptoAmount: "38.2",
-    cryptoCurrency: "USDT",
-    network: "Base",
-    timestamp: "2024-01-14T15:45:00Z",
-    transactionHash: "0xabcdef1234567890abcdef1234567890abcdef12",
-    recipientAddress: "0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6",
-    fee: "2,100",
-  },
-  {
-    id: "tx_003",
-    type: "buy",
-    status: "completed",
-    amount: "25,000",
-    currency: "NGN",
-    cryptoAmount: "12.8",
-    cryptoCurrency: "USDC",
-    network: "Base",
-    timestamp: "2024-01-13T09:20:00Z",
-    transactionHash: "0x7890abcdef1234567890abcdef1234567890abcd",
-    recipientAddress: "0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6",
-    fee: "800",
-  },
-  {
-    id: "tx_004",
-    type: "sell",
-    status: "failed",
-    amount: "100,000",
-    currency: "NGN",
-    cryptoAmount: "51.0",
-    cryptoCurrency: "USDT",
-    network: "Base",
-    timestamp: "2024-01-12T14:15:00Z",
-    recipientAddress: "0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6",
-    fee: "2,800",
-  },
-  {
-    id: "tx_005",
-    type: "buy",
-    status: "pending",
-    amount: "30,000",
-    currency: "NGN",
-    cryptoAmount: "15.3",
-    cryptoCurrency: "USDC",
-    network: "Base",
-    timestamp: "2024-01-15T11:00:00Z",
-    recipientAddress: "0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6",
-    fee: "900",
-    estimatedTime: "5-10 minutes",
-    progress: 25,
-  },
-];
+// Map API transaction status to UI status
+const mapTransactionStatus = (
+  status: TransactionStatus
+): UITransactionStatus => {
+  switch (status) {
+    case TransactionStatus.INITIATED:
+    case TransactionStatus.IN_PROGRESS:
+      return "processing";
+    case TransactionStatus.DONE:
+      return "completed";
+    case TransactionStatus.FAILED:
+    case TransactionStatus.REFUNDED:
+    case TransactionStatus.IS_REFUNDING:
+      return "failed";
+    default:
+      return "pending";
+  }
+};
+
+// Transform API transaction to UI transaction
+const transformTransaction = (tx: Transaction): UITransaction => {
+  return {
+    id: tx._id,
+    orderType: tx.orderType,
+    status: mapTransactionStatus(tx.status),
+    amount: tx.amount.toString(),
+    currency: tx.currency,
+    cryptoAmount: tx.recieves.toString(),
+    cryptoCurrency: tx.asset,
+    network: tx.network,
+    chain: tx.chain,
+    timestamp: tx.createdAt,
+    transactionHash: tx.txId,
+    recipientAddress: tx.address,
+    fee: "0", // Fee not available in API response
+    estimatedTime:
+      tx.status === TransactionStatus.IN_PROGRESS ? "2-5 minutes" : undefined,
+    progress: tx.status === TransactionStatus.IN_PROGRESS ? 65 : undefined,
+  };
+};
 
 const STATUS_COLORS = {
   processing: "bg-yellow-400",
@@ -133,22 +103,68 @@ const TransactionsModal = () => {
     "processing" | "completed" | "failed"
   >("processing");
 
-  const processingTransactions = mockTransactions.filter(
-    (tx) => tx.status === "processing"
-  );
-  const completedTransactions = mockTransactions.filter(
-    (tx) => tx.status === "completed"
-  );
-  const failedTransactions = mockTransactions.filter(
-    (tx) => tx.status === "failed"
-  );
+  const { address, isConnected } = useWalletGetInfo();
 
-  let visibleTransactions: Transaction[] = [];
-  if (activeTab === "processing") visibleTransactions = processingTransactions;
-  if (activeTab === "completed") visibleTransactions = completedTransactions;
-  if (activeTab === "failed") visibleTransactions = failedTransactions;
+  // Fetch transactions for each status
+  const {
+    data: processingTransactions = [],
+    isLoading: isLoadingProcessing,
+    error: processingError,
+  } = useQuery({
+    queryKey: ["transactions", address, "processing"],
+    queryFn: () => getTransactions(address!, TransactionStatus.IN_PROGRESS),
+    enabled: !!address && isConnected,
+    refetchInterval: 10000, // Refetch every 10 seconds
+    select: (data) => data.map(transformTransaction),
+  });
 
-  const getStatusIcon = (status: TransactionStatus) => {
+  const {
+    data: completedTransactions = [],
+    isLoading: isLoadingCompleted,
+    error: completedError,
+  } = useQuery({
+    queryKey: ["transactions", address, "completed"],
+    queryFn: () => getTransactions(address!, TransactionStatus.DONE),
+    enabled: !!address && isConnected,
+    refetchInterval: 30000, // Refetch every 30 seconds
+    select: (data) => data.map(transformTransaction),
+  });
+
+  const {
+    data: failedTransactions = [],
+    isLoading: isLoadingFailed,
+    error: failedError,
+  } = useQuery({
+    queryKey: ["transactions", address, "failed"],
+    queryFn: () => getTransactions(address!, TransactionStatus.FAILED),
+    enabled: !!address && isConnected,
+    refetchInterval: 60000, // Refetch every minute
+    select: (data) => data.map(transformTransaction),
+  });
+
+  // Determine which transactions to show based on active tab
+  let visibleTransactions: UITransaction[] = [];
+  let isLoading = false;
+  let error: Error | null = null;
+
+  if (activeTab === "processing") {
+    visibleTransactions = processingTransactions;
+    isLoading = isLoadingProcessing;
+    error = processingError as Error | null;
+  } else if (activeTab === "completed") {
+    visibleTransactions = completedTransactions;
+    isLoading = isLoadingCompleted;
+    error = completedError as Error | null;
+  } else if (activeTab === "failed") {
+    visibleTransactions = failedTransactions;
+    isLoading = isLoadingFailed;
+    error = failedError as Error | null;
+  }
+
+  // Only show badge for processing transactions
+  const processingTransactionsCount = processingTransactions.length;
+
+  const getStatusIcon = (status: UITransactionStatus) => {
     const iconBg =
       status === "processing"
         ? STATUS_COLORS.processing
@@ -165,14 +181,14 @@ const TransactionsModal = () => {
     if (status === "failed") Icon = XCircle;
     return (
       <span
-        className={`inline-flex items-center justify-center w-8 h-8 rounded-full ${iconBg} bg-opacity-90`}
+        className={`inline-flex items-center justify-center w-6 h-6 rounded-full ${iconBg} bg-opacity-90`}
       >
-        <Icon className={`w-5 h-5 ${iconColor}`} />
+        <Icon className={`w-4 h-4 ${iconColor}`} />
       </span>
     );
   };
 
-  const getStatusText = (status: TransactionStatus) => {
+  const getStatusText = (status: UITransactionStatus) => {
     switch (status) {
       case "processing":
         return "Processing";
@@ -187,7 +203,7 @@ const TransactionsModal = () => {
     }
   };
 
-  const getStatusColor = (status: TransactionStatus) => {
+  const getStatusColor = (status: UITransactionStatus) => {
     switch (status) {
       case "processing":
         return "text-yellow-400";
@@ -225,7 +241,7 @@ const TransactionsModal = () => {
     isExpanded,
     onToggle,
   }: {
-    tx: Transaction;
+    tx: UITransaction;
     isExpanded: boolean;
     onToggle: () => void;
   }) => (
@@ -234,38 +250,36 @@ const TransactionsModal = () => {
       <div className="flex items-center justify-between" onClick={onToggle}>
         <div className="flex items-center gap-3 flex-1 min-w-0">
           {getStatusIcon(tx.status)}
-          <span
-            className={`font-semibold ${getStatusColor(tx.status)} text-base`}
-          >
-            {getStatusText(tx.status)}
-          </span>
+          <p className={`font-semibold ${getStatusColor(tx.status)} text-base`}>
+            {getStatusText(tx.status)} {tx.orderType.toLowerCase()} order
+          </p>
         </div>
         <Button
           variant="ghost"
           size="sm"
-          className="p-1 h-auto text-gray-400 hover:text-white ml-2"
+          className="p-1 h-auto text-gray-400 hover:text-white ml-2 transition-transform duration-200"
         >
           {isExpanded ? (
-            <ChevronUp className="w-5 h-5" />
+            <ChevronUp className="w-5 h-5 transition-transform duration-200" />
           ) : (
-            <ChevronDown className="w-5 h-5" />
+            <ChevronDown className="w-5 h-5 transition-transform duration-200" />
           )}
         </Button>
       </div>
 
       {/* Amount and Conversion Row */}
       <div className="flex items-center gap-2 mt-4 text-lg font-bold text-white">
-        <span>
-          {tx.amount} {tx.currency}
-        </span>
-        <span className="text-gray-400 font-normal text-xl">→</span>
-        <span>
-          {tx.cryptoAmount} {tx.cryptoCurrency}
-        </span>
+        <p>
+          {Number(tx.amount).toFixed(2)} {tx.currency}
+        </p>
+        <p className="text-gray-400 font-normal text-xl">→</p>
+        <p>
+          {Number(tx.cryptoAmount).toFixed(2)} {tx.cryptoCurrency}
+        </p>
       </div>
 
       {/* Network and Date Row */}
-      <div className="flex items-center gap-2 mt-4 text-sm text-gray-400">
+      <div className="flex items-center gap-2 mt-2 text-sm text-gray-400">
         <Image
           src="/logos/base.png"
           alt={tx.network}
@@ -273,31 +287,33 @@ const TransactionsModal = () => {
           height={18}
           className="rounded"
         />
-        <span className="font-medium">{tx.network}</span>
-        <span className="mx-1">•</span>
-        <span>{formatDate(tx.timestamp)}</span>
+        <p className="font-medium text-sm">{tx.chain}</p>
+        <p className="mx-1">•</p>
+        <p className="text-sm">{formatDate(tx.timestamp)}</p>
       </div>
 
       {/* Divider for expanded details */}
-      {isExpanded && <div className="my-4 border-t !border-[#2a2a2a]" />}
+      {isExpanded && (
+        <div className="my-4 border-t !border-[#2a2a2a] opacity-0 animate-[fadeIn_0.2s_ease-out_forwards]" />
+      )}
 
       {/* Expanded Details */}
       {isExpanded && (
-        <div className="space-y-3">
+        <div className="space-y-3 opacity-0 animate-[slideInFromTop_0.3s_ease-out_forwards]">
           <div className="flex items-center justify-between">
-            <span className="text-gray-400">Amount</span>
-            <span className="font-medium">
+            <p className="text-gray-400 text-sm">Amount</p>
+            <p className="font-medium text-sm">
               {tx.amount} {tx.currency}
-            </span>
+            </p>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-gray-400">You&apos;ll receive</span>
-            <span className="font-medium">
+            <p className="text-gray-400 text-sm">You&apos;ll receive</p>
+            <p className="font-medium text-sm">
               {tx.cryptoAmount} {tx.cryptoCurrency}
-            </span>
+            </p>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-gray-400">Network</span>
+            <p className="text-gray-400 text-sm">Network</p>
             <div className="flex items-center gap-2">
               <Image
                 src="/logos/base.png"
@@ -306,21 +322,15 @@ const TransactionsModal = () => {
                 height={16}
                 className="rounded"
               />
-              <span className="font-medium">{tx.network}</span>
+              <p className="font-medium text-sm">{tx.chain}</p>
             </div>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-gray-400">Fee</span>
-            <span className="font-medium">
-              {tx.fee} {tx.currency}
-            </span>
           </div>
 
           {/* Transaction Hash */}
           {tx.transactionHash && (
             <div className="mt-4 pt-4 border-t !border-[#2a2a2a]">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-400">Transaction Hash</span>
+                <p className="text-sm text-gray-400">Transaction Hash</p>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -343,14 +353,14 @@ const TransactionsModal = () => {
   return (
     <>
       <Button className="relative p-0 pr-3" onClick={() => setModalOpen(true)}>
-        <Badge
-          className="h-5 min-w-5 rounded-full px-1 font-mono tabular-nums absolute -top-1 -right-1"
-          variant="destructive"
-        >
-          {processingTransactions.length +
-            completedTransactions.length +
-            failedTransactions.length}
-        </Badge>
+        {processingTransactionsCount > 0 && (
+          <Badge
+            className="h-5 min-w-5 rounded-full px-1 font-mono tabular-nums absolute -top-1 -right-1"
+            variant="destructive"
+          >
+            {processingTransactionsCount}
+          </Badge>
+        )}
         <Bell className="size-5 text-white" />
       </Button>
 
@@ -368,7 +378,7 @@ const TransactionsModal = () => {
                 >
                   <ArrowLeft className="w-5 h-5" />
                 </Button>
-                <h2 className="text-2xl font-bold">Transactions</h2>
+                <h2 className="text-xl font-bold">Transactions</h2>
               </div>
             </div>
 
@@ -378,7 +388,7 @@ const TransactionsModal = () => {
                 {TAB_OPTIONS.map((tab) => (
                   <Button
                     key={tab.key}
-                    className={`flex-1 py-2 rounded-full font-semibold text-base transition-all relative
+                    className={`flex-1 py-2 rounded-full font-semibold text-sm transition-all relative
                       ${
                         activeTab === tab.key
                           ? "bg-white text-black shadow-lg border border-gray-200"
@@ -399,7 +409,22 @@ const TransactionsModal = () => {
 
             {/* Content */}
             <div className="flex-1 overflow-y-auto px-4 py-6">
-              {visibleTransactions.length > 0 ? (
+              {isLoading ? (
+                <div className="flex flex-col items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mb-4"></div>
+                  <p className="text-gray-400">Loading transactions...</p>
+                </div>
+              ) : error ? (
+                <div className="flex flex-col items-center justify-center py-12">
+                  <XCircle className="w-12 h-12 text-red-400 mb-4" />
+                  <h3 className="text-sm font-medium text-gray-300 mb-2">
+                    Error loading transactions
+                  </h3>
+                  <p className="text-gray-400 text-center text-sm">
+                    Failed to load your transaction history. Please try again.
+                  </p>
+                </div>
+              ) : visibleTransactions.length > 0 ? (
                 <div className="space-y-5">
                   {visibleTransactions.map((tx) => (
                     <TransactionCard
@@ -420,11 +445,11 @@ const TransactionsModal = () => {
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-12">
-                  <Bell className="w-12 h-12 text-gray-400 mb-4" />
-                  <h3 className="text-lg font-medium text-gray-300 mb-2">
+                  <Bell className="w-8 h-8 text-gray-400 mb-4" />
+                  <h3 className="text-sm font-medium text-gray-300 mb-2">
                     No transactions yet
                   </h3>
-                  <p className="text-gray-400 text-center">
+                  <p className="text-gray-400 text-center text-sm">
                     Your transaction history will appear here once you make your
                     first trade.
                   </p>
