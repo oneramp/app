@@ -303,13 +303,13 @@ const TransactionsModal = () => {
           <div className="flex items-center justify-between">
             <p className="text-gray-400 text-sm">Amount</p>
             <p className="font-medium text-sm">
-              {tx.amount} {tx.currency}
+              {Number(tx.amount).toFixed(2)} {tx.currency}
             </p>
           </div>
           <div className="flex items-center justify-between">
             <p className="text-gray-400 text-sm">You&apos;ll receive</p>
             <p className="font-medium text-sm">
-              {tx.cryptoAmount} {tx.cryptoCurrency}
+              {Number(tx.cryptoAmount).toFixed(2)} {tx.cryptoCurrency}
             </p>
           </div>
           <div className="flex items-center justify-between">
