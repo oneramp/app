@@ -327,7 +327,7 @@ const TransactionsModal = () => {
           </div>
 
           {/* Transaction Hash */}
-          {tx.transactionHash && (
+          {tx.transactionHash && tx.transactionHash.length > 5 && (
             <div className="mt-4 pt-4 border-t !border-[#2a2a2a]">
               <div className="flex items-center justify-between">
                 <p className="text-sm text-gray-400">Transaction Hash</p>
