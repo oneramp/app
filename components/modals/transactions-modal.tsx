@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Bell,
   Clock,
@@ -95,7 +97,7 @@ const TAB_OPTIONS = [
 ];
 
 const TransactionsModal = () => {
-  const [modalOpen, setModalOpen] = useState(false);
+  const [modalTxOpen, setModalTxOpen] = useState(false);
   const [expandedTransactions, setExpandedTransactions] = useState<Set<string>>(
     new Set()
   );
@@ -352,7 +354,10 @@ const TransactionsModal = () => {
 
   return (
     <>
-      <Button className="relative p-0 pr-3" onClick={() => setModalOpen(true)}>
+      <Button
+        className="relative p-0 pr-3"
+        onClick={() => setModalTxOpen(true)}
+      >
         {processingTransactionsCount > 0 && (
           <Badge
             className="h-5 min-w-5 rounded-full px-1 font-mono tabular-nums absolute -top-1 -right-1"
@@ -364,8 +369,8 @@ const TransactionsModal = () => {
         <Bell className="size-5 text-white" />
       </Button>
 
-      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="fixed border-none inset-0 z-50 w-screen h-screen max-w-none max-h-none p-0 bg-[#181818] text-white flex flex-col translate-x-0 translate-y-0 top-0 left-0">
+      <Dialog open={modalTxOpen} onOpenChange={setModalTxOpen}>
+        <DialogContent className="fixed border-none inset-0 z-50 w-screen h-screen max-w-none max-h-none p-0 bg-[#181818] text-white flex flex-col translate-x-0 translate-y-0 top-0 lg:right-0 lg:left-auto lg:w-96 lg:max-w-sm lg:shadow-2xl lg:border-l lg:border-[#232323]">
           <div className="flex flex-col h-full w-full">
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-5 border-b border-[#232323]">
@@ -373,7 +378,7 @@ const TransactionsModal = () => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setModalOpen(false)}
+                  onClick={() => setModalTxOpen(false)}
                   className="p-2 hover:bg-[#2a2a2a] rounded-lg"
                 >
                   <ArrowLeft className="w-5 h-5" />
@@ -389,11 +394,11 @@ const TransactionsModal = () => {
                   <Button
                     key={tab.key}
                     className={`flex-1 py-2 rounded-full font-semibold text-sm transition-all relative
-                      ${
-                        activeTab === tab.key
-                          ? "bg-white text-black shadow-lg border border-gray-200"
-                          : "bg-[#23232f] !text-gray-500 hover:bg-[#23232f]/80 border border-transparent"
-                      }`}
+                        ${
+                          activeTab === tab.key
+                            ? "bg-white text-black shadow-lg border border-gray-200"
+                            : "bg-[#23232f] text-gray-500 hover:bg-[#23232f]/80 border border-transparent"
+                        }`}
                     style={{ transition: "background 0.2s, color 0.2s" }}
                     onClick={() =>
                       setActiveTab(
