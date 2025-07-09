@@ -50,7 +50,7 @@ const ValueInput: React.FC<ValueInputProps> = ({
 
     const numericValue = parseFloat(amount);
 
-    // Basic validation
+    // Basic validation - always use global min/max for basic validation
     const isValidNumber =
       !isNaN(numericValue) &&
       numericValue >= GLOBAL_MIN_MAX.min &&
