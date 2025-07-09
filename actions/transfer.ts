@@ -3,6 +3,8 @@
 import { oneRampApi, oneRampApiWithCustomHeaders } from "@/constants";
 import {
   SubmitTransactionHashRequest,
+  Transaction,
+  TransactionStatus,
   TransferBankRequest,
   TransferMomoRequest,
 } from "@/types";
@@ -158,4 +160,19 @@ export const submitTransactionHash = async (
     status: 500,
     message: "Unexpected error: Max retries exceeded",
   };
+};
+
+export const getTransactions = async (
+  address: string,
+  status: TransactionStatus
+): Promise<Transaction[]> => {
+  try {
+    const response = await oneRampApi.get(
+      `/address-orders/${address}/${status}`
+    );
+
+    return response.data as Transaction[];
+  } catch (error) {
+    throw new Error("Failed to get transactions", { cause: error });
+  }
 };

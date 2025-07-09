@@ -20,6 +20,7 @@ import { useMutation } from "@tanstack/react-query";
 import { getKYC } from "@/actions/kyc";
 import { useKYCStore } from "@/store/kyc-store";
 import { useUserSelectionStore } from "@/store/user-selection";
+import TransactionsModal from "./modals/transactions-modal";
 
 export const ModalConnectButton = ({ large }: { large?: boolean }) => {
   const { address, isConnected } = useWalletGetInfo();
@@ -220,16 +221,21 @@ export const ModalConnectButton = ({ large }: { large?: boolean }) => {
   return (
     <>
       {isConnected ? (
-        <Button
-          disabled={true}
-          className={cn(
-            "rounded-full px-6 py-1.5 text-sm font-semibold transition-colors bg-neutral-800 hover:bg-neutral-700 text-white",
-            large && "w-full h-14 rounded-lg text-lg "
-          )}
-          onClick={() => setModalOpen(true)}
-        >
-          {address?.slice(0, 6)}...{address?.slice(-4)}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            disabled={true}
+            className={cn(
+              "rounded-full  px-6 py-1.5 text-sm font-semibold transition-colors bg-neutral-800 hover:bg-neutral-700 text-white",
+              large && "w-full h-14 rounded-lg text-lg "
+            )}
+            onClick={() => setModalOpen(true)}
+          >
+            {address?.slice(0, 6)}...{address?.slice(-4)}
+          </Button>
+
+          {/* Add a navigate to recent transactions button with the relevant icon */}
+          <TransactionsModal />
+        </div>
       ) : (
         <Button
           onClick={() => setModalOpen(true)}
