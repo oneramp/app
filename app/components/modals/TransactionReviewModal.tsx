@@ -136,6 +136,10 @@ export function TransactionReviewModal() {
   }, [quote?.quoteId, currentOrderStep]);
 
   useEffect(() => {
+    const getPaymentButtonText = () => {
+      return quote?.transferType === TransferType.TransferIn ? "Make Payment" : "Confirm Payment";
+    };
+
     if (chainId !== currentNetwork?.chainId) {
       setWrongChainState({
         isWrongChain: true,
@@ -149,7 +153,7 @@ export function TransactionReviewModal() {
       setWrongChainState({
         isWrongChain: false,
         chainId: chainId ?? 0,
-        buttonText: "Confirm payment",
+        buttonText: getPaymentButtonText(),
       });
       return;
     }
@@ -162,7 +166,7 @@ export function TransactionReviewModal() {
       });
       return;
     }
-  }, [chainId, currentNetwork, address, isConnected]);
+  }, [chainId, currentNetwork, address, isConnected, quote?.transferType]);
 
   const handleBackClick = () => {
     setShowCancelModal(true);
@@ -638,7 +642,7 @@ export function TransactionReviewModal() {
                   submitTransferIn.isPending ? (
                     <Loader className="animate-spin" />
                   ) : (
-                    "Confirm Payment"
+                    "Make Payment"
                   )}
                 </Button>
               ) : (
