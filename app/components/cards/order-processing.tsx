@@ -44,10 +44,6 @@ const OrderProcessing = () => {
     }
   }, [transferStatus?.status, isLoading]);
 
-  console.log("====================================");
-  console.log("transferStatus", transferStatus?.status);
-  console.log("====================================");
-
   const handleCancel = () => {
     resetQuote();
     resetTransfer();

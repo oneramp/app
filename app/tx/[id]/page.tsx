@@ -18,10 +18,6 @@ const TxPage = () => {
 
   const { id } = useParams<{ id: string }>();
 
-  console.log("====================================");
-  console.log("id", id);
-  console.log("====================================");
-
   const { data: transferStatus, isLoading } = useQuery({
     queryKey: ["transferStatus", id],
     queryFn: () => {
