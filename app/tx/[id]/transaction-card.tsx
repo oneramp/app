@@ -68,12 +68,7 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
                   )}
                 </div>
                 <div className="flex flex-col items-center text-center">
-                  <h1 className="text-lg font-medium text-white mb-1">
-                    {transferStatus.transferType === TransferType.TransferIn
-                      ? transferStatus.fiatType
-                      : "Polygon"}
-                  </h1>
-                  <h2 className="text-gray-300 font-mono text-sm">
+                  <h2 className="text-gray-300 font-mono text-base">
                     {transferStatus.transferType === TransferType.TransferIn
                       ? `${totalAmount.toFixed(2)} ${transferStatus.fiatType}`
                       : `${Number(transferStatus.amountReceived).toFixed(3)} ${
@@ -104,12 +99,7 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
                   )}
                 </div>
                 <div className="flex flex-col items-center text-center">
-                  <h1 className="text-lg font-medium text-white mb-1">
-                    {transferStatus.transferType === TransferType.TransferIn
-                      ? "Polygon"
-                      : transferStatus.fiatType}
-                  </h1>
-                  <h2 className="text-gray-300 font-mono text-sm">
+                  <h2 className="text-gray-300 font-mono text-base">
                     {transferStatus.transferType === TransferType.TransferIn
                       ? `${Number(transferStatus.amountReceived).toFixed(3)} ${
                           transferStatus.cryptoType

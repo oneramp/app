@@ -154,6 +154,7 @@ export interface TransferStatus {
   transferId: string;
   transferAddress: string;
   txHash?: string;
+  chain: string;
   userActionDetails: {
     userActionType: string;
     institutionName: string;
