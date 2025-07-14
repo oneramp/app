@@ -9,6 +9,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import TransactionCard from "./transaction-card";
 import TransactionSuccessCard from "./transaction-success-card";
+import TransactionFailedCard from "./transaction-failed-card";
 
 const TxPage = () => {
   const { resetToDefault } = useUserSelectionStore();
@@ -83,6 +84,15 @@ const TxPage = () => {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black">
       {transferStatus.status === TransferStatusEnum.TransferComplete ? (
         <TransactionSuccessCard
+          transferStatus={transferStatus}
+          exploreUrl={exploreUrl}
+          onNewPayment={handleNewPayment}
+          onGetReceipt={handleGetReceipt}
+        />
+      ) : transferStatus.status === TransferStatusEnum.TransferFailed ||
+        transferStatus.status === TransferStatusEnum.TransferRefunded ||
+        transferStatus.status === TransferStatusEnum.TransferExpired ? (
+        <TransactionFailedCard
           transferStatus={transferStatus}
           exploreUrl={exploreUrl}
           onNewPayment={handleNewPayment}

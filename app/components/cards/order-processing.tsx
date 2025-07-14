@@ -35,7 +35,18 @@ const OrderProcessing = () => {
     ) {
       updateSelection({ orderStep: OrderStep.PaymentCompleted });
     }
+
+    if (
+      transferStatus?.status === TransferStatusEnum.TransferFailed &&
+      !isLoading
+    ) {
+      updateSelection({ orderStep: OrderStep.PaymentFailed });
+    }
   }, [transferStatus?.status, isLoading]);
+
+  console.log("====================================");
+  console.log("transferStatus", transferStatus?.status);
+  console.log("====================================");
 
   const handleCancel = () => {
     resetQuote();
