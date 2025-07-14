@@ -45,7 +45,7 @@ const OrderProcessing = () => {
   };
 
   const handleGetReceipt = () => {
-    console.log("Get receipt");
+    // console.log("Get receipt");
   };
 
   // Generate explorer URL based on network

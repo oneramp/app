@@ -153,12 +153,15 @@ export interface TransferStatus {
   fiatAccountId: string;
   transferId: string;
   transferAddress: string;
+  txHash?: string;
   userActionDetails: {
     userActionType: string;
     institutionName: string;
     accountNumber: string;
     accountName: string;
     transactionReference: string;
+    kotaniRef?: string;
+    orderRef?: string;
   };
 }
 
