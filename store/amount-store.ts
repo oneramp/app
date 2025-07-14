@@ -15,7 +15,7 @@ interface AmountStore {
 
 const initialState = {
   amount: "1",
-  fiatAmount: "1",
+  fiatAmount: "0",
   isValid: true,
   message: "",
 };

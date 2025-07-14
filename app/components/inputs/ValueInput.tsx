@@ -71,8 +71,8 @@ const ValueInput: React.FC<ValueInputProps> = ({
         setBalanceExceeded(exceedsMin || exceedsMax);
         setMessage(
           exceedsMin
-            ? `Minimum is ${countryMinMax.min} ${country.currency}`
-            : `Maximum is ${countryMinMax.max} ${country.currency}`
+            ? `Minimum is ${countryMinMax.min}`
+            : `Maximum is ${countryMinMax.max}`
         );
         return isValidNumber && !exceedsBalance && !exceedsMin && !exceedsMax;
       }
