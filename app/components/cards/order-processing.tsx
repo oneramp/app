@@ -35,6 +35,13 @@ const OrderProcessing = () => {
     ) {
       updateSelection({ orderStep: OrderStep.PaymentCompleted });
     }
+
+    if (
+      transferStatus?.status === TransferStatusEnum.TransferFailed &&
+      !isLoading
+    ) {
+      updateSelection({ orderStep: OrderStep.PaymentFailed });
+    }
   }, [transferStatus?.status, isLoading]);
 
   const handleCancel = () => {
@@ -45,7 +52,7 @@ const OrderProcessing = () => {
   };
 
   const handleGetReceipt = () => {
-    console.log("Get receipt");
+    // console.log("Get receipt");
   };
 
   // Generate explorer URL based on network

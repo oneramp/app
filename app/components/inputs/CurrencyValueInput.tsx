@@ -1,48 +1,25 @@
 import { Input } from "@/components/ui/input";
-import { GLOBAL_MIN_MAX } from "@/data/countries";
-import React, { useState, useEffect, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { useAmountStore } from "@/store/amount-store";
 import { useUserSelectionStore } from "@/store/user-selection";
-import { useExchangeRateStore } from "@/store/exchange-rate-store";
+import React, { useEffect, useState } from "react";
 
-interface ValueInputProps {
+interface CurrencyValueInputProps {
   maxBalance?: string;
   isWalletConnected?: boolean;
   isBalanceLoading?: boolean;
 }
 
-const ValueInput: React.FC<ValueInputProps> = ({
+const CurrencyValueInput: React.FC<CurrencyValueInputProps> = ({
   maxBalance = "0",
   isWalletConnected = false,
   isBalanceLoading = false,
 }) => {
-  const {
-    amount,
-    setAmount,
-    setIsValid,
-    setMessage,
-    message,
-    setCryptoAmount,
-  } = useAmountStore();
+  const { amount, setAmount, setIsValid, setMessage, message } =
+    useAmountStore();
   const [isInvalid, setIsInvalid] = useState(false);
   const [balanceExceeded, setBalanceExceeded] = useState(false);
-  const { country, countryPanelOnTop } = useUserSelectionStore();
-  const { exchangeRate } = useExchangeRateStore();
-
-  const calculatedAmount = useMemo(() => {
-    if (!country || !amount || !exchangeRate) return null;
-    const numericAmount = parseFloat(amount);
-    if (isNaN(numericAmount)) return null;
-
-    // Convert the amount from $ to the local currency
-    const rate = exchangeRate.exchange;
-    const convertedAmount = numericAmount / rate;
-
-    setCryptoAmount(convertedAmount.toFixed(4));
-
-    return convertedAmount.toFixed(4);
-  }, [amount, country, exchangeRate]);
+  const { country } = useUserSelectionStore();
 
   const formatNumber = (num: string) => {
     // Remove any non-digit characters except decimal point and first decimal only
@@ -67,29 +44,20 @@ const ValueInput: React.FC<ValueInputProps> = ({
   };
 
   const validateAmount = (amount: string) => {
-    if (!amount || amount === "") return false;
+    if (!amount || amount === "") return true;
     setMessage("");
 
-    if (countryPanelOnTop) {
-      const amountInUSD = calculatedAmount;
-      if (!amountInUSD) return false;
-      const numericValue = parseFloat(amountInUSD);
-      return !isNaN(numericValue) && numericValue >= GLOBAL_MIN_MAX.min;
-    }
-
     const numericValue = parseFloat(amount);
+
+    if (!country) return true;
 
     // Basic validation
     const isValidNumber =
       !isNaN(numericValue) &&
-      numericValue >= GLOBAL_MIN_MAX.min &&
-      numericValue <= GLOBAL_MIN_MAX.max &&
+      numericValue >= country?.fiatMinMax.min &&
+      numericValue <= country?.fiatMinMax.max &&
       // Check if decimal places are valid (max 2)
       (amount.includes(".") ? amount.split(".")[1].length <= 2 : true);
-
-    // console.log("====================================");
-    // console.log("isValidNumber", isValidNumber);
-    // console.log("====================================");
 
     // Balance validation (only if wallet is connected)
     if (isWalletConnected && isValidNumber) {
@@ -113,23 +81,12 @@ const ValueInput: React.FC<ValueInputProps> = ({
       return isValidNumber && !exceedsBalance;
     }
 
-    // console.log("====================================");
-    // console.log("isValidNumber 2", isValidNumber);
-    // console.log("====================================");
-
     setBalanceExceeded(false);
     return isValidNumber;
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = e.target.value.replace(/,/g, "");
-
-    // if (!rawValue) {
-    //   // setAmount("1");
-    //   setIsValid(true);
-    //   setIsInvalid(false);
-    //   // return;
-    // }
 
     // Allow typing decimal point and numbers
     if (rawValue === "" || rawValue === "." || /^\d*\.?\d*$/.test(rawValue)) {
@@ -151,9 +108,9 @@ const ValueInput: React.FC<ValueInputProps> = ({
 
   // Calculate dynamic font size based on amount length
   const getFontSize = () => {
-    if (amount.length > 12) return "!text-[1.25rem] md:!text-[1.5rem]";
-    if (amount.length > 9) return "!text-[1.5rem] md:!text-[1.75rem]";
-    return "!text-[2rem] md:!text-[2.5rem]";
+    if (amount.length > 12) return "text-[1.25rem] md:text-[1.5rem]";
+    if (amount.length > 9) return "text-[1.5rem] md:text-[1.75rem]";
+    return "text-[2rem] md:text-[2.5rem]";
   };
 
   const getWidth = () => {
@@ -171,48 +128,29 @@ const ValueInput: React.FC<ValueInputProps> = ({
 
   return (
     <div className={cn("relative flex items-center justify-end", getWidth())}>
-      {countryPanelOnTop ? (
-        <div className="flex-1 text-right">
-          <h1
-            className={cn(
-              "text-3xl font-semibold",
-              "text-neutral-300"
-              // isAmountValid ? "" : ""
-            )}
-          >
-            {calculatedAmount
-              ? parseFloat(calculatedAmount).toLocaleString("en-US", {
-                  minimumFractionDigits: 4,
-                  maximumFractionDigits: 4,
-                })
-              : "0.00"}
-          </h1>
-        </div>
-      ) : (
-        <div className="w-full relative">
-          <Input
-            type="text"
-            inputMode="decimal"
-            placeholder="0.00"
-            value={formatNumber(amount)}
-            onChange={handleChange}
-            className={cn(
-              "w-full text-right pr-2  !leading-tight py-4 font-semibold outline-none bg-transparent border-none focus:ring-0 focus:border-0 focus-visible:ring-0 focus-visible:border-transparent focus:outline-none",
-              getTextColor(),
-              getFontSize(),
-              "transition-all duration-200"
-            )}
-          />
-          {/* Error message for balance exceeded */}
-          {balanceExceeded && isWalletConnected && (
-            <div className="absolute -bottom-4 right-0 text-xs text-red-400">
-              {message || "Exceeds balance"}
-            </div>
+      <div className="w-full relative">
+        <Input
+          type="text"
+          inputMode="decimal"
+          placeholder="0.00"
+          value={formatNumber(amount)}
+          onChange={handleChange}
+          className={cn(
+            "w-full text-right pr-2 !leading-tight py-4 font-semibold outline-none bg-transparent border-none focus:ring-0 focus:border-0 focus-visible:ring-0 focus-visible:border-transparent focus:outline-none",
+            getTextColor(),
+            getFontSize(),
+            "transition-all duration-200"
           )}
-        </div>
-      )}
+        />
+        {/* Error message for balance exceeded */}
+        {balanceExceeded && isWalletConnected && (
+          <div className="absolute -bottom-4 right-0 text-xs text-red-400">
+            {message || "Exceeds balance"}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
 
-export default ValueInput;
+export default CurrencyValueInput;

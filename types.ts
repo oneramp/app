@@ -102,6 +102,7 @@ export interface UserSelectionGlobalState {
   orderStep: OrderStep;
   appState: AppState;
   pastedAddress?: string;
+  countryPanelOnTop?: boolean;
 }
 
 export interface MINMAX {
@@ -153,12 +154,16 @@ export interface TransferStatus {
   fiatAccountId: string;
   transferId: string;
   transferAddress: string;
+  txHash?: string;
+  chain: string;
   userActionDetails: {
     userActionType: string;
     institutionName: string;
     accountNumber: string;
     accountName: string;
     transactionReference: string;
+    kotaniRef?: string;
+    orderRef?: string;
   };
 }
 
