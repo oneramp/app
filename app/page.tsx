@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Header } from "./components/Header";
 import { SwapBuyTabs } from "./components/SwapBuyTabs";
 import StateContextProvider from "./providers/StateContextProvider";
+import { HeroText } from "./components/HeroText";
 
 export default function Home() {
   return (
@@ -32,6 +33,7 @@ export default function Home() {
           {/* Center section - Main content */}
           <div className="flex flex-col items-center justify-start w-full pt-6 pb-2 md:pt-16">
             <StateContextProvider />
+            <HeroText />
             <SwapBuyTabs />
           </div>
 
