@@ -198,7 +198,7 @@ export const ConnectSingleWallet = ({
 
   return (
     <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
-      <PopoverTrigger onClick={() => setPopoverOpen(true)}>
+      <PopoverTrigger asChild onClick={() => setPopoverOpen(true)}>
         {isConnected ? (
           <Button
             className={cn(

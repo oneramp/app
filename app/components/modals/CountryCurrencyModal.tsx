@@ -1,7 +1,6 @@
 import { Country } from "@/types";
 import Image from "next/image";
 import { countries } from "@/data/countries";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useUserSelectionStore } from "@/store/user-selection";
 
 interface CountryCurrencyModalProps {
@@ -19,12 +18,44 @@ export function CountryCurrencyModal({
 
   const selectedCurrency = country;
 
+  if (!open) return null;
+
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="bg-[#181818] border-[#232323] text-white p-0 gap-0">
-        <div className="p-6">
-          <h2 className="text-xl font-bold mb-4">Select Country</h2>
-          <div className="flex flex-col gap-2">
+    <>
+      {/* Backdrop */}
+      <div 
+        className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      
+      {/* Modal Container */}
+      <div className="fixed inset-0 z-50 flex items-end justify-center md:items-center md:justify-center">
+        <div className={`
+          bg-[#181818] border-[#232323] text-white shadow-2xl
+          w-full h-[60vh] rounded-t-2xl p-6 max-h-[80vh]
+          md:max-w-md md:w-full md:h-auto md:rounded-2xl
+          transform transition-all duration-300 ease-out
+          ${open ? 'translate-y-0' : 'translate-y-full'}
+          md:transform-none
+        `}>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold">Select Country</h2>
+            <button
+              className="text-neutral-400 hover:text-white"
+              onClick={onClose}
+            >
+              <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <path
+                  d="M18 6L6 18M6 6l12 12"
+                  stroke="#fff"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </button>
+          </div>
+          
+          <div className="flex flex-col gap-2 overflow-y-auto max-h-[calc(60vh-120px)] md:max-h-[60vh]">
             {countries.map((country) => (
               <button
                 key={country.name}
@@ -62,7 +93,7 @@ export function CountryCurrencyModal({
             ))}
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </>
   );
 }
