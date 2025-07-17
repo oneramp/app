@@ -5,9 +5,10 @@ import { SwapPanel } from "@/app/components/SwapPanel";
 import { BuyPanel } from "@/app/components/BuyPanel";
 import { useUserSelectionStore } from "@/store/user-selection";
 import { useAmountStore } from "@/store/amount-store";
+import { AnimatePresence, motion } from "framer-motion";
 
 export function MainTabsSwitch() {
-  const { updateSelection } = useUserSelectionStore();
+  const { updateSelection, country } = useUserSelectionStore();
   const { setAmount } = useAmountStore();
 
   const washTheseFields = (goingToBuy: boolean) => {
@@ -31,14 +32,14 @@ export function MainTabsSwitch() {
         <TabsTrigger
           value="Swap"
           onClick={() => washTheseFields(false)}
-          className="data-[state=active]:bg-neutral-800 text-sm data-[state=active]:text-white data-[state=active]:font-bold text-neutral-400 rounded-full transition-all"
+          className="data-[state=active]:!bg-neutral-800 text-sm data-[state=active]:!text-white data-[state=active]:font-bold text-neutral-400 rounded-full transition-all"
         >
           Swap
         </TabsTrigger>
         <TabsTrigger
           value="Buy"
           onClick={() => washTheseFields(true)}
-          className="data-[state=active]:bg-neutral-800 text-sm data-[state=active]:text-white data-[state=active]:font-bold text-neutral-400 rounded-full transition-all"
+          className="data-[state=active]:!bg-neutral-800 text-sm data-[state=active]:!text-white data-[state=active]:font-bold text-neutral-400 rounded-full transition-all"
         >
           Buy
         </TabsTrigger>
@@ -49,6 +50,35 @@ export function MainTabsSwitch() {
       <TabsContent value="Buy" className="w-full">
         <BuyPanel />
       </TabsContent>
+      
+      {/* Descriptive text that animates out when country is selected */}
+      <AnimatePresence>
+        {!country && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ 
+              opacity: 0, 
+              y: -20,
+              transition: { 
+                duration: 0.5, 
+                ease: "easeOut"
+              }
+            }}    
+            transition={{ 
+              duration: 0.4, 
+              ease: "easeOut",
+              delay: 0.2
+            }}
+            className="text-center mt-6 px-4"
+          >
+            <p className="text-sm md:text-base text-neutral-400 font-light">
+              Pay with crypto. Buy and sell instantly <br className="hidden sm:block" />
+              on Base and other supported chains.
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </Tabs>
   );
 }
