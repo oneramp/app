@@ -14,7 +14,7 @@ const metadata = {
   name: "OneRamp",
   description:
     "Swap and sell stablecoins using mobile money and bank transfers",
-  url: "https://beta.oneramp.io", // origin must match your domain & subdomain
+  url: "https://oneramp.io", // origin must match your domain & subdomain
   icons: ["https://avatars.githubusercontent.com/u/179229932"],
 };
 
