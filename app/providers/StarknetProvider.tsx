@@ -27,7 +27,7 @@ export default function StarknetProvider({
       ArgentMobileConnector.init({
         options: {
           dappName: "OneRamp",
-          projectId: "50b72c01-9568-421b-a80a-5ba4a285efcb",
+          projectId: "5175fef48e45eaa35b29009c6a3b8f77",
           // chainId: "mainnet" as "mainnet" | "testnet", // mainnet
           url: window.location.hostname, // ✅ safe now
           icons: ["https://your-icon-url.com"],
