@@ -12,7 +12,7 @@ import type { AppKitNetwork } from "@reown/appkit/networks";
 
 // Get projectId from https://cloud.reown.com
 export const projectId =
-  process.env.REOWN_PROJECT_ID || "2c01570e7f89c66b6977871f86373a28";
+  process.env.REOWN_PROJECT_ID || "5175fef48e45eaa35b29009c6a3b8f77";
 
 
 if (!projectId) {
